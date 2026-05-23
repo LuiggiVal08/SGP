@@ -1,0 +1,97 @@
+services:
+    sgp_nginx:
+        container_name: sgp_nginx
+        image: nginx:alpine
+        ports:
+            - '80:80'
+        volumes:
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+        depends_on:
+            - sgp_frontend_dev
+            - sgp_api_backend
+        networks:
+            - sgp_network
+
+    sgp_frontend_dev:
+        container_name: sgp_frontend_dev
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+        networks:
+            - sgp_network
+
+    sgp_api_backend:
+        container_name: sgp_api_backend
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        volumes:
+            - ./backend:/app
+            - /app/node_modules # Protege la instalación limpia de la imagen
+        environment:
+            - NODE_ENV=development
+            - DB_HOST=sgp_mysql
+            - DB_PORT=3306
+            - DB_USER=root
+            - DB_PASSWORD=root_password
+            - DB_NAME=sgp_dev
+            - REDIS_HOST=sgp_redis
+            - REDIS_PORT=6379
+            - PORT=3000
+        expose:
+            - '3000'
+        stop_grace_period: 10s
+        depends_on:
+            sgp_mysql:
+                condition: service_healthy
+            sgp_redis:
+                condition: service_started
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:3000/']
+            interval: 10s
+            timeout: 5s
+            retries: 3
+        networks:
+            - sgp_network
+
+    sgp_mysql:
+        container_name: sgp_mysql
+        image: mysql:8.4
+        ports:
+            - '3306:3306'
+        environment:
+            - MYSQL_ROOT_PASSWORD=root_password
+            - MYSQL_DATABASE=sgp_dev
+        volumes:
+            - sgp_db_data:/var/lib/mysql
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-proot_password']
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        # El script init.sql inicializa limpiamente ambas bases de datos al vuelo sin romper el ciclo de vida de MySQL
+        command: --init-file="/tmp/init.sql"
+        entrypoint:
+            - /bin/bash
+            - -c
+            - |
+                echo "CREATE DATABASE IF NOT EXISTS sgp_dev; CREATE DATABASE IF NOT EXISTS sgp_test;" > /tmp/init.sql
+                exec /usr/local/bin/docker-entrypoint.sh mysqld
+        networks:
+            - sgp_network
+
+    sgp_redis:
+        container_name: sgp_redis
+        image: redis:7-alpine
+        networks:
+            - sgp_network
+
+networks:
+    sgp_network:
+        driver: bridge
+
+volumes:
+    sgp_db_data:
