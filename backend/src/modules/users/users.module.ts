@@ -1,19 +1,28 @@
-// src/modules/users/users.module.ts
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { UserModel } from './infrastructure/persistence/user.model';
-import { UserSequelizeAdapter } from './infrastructure/adapters/user-sequelize.adapter';
+import { UserModel } from './infrastructure/persistence/sequelize/models/user.model';
+import { UserSequelizeAdapter } from './infrastructure/persistence/sequelize/user-sequelize.adapter';
+import { GetUsersUseCase } from './application/use-cases/get-users.use-case';
+import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
+import { UserController } from './infrastructure/http/controllers/user.controller';
+import { RolesModule } from '@modules/roles/roles.module';
+import { BcryptHashAdapter } from '@modules/auth/infrastructure/services/bcrypt-hash.adapter';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([UserModel]), // 👈 Registra el modelo localmente en este módulo
-  ],
+  imports: [SequelizeModule.forFeature([UserModel]), RolesModule],
   providers: [
     {
-      provide: 'IUserRepository', // 👈 Token de inyección para mantener desacoplada la interfaz
+      provide: 'IUserRepository',
       useClass: UserSequelizeAdapter,
     },
+    {
+      provide: 'IHashService',
+      useClass: BcryptHashAdapter,
+    },
+    GetUsersUseCase,
+    CreateUserUseCase,
   ],
-  exports: ['IUserRepository'], // Lo exportamos por si el módulo de Auth necesita buscar usuarios
+  controllers: [UserController],
+  exports: ['IUserRepository'],
 })
 export class UsersModule {}
