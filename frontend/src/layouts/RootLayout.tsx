@@ -70,7 +70,7 @@ export function RootLayout() {
             <Drawer.Dialog className="flex flex-col h-full">
               <Drawer.CloseTrigger />
               <Drawer.Header className="relative border-b border-border/60 px-5 py-4">
-                <div className="absolute inset-x-4 -bottom-px h-px bg-gradient-to-r from-primary/40 via-accent/20 to-transparent" />
+                <div className="absolute inset-x-4 -bottom-px h-px bg-linear-to-r from-primary/40 via-accent/20 to-transparent" />
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-linear-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-bold text-sm shadow-sm ring-1 ring-white/10 dark:ring-white/5">
                     CC
@@ -142,7 +142,10 @@ export function RootLayout() {
 
       <div className="flex-1 flex flex-col min-h-0">
         <header className="relative h-16 border-b border-border/50 flex items-center justify-between px-4 lg:px-6 gap-2 shrink-0 bg-background/80 backdrop-blur-xl">
-          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
+          <div
+            className="absolute inset-x-0 bottom-0 h-px bg-linear
+          -to-r from-transparent via-primary/15 to-transparent"
+          />
           <button
             onClick={overlayState.toggle}
             className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-surface-secondary transition-colors"
@@ -161,14 +164,19 @@ export function RootLayout() {
                   <CurrentThemeIcon size={18} />
                 </span>
               </Dropdown.Trigger>
-              <Dropdown.Popover className="rounded-lg min-w-40" placement="bottom right">
+              <Dropdown.Popover
+                className="rounded-lg min-w-40"
+                placement="bottom right"
+              >
                 <Dropdown.Menu onAction={(key) => setMode(key as ThemeMode)}>
                   {themeOptions.map(({ mode: m, label, icon: Icon }) => (
                     <Dropdown.Item key={m} id={m} textValue={label}>
                       <div className="flex items-center gap-2">
                         <Icon size={16} />
                         <span className="flex-1">{label}</span>
-                        {mode === m && <Check size={14} className="text-primary" />}
+                        {mode === m && (
+                          <Check size={14} className="text-primary" />
+                        )}
                       </div>
                     </Dropdown.Item>
                   ))}
@@ -189,7 +197,10 @@ export function RootLayout() {
                   <Avatar.Fallback>{initials}</Avatar.Fallback>
                 </Avatar>
               </Dropdown.Trigger>
-              <Dropdown.Popover className="rounded-lg min-w-44" placement="bottom right">
+              <Dropdown.Popover
+                className="rounded-lg min-w-44"
+                placement="bottom right"
+              >
                 <Dropdown.Menu
                   onAction={(key) => {
                     if (key === 'profile') navigate('/profile');
