@@ -17,4 +17,8 @@ export class RedisCacheAdapter implements ICacheService {
   async set(key: string, value: string, ttl: number = 3600): Promise<void> {
     await this.redisClient.set(key, value, 'EX', ttl);
   }
+
+  async delete(key: string): Promise<void> {
+    await this.redisClient.del(key);
+  }
 }
