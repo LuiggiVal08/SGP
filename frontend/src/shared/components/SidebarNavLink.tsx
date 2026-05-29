@@ -10,13 +10,6 @@ interface SidebarNavLinkProps {
   onClick?: () => void;
 }
 
-const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `group relative flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-    isActive
-      ? 'bg-primary/10 text-primary shadow-sm before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r-full before:bg-gradient-to-b before:from-primary before:to-primary/60'
-      : 'text-muted hover:text-foreground hover:bg-surface-secondary hover:translate-x-0.5 hover:shadow-sm'
-  }`;
-
 export function SidebarNavLink({
   to,
   end,
