@@ -35,4 +35,11 @@ jobs:
       - run: npm run lint -w backend
       - run: npm run test -w backend
 
+  ci-passed:
+    name: CI passed
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'true'
+
 
