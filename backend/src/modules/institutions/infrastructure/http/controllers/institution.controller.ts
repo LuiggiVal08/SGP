@@ -14,7 +14,7 @@ export class InstitutionController {
   ) {}
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<any> {
     return this.getAllInstitutionsUseCase.execute();
   }
 

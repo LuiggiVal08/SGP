@@ -1,4 +1,11 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+} from 'sequelize-typescript';
 import { Optional } from 'sequelize';
 import { ProjectModel } from './project.model';
 
@@ -17,7 +24,11 @@ export class ProjectFileModel extends Model<
   ProjectFileAttributes,
   ProjectFileCreationAttributes
 > {
-  @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4, primaryKey: true })
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
   declare id: string;
 
   @ForeignKey(() => ProjectModel)

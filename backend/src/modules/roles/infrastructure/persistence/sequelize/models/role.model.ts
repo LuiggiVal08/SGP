@@ -12,7 +12,11 @@ type RoleCreationAttributes = Optional<RoleAttributes, 'id'>;
 
 @Table({ tableName: 'roles', timestamps: true })
 export class RoleModel extends Model<RoleAttributes, RoleCreationAttributes> {
-  @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4, primaryKey: true })
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
   declare id: string;
 
   @Column({ type: DataType.STRING(20), unique: true, allowNull: false })

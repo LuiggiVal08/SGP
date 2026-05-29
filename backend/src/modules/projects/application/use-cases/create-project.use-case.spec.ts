@@ -85,7 +85,7 @@ describe('CreateProjectUseCase', () => {
       if (id === 'author-1') return Promise.resolve(mockAuthor);
       return Promise.resolve(null);
     });
-    projectRepository.save.mockResolvedValue({} as any);
+    projectRepository.save.mockResolvedValue({} as never);
 
     await useCase.execute({
       title: 'My Project',
@@ -95,6 +95,7 @@ describe('CreateProjectUseCase', () => {
       tutorId: 'tutor-uuid',
     });
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(projectRepository.save).toHaveBeenCalled();
   });
 

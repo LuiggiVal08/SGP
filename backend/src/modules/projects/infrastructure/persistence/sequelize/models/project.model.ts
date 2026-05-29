@@ -30,7 +30,11 @@ export class ProjectModel extends Model<
   ProjectAttributes,
   ProjectCreationAttributes
 > {
-  @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4, primaryKey: true })
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
   declare id: string;
 
   @Column({ type: DataType.STRING(255), allowNull: false })

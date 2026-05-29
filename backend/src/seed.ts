@@ -18,7 +18,6 @@ import {
   ForeignKey,
   BelongsTo,
   HasMany,
-  BelongsToMany,
 } from 'sequelize-typescript';
 import type { Optional } from 'sequelize';
 
@@ -32,7 +31,11 @@ type RoleCreationAttributes = Optional<RoleAttributes, 'id'>;
 
 @Table({ tableName: 'roles', timestamps: true })
 class RoleModel extends Model<RoleAttributes, RoleCreationAttributes> {
-  @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4, primaryKey: true })
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
   declare id: string;
   @Column({ type: DataType.STRING(20), unique: true, allowNull: false })
   declare name: string;
@@ -53,8 +56,15 @@ interface InstitutionAttributes {
 type InstitutionCreationAttributes = Optional<InstitutionAttributes, 'id'>;
 
 @Table({ tableName: 'institutions', timestamps: true })
-class InstitutionModel extends Model<InstitutionAttributes, InstitutionCreationAttributes> {
-  @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4, primaryKey: true })
+class InstitutionModel extends Model<
+  InstitutionAttributes,
+  InstitutionCreationAttributes
+> {
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
   declare id: string;
   @Column({ type: DataType.STRING(100), allowNull: false })
   declare name: string;
@@ -77,7 +87,11 @@ type CareerCreationAttributes = Optional<CareerAttributes, 'id'>;
 
 @Table({ tableName: 'careers', timestamps: true })
 class CareerModel extends Model<CareerAttributes, CareerCreationAttributes> {
-  @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4, primaryKey: true })
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
   declare id: string;
   @Column({ type: DataType.STRING(100), allowNull: false })
   declare name: string;
@@ -102,7 +116,11 @@ type UserCreationAttributes = Optional<UserAttributes, 'id' | 'isActive'>;
 
 @Table({ tableName: 'users', timestamps: true })
 class UserModel extends Model<UserAttributes, UserCreationAttributes> {
-  @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4, primaryKey: true })
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
   declare id: string;
   @Column({ type: DataType.STRING(20), unique: true, allowNull: false })
   declare dni: string;
@@ -150,7 +168,9 @@ async function seed() {
   console.log('✅ Conectado a MySQL');
 
   await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
-  await sequelize.query(`DROP TABLE IF EXISTS project_authors, project_files, projects, users, careers, institutions, roles`);
+  await sequelize.query(
+    `DROP TABLE IF EXISTS project_authors, project_files, projects, users, careers, institutions, roles`,
+  );
   await sequelize.sync();
   await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
   console.log('✅ Tablas recreadas');
@@ -195,7 +215,7 @@ async function seed() {
     id: randomUUID(),
     name: 'Ingeniería Informática',
   });
-  const ingCivil = await CareerModel.create({
+  await CareerModel.create({
     id: randomUUID(),
     name: 'Ingeniería Civil',
   });

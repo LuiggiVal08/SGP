@@ -1,4 +1,3 @@
-import { Test } from '@nestjs/testing';
 import { LoginUseCase } from './login-use-case';
 import { IUserRepository } from '../../../users/domain/ports/IUserRepository';
 import { IHashService } from '../../domain/ports/IHashService';
@@ -30,7 +29,7 @@ describe('LoginUseCase', () => {
 
   const mockRole = new Role('role-uuid', 'STUDENT', 'Student role');
 
-  beforeEach(async () => {
+  beforeEach(() => {
     userRepository = {
       findById: jest.fn(),
       findByEmail: jest.fn(),

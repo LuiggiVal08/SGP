@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
 import {
   Controller,
   Get,
@@ -89,7 +90,7 @@ export class ProjectController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<any> {
     return this.getAllProjectsUseCase.execute();
   }
 }

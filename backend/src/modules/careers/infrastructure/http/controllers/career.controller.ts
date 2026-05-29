@@ -14,7 +14,7 @@ export class CareerController {
   ) {}
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<any> {
     return this.getAllCareersUseCase.execute();
   }
 

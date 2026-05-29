@@ -11,7 +11,7 @@ export class GetAllProjectsUseCase {
     private readonly cacheService: ICacheService,
   ) {}
 
-  async execute() {
+  async execute(): Promise<any> {
     const cached = await this.cacheService.get('projects:all');
     if (cached) return JSON.parse(cached);
 

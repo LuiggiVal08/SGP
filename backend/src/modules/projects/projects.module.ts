@@ -13,7 +13,11 @@ import { CareersModule } from '@modules/careers/careers.module';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([ProjectModel, ProjectFileModel, ProjectAuthorModel]),
+    SequelizeModule.forFeature([
+      ProjectModel,
+      ProjectFileModel,
+      ProjectAuthorModel,
+    ]),
     UsersModule,
     CareersModule,
   ],

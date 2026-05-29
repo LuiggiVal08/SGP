@@ -11,7 +11,7 @@ export class GetAllCareersUseCase {
     private readonly cacheService: ICacheService,
   ) {}
 
-  async execute() {
+  async execute(): Promise<any> {
     const cached = await this.cacheService.get('catalogs:careers');
     if (cached) return JSON.parse(cached);
 
