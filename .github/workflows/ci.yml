@@ -41,6 +41,7 @@ jobs:
     needs: [frontend, backend]
     runs-on: ubuntu-latest
     steps:
+      - run: echo "frontend=${{ needs.frontend.result }} backend=${{ needs.backend.result }}"
       - run: |
           [ "${{ needs.frontend.result }}" = "success" ] &&
           [ "${{ needs.backend.result }}" = "success" ]
