@@ -1,6 +1,7 @@
 import { Module, Global, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { env } from '@config/env.config';
+import { RedisCacheAdapter } from '../adapters/redis-cache.adapter';
 
 @Global()
 @Module({
@@ -26,7 +27,11 @@ import { env } from '@config/env.config';
         return client;
       },
     },
+    {
+      provide: 'ICacheService',
+      useClass: RedisCacheAdapter,
+    },
   ],
-  exports: ['REDIS_CLIENT'], // 👈 Lo hace accesible para tus adaptadores
+  exports: ['REDIS_CLIENT', 'ICacheService'],
 })
 export class RedisModule {}

@@ -1,27 +1,36 @@
-// backend/src/main.ts
 import { NestFactory } from '@nestjs/core';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { env } from './config/env.config'; // Usamos tu config de Zod en lugar de process.env
+import { env } from './config/env.config';
+import { join } from 'path';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 
-  // Habilitar prefijo global si lo necesitas (ej: /api/v1)
-  //   app.setGlobalPrefix('api');
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
-  // Usamos el puerto tipado y validado de Zod
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads',
+  });
+
   const port = env.PORT;
 
   await app.listen(port);
-  logger.log(`🚀 Aplicación corriendo en el puerto: ${port}`);
+  logger.log(`Aplicación corriendo en el puerto: ${port}`);
 }
 
 bootstrap().catch((error) => {
   const logger = new Logger('Main');
-  logger.error('❌ Error fatal al iniciar la aplicación:', error);
+  logger.error('Error fatal al iniciar la aplicación:', error);
 });

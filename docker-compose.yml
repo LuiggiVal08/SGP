@@ -41,6 +41,8 @@ services:
             - REDIS_HOST=sgp_redis
             - REDIS_PORT=6379
             - PORT=3000
+            - JWT_SECRET=super-secret-key-for-sgp-that-is-at-least-32-chars-long
+            - JWT_EXPIRES_IN=1h
         expose:
             - '3000'
         stop_grace_period: 10s

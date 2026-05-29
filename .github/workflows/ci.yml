@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  frontend:
+    name: Frontend (lint + test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 26
+          cache: 'npm'
+          cache-dependency-path: ./package-lock.json
+      - run: npm ci
+      - run: npm run lint -w frontend
+      - run: npm run test -w frontend
+
+  backend:
+    name: Backend (lint + test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: ./package-lock.json
+      - run: npm ci
+      - run: npm run lint -w backend
+      - run: npm run test -w backend
+
+  ci-passed:
+    name: CI passed
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'true'
+
+

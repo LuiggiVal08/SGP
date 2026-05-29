@@ -5,5 +5,10 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@config/(.*)$": "<rootDir>/src/config/$1",
+    "^@share/(.*)$": "<rootDir>/src/share/$1",
+    "^@modules/(.*)$": "<rootDir>/src/modules/$1"
   }
 }

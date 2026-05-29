@@ -36,6 +36,18 @@
       "sourceType": "autoskills-registry",
       "computedHash": "5cac0a77035b36714c95df1f0ccc9955713fbfc87734f189a16f5aac903eccda"
     },
+    "react-router-v7": {
+      "source": "existential-birds/beagle",
+      "sourceType": "github",
+      "skillPath": "plugins/beagle-react/skills/react-router-v7/SKILL.md",
+      "computedHash": "e863e5e4118efe5450d81a90797671deb1ced600675b413a972cd24a29924762"
+    },
+    "senior-frontend": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/senior-frontend/SKILL.md",
+      "computedHash": "431bc32af5d82ceb3d0ad781c7c0ca2f0a585df5e7a768af85e23f0f67641e65"
+    },
     "seo": {
       "source": "addyosmani/web-quality-skills",
       "sourceType": "autoskills-registry",
