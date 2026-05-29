@@ -36,6 +36,7 @@ jobs:
       - run: npm run test -w backend
 
   ci-passed:
+    name: CI passed
     if: always()
     needs: [frontend, backend]
     runs-on: ubuntu-latest
