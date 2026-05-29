@@ -35,13 +35,4 @@ jobs:
       - run: npm run lint -w backend
       - run: npm run test -w backend
 
-  ci-passed:
-    name: CI passed
-    if: always()
-    needs: [frontend, backend]
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "frontend=${{ needs.frontend.result }} backend=${{ needs.backend.result }}"
-      - run: |
-          [ "${{ needs.frontend.result }}" = "success" ] &&
-          [ "${{ needs.backend.result }}" = "success" ]
+
