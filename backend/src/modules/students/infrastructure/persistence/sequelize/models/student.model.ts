@@ -8,10 +8,12 @@ import {
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize';
 import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
+import { TrajectoryModel } from '@modules/trajectories/infrastructure/persistence/sequelize/models/trajectory.model';
 
 interface StudentAttributes {
   id: string;
   userId: string;
+  trajectoryId: string;
   enrollmentNumber: string;
   cohort: number;
   currentTrayecto: number;
@@ -37,6 +39,13 @@ export class StudentModel extends Model<
 
   @BelongsTo(() => UserModel)
   declare user?: UserModel;
+
+  @ForeignKey(() => TrajectoryModel)
+  @Column({ type: DataType.UUID, allowNull: false })
+  declare trajectoryId: string;
+
+  @BelongsTo(() => TrajectoryModel)
+  declare trajectory?: TrajectoryModel;
 
   @Column({ type: DataType.STRING(30), allowNull: false, unique: true })
   declare enrollmentNumber: string;

@@ -8,6 +8,7 @@ import { GetQuestionsUseCase } from './application/use-cases/get-questions.use-c
 import { GetUserQuestionsUseCase } from './application/use-cases/get-user-questions.use-case';
 import { SetUserQuestionsUseCase } from './application/use-cases/set-user-questions.use-case';
 import { SecurityQuestionsController } from './infrastructure/http/controllers/security-questions.controller';
+import { BcryptHashAdapter } from '../auth/infrastructure/services/bcrypt-hash.adapter';
 
 @Module({
   imports: [SequelizeModule.forFeature([QuestionModel, UserQuestionModel])],
@@ -19,6 +20,10 @@ import { SecurityQuestionsController } from './infrastructure/http/controllers/s
     {
       provide: 'IUserQuestionRepository',
       useClass: UserQuestionSequelizeAdapter,
+    },
+    {
+      provide: 'IHashService',
+      useClass: BcryptHashAdapter,
     },
     GetQuestionsUseCase,
     GetUserQuestionsUseCase,

@@ -1,12 +1,20 @@
-export type ProjectStatus = 'COMPLETED' | 'PENDING_VALIDATION' | 'REJECTED';
+export type ProjectStatus =
+  | 'BORRADOR'
+  | 'EN_PROCESO'
+  | 'ENTREGADO'
+  | 'APROBADO'
+  | 'RECHAZADO';
 
 export class Project {
   constructor(
     public readonly id: string,
     public readonly title: string,
-    public readonly year: number,
+    public readonly description: string | null,
+    public readonly problemStatement: string | null,
+    public readonly subjectAssignmentId: string,
+    public readonly locationId: string,
+    public readonly communityTutorId: string,
     public readonly status: ProjectStatus,
-    public readonly careerId: string,
-    public readonly tutorId: string,
+    public readonly cdSubmitted: boolean,
   ) {}
 }

@@ -9,7 +9,6 @@ import {
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize';
 import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
-import { ProjectModel } from '@modules/projects/infrastructure/persistence/sequelize/models/project.model';
 import { InstitutionModel } from '@modules/institutions/infrastructure/persistence/sequelize/models/institution.model';
 import { ProfessorModel } from '@modules/professors/infrastructure/persistence/sequelize/models/professor.model';
 
@@ -50,7 +49,4 @@ export class PnfModel extends Model<PnfAttributes, PnfCreationAttributes> {
 
   @HasMany(() => UserModel)
   declare users?: UserModel[];
-
-  @HasMany(() => ProjectModel)
-  declare projects?: ProjectModel[];
 }

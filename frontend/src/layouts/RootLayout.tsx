@@ -35,6 +35,12 @@ import {
   History,
   Search,
   Repeat,
+  CalendarRange,
+  GitBranch,
+  BookOpen,
+  MapPin,
+  UserRound,
+  Tag,
 } from 'lucide-react';
 import type { ThemeMode } from '@/shared/store/theme.store';
 
@@ -78,6 +84,54 @@ export function RootLayout() {
     queryFn: ({ signal }) => catalogService.getUsers(undefined, signal),
     staleTime: 5 * 60 * 1000,
     enabled: isAdmin(user?.role),
+  });
+
+  const { data: periodCount } = useQuery({
+    queryKey: ['periods'],
+    queryFn: ({ signal }) => catalogService.getPeriodsPaginated(1, 1, undefined, signal),
+    staleTime: 5 * 60 * 1000,
+    enabled: isAdmin(user?.role),
+    select: (data) => data.meta.total,
+  });
+
+  const { data: trajectoryCount } = useQuery({
+    queryKey: ['trajectories'],
+    queryFn: ({ signal }) => catalogService.getTrajectoriesPaginated(1, 1, undefined, signal),
+    staleTime: 5 * 60 * 1000,
+    enabled: isAdmin(user?.role),
+    select: (data) => data.meta.total,
+  });
+
+  const { data: subjectCount } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: ({ signal }) => catalogService.getSubjectsPaginated(1, 1, undefined, signal),
+    staleTime: 5 * 60 * 1000,
+    enabled: isAdmin(user?.role),
+    select: (data) => data.meta.total,
+  });
+
+  const { data: communityPlaceCount } = useQuery({
+    queryKey: ['community-places'],
+    queryFn: ({ signal }) => catalogService.getCommunityPlacesPaginated(1, 1, undefined, signal),
+    staleTime: 5 * 60 * 1000,
+    enabled: isAdmin(user?.role),
+    select: (data) => data.meta.total,
+  });
+
+  const { data: communityTutorCount } = useQuery({
+    queryKey: ['community-tutors'],
+    queryFn: ({ signal }) => catalogService.getCommunityTutorsPaginated(1, 1, undefined, signal),
+    staleTime: 5 * 60 * 1000,
+    enabled: isAdmin(user?.role),
+    select: (data) => data.meta.total,
+  });
+
+  const { data: tagCount } = useQuery({
+    queryKey: ['tags'],
+    queryFn: ({ signal }) => catalogService.getTagsPaginated(1, 1, undefined, signal),
+    staleTime: 5 * 60 * 1000,
+    enabled: isAdmin(user?.role),
+    select: (data) => data.meta.total,
   });
 
   const overlayState = useOverlayState({
@@ -198,6 +252,51 @@ export function RootLayout() {
                             label="Usuarios"
                             icon={Users}
                             badge={userCount?.length}
+                            onClick={overlayState.close}
+                          />
+                          <p className="text-[11px] font-semibold text-muted uppercase tracking-wider px-4 pt-6 pb-2">
+                            Catálogos
+                          </p>
+                          <SidebarNavLink
+                            to="/admin/periods"
+                            label="Periodos"
+                            icon={CalendarRange}
+                            badge={periodCount}
+                            onClick={overlayState.close}
+                          />
+                          <SidebarNavLink
+                            to="/admin/trajectories"
+                            label="Trayectos"
+                            icon={GitBranch}
+                            badge={trajectoryCount}
+                            onClick={overlayState.close}
+                          />
+                          <SidebarNavLink
+                            to="/admin/subjects"
+                            label="Materias"
+                            icon={BookOpen}
+                            badge={subjectCount}
+                            onClick={overlayState.close}
+                          />
+                          <SidebarNavLink
+                            to="/admin/community-places"
+                            label="Espacios Comunitarios"
+                            icon={MapPin}
+                            badge={communityPlaceCount}
+                            onClick={overlayState.close}
+                          />
+                          <SidebarNavLink
+                            to="/admin/community-tutors"
+                            label="Tutores Comunitarios"
+                            icon={UserRound}
+                            badge={communityTutorCount}
+                            onClick={overlayState.close}
+                          />
+                          <SidebarNavLink
+                            to="/admin/tags"
+                            label="Etiquetas"
+                            icon={Tag}
+                            badge={tagCount}
                             onClick={overlayState.close}
                           />
                           <SidebarNavLink

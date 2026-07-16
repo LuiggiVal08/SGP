@@ -16,6 +16,13 @@ import { CommunityPlacesModule } from './community-places/community-places.modul
 import { CommunityTutorsModule } from './community-tutors/community-tutors.module';
 import { TagsModule } from './tags/tags.module';
 import { ProjectTagsModule } from './project-tags/project-tags.module';
+// TODO: stubs disabled until sessions rebuild them — DI deps missing
+// import { CompletionCertificatesModule } from './completion-certificates/completion-certificates.module';
+// import { NotificationsModule } from './notifications/notifications.module';
+// import { DefensesModule } from './defenses/defenses.module';
+// import { DefenseJudgesModule } from './defense-judges/defense-judges.module';
+// import { DefenseEvaluationsModule } from './defense-evaluations/defense-evaluations.module';
+// import { ProjectCorrectionsModule } from './project-corrections/project-corrections.module';
 
 const modules = [
   UsersModule,

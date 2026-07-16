@@ -1,23 +1,33 @@
 import {
   IsString,
-  IsNumber,
   IsUUID,
   IsArray,
   ArrayMaxSize,
   ArrayMinSize,
+  IsOptional,
+  IsBoolean,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class CreateProjectDto {
   @IsString()
   title!: string;
 
-  @Type(() => Number)
-  @IsNumber()
-  year!: number;
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  problemStatement?: string;
 
   @IsUUID()
-  careerId!: string;
+  subjectAssignmentId!: string;
+
+  @IsUUID()
+  locationId!: string;
+
+  @IsUUID()
+  communityTutorId!: string;
 
   @IsArray()
   @IsUUID('4', { each: true })
@@ -25,6 +35,7 @@ export class CreateProjectDto {
   @ArrayMaxSize(3)
   authorIds!: string[];
 
-  @IsUUID()
-  tutorId!: string;
+  @IsOptional()
+  @IsBoolean()
+  cdSubmitted?: boolean;
 }

@@ -6,7 +6,7 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { ProjectModel } from './project.model';
-import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
+import { ProfessorModel } from '@modules/professors/infrastructure/persistence/sequelize/models/professor.model';
 
 @Table({ tableName: 'project_authors', timestamps: false })
 export class ProjectAuthorModel extends Model {
@@ -14,7 +14,7 @@ export class ProjectAuthorModel extends Model {
   @Column({ type: DataType.UUID, allowNull: false, primaryKey: true })
   declare projectId: string;
 
-  @ForeignKey(() => UserModel)
+  @ForeignKey(() => ProfessorModel)
   @Column({ type: DataType.UUID, allowNull: false, primaryKey: true })
-  declare userId: string;
+  declare professorId: string;
 }

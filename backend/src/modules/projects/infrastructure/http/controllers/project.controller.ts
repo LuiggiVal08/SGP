@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
 import {
   Controller,
   Get,
   Post,
+  Patch,
+  Delete,
   Body,
   Param,
   UploadedFile,
@@ -15,9 +16,11 @@ import { extname, join } from 'path';
 import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import { CreateProjectUseCase } from '../../../application/use-cases/create-project.use-case';
+import { UpdateProjectUseCase } from '../../../application/use-cases/update-project.use-case';
 import { UploadProjectFilesUseCase } from '../../../application/use-cases/upload-project-files.use-case';
 import { GetAllProjectsUseCase } from '../../../application/use-cases/get-all-projects.use-case';
 import { CreateProjectDto } from '../dtos/create-project.dto';
+import { UpdateProjectDto } from '../dtos/update-project.dto';
 import type { FileType } from '../../../domain/entities/ProjectFile';
 
 interface MulterFile {
@@ -38,6 +41,7 @@ const VALID_TYPES: FileType[] = ['THESIS_PDF', 'SOURCE_CODE', 'BUSINESS_PLAN'];
 export class ProjectController {
   constructor(
     private readonly createProjectUseCase: CreateProjectUseCase,
+    private readonly updateProjectUseCase: UpdateProjectUseCase,
     private readonly uploadProjectFilesUseCase: UploadProjectFilesUseCase,
     private readonly getAllProjectsUseCase: GetAllProjectsUseCase,
   ) {}
@@ -46,11 +50,19 @@ export class ProjectController {
   async create(@Body() dto: CreateProjectDto) {
     return this.createProjectUseCase.execute({
       title: dto.title,
-      year: dto.year,
-      careerId: dto.careerId,
+      description: dto.description,
+      problemStatement: dto.problemStatement,
+      subjectAssignmentId: dto.subjectAssignmentId,
+      locationId: dto.locationId,
+      communityTutorId: dto.communityTutorId,
       authorIds: dto.authorIds,
-      tutorId: dto.tutorId,
+      cdSubmitted: dto.cdSubmitted,
     });
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() dto: UpdateProjectDto) {
+    return this.updateProjectUseCase.execute({ id, ...dto });
   }
 
   @Post(':id/files')

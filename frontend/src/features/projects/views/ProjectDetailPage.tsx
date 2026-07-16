@@ -14,6 +14,7 @@ import { Pencil, ArrowLeft, Trash2, GraduationCap, User, Users, Calendar, Buildi
 import { ProjectFilesSection } from '../components/ProjectFilesSection';
 import { usePnf } from '@/features/catalogs/hooks/usePnf';
 import { useUsers } from '@/features/catalogs/hooks/useUsers';
+import { useTags } from '@/features/catalogs/hooks/useTags';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { isAdmin } from '@/shared/utils/role';
 import type { ProjectStatus, UpdateProjectPayload } from '../types/project.types';

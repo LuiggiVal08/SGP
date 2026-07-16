@@ -25,3 +25,55 @@ export interface CatalogUser {
   institutionId: string;
   phone?: string;
 }
+
+export interface Period {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+}
+
+export type CommunityPlaceType = 'COMMUNITY' | 'ORGANIZATION' | 'INSTITUTION' | 'COMPANY';
+
+export interface CommunityPlace {
+  id: string;
+  institutionId: string;
+  name: string;
+  type: CommunityPlaceType;
+  description?: string | null;
+  address?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+}
+
+export interface CommunityTutor {
+  id: string;
+  locationId: string;
+  fullName?: string | null;
+  dni?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  position?: string | null;
+}
+
+export interface Trajectory {
+  id: string;
+  pnfId: string;
+  name: string;
+  orderNumber: number;
+}
+
+export interface Subject {
+  id: string;
+  trajectoryId: string;
+  name: string;
+}
+
+export type TagCategory = 'TECNOLOGIA' | 'TEMA' | 'TUTOR' | 'METODOLOGIA';
+
+export interface Tag {
+  id: string;
+  name: string;
+  category: TagCategory;
+}

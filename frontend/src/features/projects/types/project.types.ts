@@ -66,3 +66,9 @@ export interface CartaCulminacion {
   pdfUrl: string | null;
 }
 
+export interface ProjectTag {
+  id: string;
+  name: string;
+  category: 'TECNOLOGIA' | 'TEMA' | 'TUTOR' | 'METODOLOGIA';
+}
+

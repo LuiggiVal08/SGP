@@ -1,5 +1,5 @@
 import axiosClient from '@/shared/api/axiosClient';
-import type { Project, CreateProjectPayload, ProjectFile, FileType, ProjectStatus, ProjectFilters, CommunityTutorData, CartaCulminacion } from '../types/project.types';
+import type { Project, CreateProjectPayload, ProjectFile, FileType, ProjectStatus, ProjectFilters, CommunityTutorData, CartaCulminacion, ProjectTag } from '../types/project.types';
 import type { PaginatedResult } from '@/shared/types/pagination.types';
 
 export interface DashboardStats {
@@ -119,5 +119,19 @@ export const projectService = {
   async generateCartas(projectId: string, signal?: AbortSignal): Promise<CartaCulminacion[]> {
     const { data } = await axiosClient.post<CartaCulminacion[]>(`/projects/${projectId}/cartas-culminacion`, {}, { signal });
     return data;
+  },
+
+  async getProjectTags(projectId: string, signal?: AbortSignal): Promise<ProjectTag[]> {
+    const { data } = await axiosClient.get<ProjectTag[]>(`/projects/${projectId}/tags`, { signal });
+    return data;
+  },
+
+  async assignTag(projectId: string, tagId: string, signal?: AbortSignal): Promise<ProjectTag[]> {
+    const { data } = await axiosClient.post<ProjectTag[]>(`/projects/${projectId}/tags`, { tagId }, { signal });
+    return data;
+  },
+
+  async removeTag(projectId: string, tagId: string, signal?: AbortSignal): Promise<void> {
+    await axiosClient.delete(`/projects/${projectId}/tags/${tagId}`, { signal });
   },
 };

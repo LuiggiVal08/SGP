@@ -7,5 +7,6 @@ export class ProjectFile {
     public readonly fileName: string,
     public readonly urlPath: string,
     public readonly fileType: FileType,
+    public readonly documentType: string | null = null,
   ) {}
 }

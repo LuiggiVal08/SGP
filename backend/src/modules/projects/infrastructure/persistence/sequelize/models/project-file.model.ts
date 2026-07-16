@@ -46,4 +46,7 @@ export class ProjectFileModel extends Model<
 
   @Column({ type: DataType.STRING(30), allowNull: false })
   declare fileType: string;
+
+  @Column({ type: DataType.STRING(50), allowNull: true })
+  declare documentType: string | null;
 }
