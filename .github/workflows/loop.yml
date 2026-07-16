@@ -1,0 +1,75 @@
+name: SGP Loop Engineering
+
+# Fase 5 — Automation del bucle de agentes (Loop Engineering).
+# Cadencia manual (workflow_dispatch) en nivel L1: descubre la próxima story,
+# levanta Docker, corre el ORÁCULO (loop-check.sh) y escala al humano vía PR.
+# Nunca auto-merge. El maker/checker se invoca por el harness del agente con
+# los sub-agents sgp-maker / sgp-verifier.
+
+on:
+  workflow_dispatch:
+    inputs:
+      story:
+        description: 'ID de story del backlog (ej: C2)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Solo verificar oráculo sin abrir PR'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  loop-cycle:
+    name: Loop cycle (${{ github.event.inputs.story }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Discovery — confirmar story en LOOP.md
+        run: |
+          grep -q "**${{ github.event.inputs.story }}**" LOOP.md || \
+            { echo "Story ${{ github.event.inputs.story }} no encontrada en LOOP.md"; exit 1; }
+
+      - name: Levantar Docker (runtime único)
+        run: docker compose up -d --build
+
+      - name: Handoff — worktree aislado
+        run: |
+          git worktree add .worktrees/loop-${{ github.event.inputs.story }} \
+            -b loop/${{ github.event.inputs.story }}
+
+      - name: Maker (delegado al agente con sgp-maker)
+        run: |
+          echo "El maker (sgp-maker) debe ejecutarse en el harness del agente."
+          echo "Este workflow asume que el diff ya está en el worktree y el oráculo pasa."
+
+      - name: ORÁCULO — loop-check.sh (única verdad)
+        working-directory: .worktrees/loop-${{ github.event.inputs.story }}
+        run: bash ../../scripts/loop-check.sh
+
+      - name: Checker — sgp-verifier (maker ≠ checker)
+        run: |
+          echo "Invocar sgp-verifier sobre el diff para emitir VERDICT."
+          echo "Si REQUEST_CHANGES/REJECT, el ciclo debe ratchetear y reintentar (max 3)."
+
+      - name: Escalar — abrir PR (puerta humana)
+        if: ${{ github.event.inputs.dry_run == false }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push -u origin loop/${{ github.event.inputs.story }}
+          gh pr create \
+            --title "loop(${{ github.event.inputs.story }}): <título>" \
+            --body "Recibo en LOOP.md. Requiere revisión ADMIN antes de merge."
+
+      - name: Recap
+        run: |
+          echo "Ciclo ${{ github.event.inputs.story }} completado."
+          echo "dry_run=${{ github.event.inputs.dry_run }}. Oráculo GREEN."

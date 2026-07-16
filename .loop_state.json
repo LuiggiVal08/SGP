@@ -1,0 +1,9 @@
+{
+  "storyId": null,
+  "status": "IDLE",
+  "testsPassedBefore": 0,
+  "testsPassedAfter": 0,
+  "lastCommit": null,
+  "halted": false,
+  "haltReason": null
+}
