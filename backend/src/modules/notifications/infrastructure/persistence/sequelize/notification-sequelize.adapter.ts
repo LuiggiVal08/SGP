@@ -13,42 +13,48 @@ import type {
 export class NotificationSequelizeAdapter implements INotificationRepository {
   constructor(
     @InjectModel(NotificationModel)
-    private readonly notificationModel: typeof NotificationModel,
+    private readonly model: typeof NotificationModel,
   ) {}
 
-  private toDomain(model: NotificationModel | null): Notification | null {
-    if (!model) return null;
+  private toDomain(model: NotificationModel): Notification {
     return new Notification(
       model.id,
       model.userId,
       model.title,
       model.message,
       model.type,
-      model.read,
-      model.relatedId,
+      model.entityType,
+      model.entityId,
+      model.readAt,
       model.createdAt,
     );
   }
 
-  async save(notification: Notification): Promise<void> {
-    await this.notificationModel.upsert({
-      id: notification.id,
-      userId: notification.userId,
-      title: notification.title,
-      message: notification.message,
-      type: notification.type,
-      read: notification.read,
-      relatedId: notification.relatedId,
-      createdAt: notification.createdAt,
+  async create(data: {
+    userId: string;
+    title: string;
+    message: string;
+    type: string;
+    entityType?: string;
+    entityId?: string;
+  }): Promise<Notification> {
+    const created = await this.model.create({
+      userId: data.userId,
+      title: data.title,
+      message: data.message,
+      type: data.type,
+      entityType: data.entityType ?? null,
+      entityId: data.entityId ?? null,
     });
+    return this.toDomain(created);
   }
 
   async findById(id: string): Promise<Notification | null> {
-    const notification = await this.notificationModel.findByPk(id);
-    return this.toDomain(notification);
+    const found = await this.model.findByPk(id);
+    return found ? this.toDomain(found) : null;
   }
 
-  async findByUser(
+  async findByUserId(
     userId: string,
     dto: PaginationDto,
   ): Promise<PaginatedResult<Notification>> {
@@ -57,48 +63,45 @@ export class NotificationSequelizeAdapter implements INotificationRepository {
 
     const where: Record<string | symbol, any> = { userId };
     if (dto.search) {
-      where[Op.or] = [
-        { title: { [Op.like]: `%${dto.search}%` } },
-        { message: { [Op.like]: `%${dto.search}%` } },
-      ];
-    }
-    if (dto.status) {
-      where.read = dto.status === 'READ';
+      where.title = { [Op.like]: `%${dto.search}%` };
     }
 
-    const { rows, count } = await this.notificationModel.findAndCountAll({
+    const { rows, count } = await this.model.findAndCountAll({
       where,
       limit,
       offset: (page - 1) * limit,
       order: [['createdAt', 'DESC']],
     });
+
     return {
-      data: rows.map(
-        (r) =>
-          new Notification(
-            r.id,
-            r.userId,
-            r.title,
-            r.message,
-            r.type,
-            r.read,
-            r.relatedId,
-            r.createdAt,
-          ),
-      ),
-      meta: { total: count, page, limit, totalPages: Math.ceil(count / limit) },
+      data: rows.map((r) => this.toDomain(r)),
+      meta: {
+        total: count,
+        page,
+        limit,
+        totalPages: Math.ceil(count / limit),
+      },
     };
   }
 
   async markAsRead(id: string): Promise<void> {
-    await this.notificationModel.update({ read: true }, { where: { id } });
+    await this.model.update({ readAt: new Date() }, { where: { id } });
   }
 
   async markAllAsRead(userId: string): Promise<void> {
-    await this.notificationModel.update({ read: true }, { where: { userId } });
+    await this.model.update(
+      { readAt: new Date() },
+      { where: { userId, readAt: null } },
+    );
   }
 
   async delete(id: string): Promise<void> {
-    await this.notificationModel.destroy({ where: { id } });
+    await this.model.destroy({ where: { id } });
+  }
+
+  async countUnread(userId: string): Promise<number> {
+    return this.model.count({
+      where: { userId, readAt: null },
+    });
   }
 }

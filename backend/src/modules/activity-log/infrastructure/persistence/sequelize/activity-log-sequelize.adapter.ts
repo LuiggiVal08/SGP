@@ -26,6 +26,8 @@ export class ActivityLogSequelizeAdapter implements IActivityLogRepository {
       model.entityId,
       model.description,
       model.details ?? null,
+      model.ip,
+      model.userAgent,
       model.createdAt.toISOString(),
       model.user
         ? {
@@ -47,6 +49,8 @@ export class ActivityLogSequelizeAdapter implements IActivityLogRepository {
       entityId: log.entityId,
       description: log.description,
       details: log.details,
+      ip: log.ip,
+      userAgent: log.userAgent,
     });
   }
 

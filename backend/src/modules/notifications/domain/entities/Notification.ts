@@ -5,8 +5,13 @@ export class Notification {
     public readonly title: string,
     public readonly message: string,
     public readonly type: string,
-    public readonly read: boolean,
-    public readonly relatedId: string | null,
+    public readonly entityType: string | null,
+    public readonly entityId: string | null,
+    public readonly readAt: Date | null,
     public readonly createdAt: Date,
   ) {}
+
+  get isRead(): boolean {
+    return this.readAt !== null;
+  }
 }

@@ -8,16 +8,15 @@ import {
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize';
 import { ProjectModel } from './project.model';
-import { StudentModel } from '@modules/students/infrastructure/persistence/sequelize/models/student.model';
+import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
 
 interface ProjectAuthorAttributes {
   id: string;
   projectId: string;
-  studentId: string;
-  authorOrder: number;
+  userId: string;
 }
 
-type ProjectAuthorCreationAttributes = Optional<ProjectAuthorAttributes, 'id' | 'authorOrder'>;
+type ProjectAuthorCreationAttributes = Optional<ProjectAuthorAttributes, 'id'>;
 
 @Table({
   tableName: 'project_authors',
@@ -25,7 +24,7 @@ type ProjectAuthorCreationAttributes = Optional<ProjectAuthorAttributes, 'id' | 
   indexes: [
     {
       unique: true,
-      fields: ['projectId', 'studentId'],
+      fields: ['projectId', 'userId'],
       name: 'uniq_project_student',
     },
   ],
@@ -48,13 +47,10 @@ export class ProjectAuthorModel extends Model<
   @BelongsTo(() => ProjectModel)
   declare project?: ProjectModel;
 
-  @ForeignKey(() => StudentModel)
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare studentId: string;
+  @ForeignKey(() => UserModel)
+  @Column({ type: DataType.UUID, allowNull: false, primaryKey: true })
+  declare userId: string;
 
-  @BelongsTo(() => StudentModel)
-  declare student?: StudentModel;
-
-  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 1 })
-  declare authorOrder: number;
+  @BelongsTo(() => UserModel)
+  declare user?: UserModel;
 }

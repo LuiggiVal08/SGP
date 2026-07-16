@@ -1,5 +1,13 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+} from 'sequelize-typescript';
 import { Optional } from 'sequelize';
+import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
 
 interface NotificationAttributes {
   id: string;
@@ -7,17 +15,18 @@ interface NotificationAttributes {
   title: string;
   message: string;
   type: string;
-  read: boolean;
-  relatedId: string | null;
+  entityType: string | null;
+  entityId: string | null;
+  readAt: Date | null;
   createdAt: Date;
 }
 
 type NotificationCreationAttributes = Optional<
   NotificationAttributes,
-  'id' | 'read' | 'relatedId' | 'createdAt'
+  'id' | 'entityType' | 'entityId' | 'readAt' | 'createdAt'
 >;
 
-@Table({ tableName: 'notifications', timestamps: false })
+@Table({ tableName: 'notifications', timestamps: true, updatedAt: false })
 export class NotificationModel extends Model<
   NotificationAttributes,
   NotificationCreationAttributes
@@ -29,8 +38,12 @@ export class NotificationModel extends Model<
   })
   declare id: string;
 
+  @ForeignKey(() => UserModel)
   @Column({ type: DataType.UUID, allowNull: false })
   declare userId: string;
+
+  @BelongsTo(() => UserModel)
+  declare user?: UserModel;
 
   @Column({ type: DataType.STRING(100), allowNull: false })
   declare title: string;
@@ -38,15 +51,18 @@ export class NotificationModel extends Model<
   @Column({ type: DataType.TEXT, allowNull: false })
   declare message: string;
 
-  @Column({ type: DataType.STRING(30), allowNull: false })
+  @Column({ type: DataType.STRING(50), allowNull: false })
   declare type: string;
 
-  @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
-  declare read: boolean;
+  @Column({ type: DataType.STRING(50), allowNull: true })
+  declare entityType: string | null;
 
-  @Column({ type: DataType.STRING(36), allowNull: true })
-  declare relatedId: string | null;
+  @Column({ type: DataType.UUID, allowNull: true })
+  declare entityId: string | null;
 
-  @Column({ type: DataType.DATE, allowNull: false, defaultValue: DataType.NOW })
+  @Column({ type: DataType.DATE, allowNull: true })
+  declare readAt: Date | null;
+
+  @Column({ type: DataType.DATE, allowNull: false })
   declare createdAt: Date;
 }

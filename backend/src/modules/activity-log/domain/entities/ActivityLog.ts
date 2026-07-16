@@ -7,6 +7,8 @@ export class ActivityLog {
     public readonly entityId: string | null,
     public readonly description: string | null,
     public readonly details: Record<string, any> | null,
+    public readonly ip: string | null,
+    public readonly userAgent: string | null,
     public readonly createdAt: string,
     public readonly user?: {
       id: string;

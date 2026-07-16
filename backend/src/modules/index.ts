@@ -41,6 +41,8 @@ const modules = [
   ProjectCorrectionsModule,
   SecurityQuestionsModule,
   ActivityLogModule,
+  CompletionCertificatesModule,
+  NotificationsModule,
   AuthModule,
   StudentsModule,
   ProfessorsModule,
@@ -48,8 +50,6 @@ const modules = [
   DefensesModule,
   DefenseJudgesModule,
   DefenseEvaluationsModule,
-  CompletionCertificatesModule,
-  NotificationsModule,
   ProjectSubjectAssignmentsModule,
   ProjectAcademicTutorsModule,
 ];
