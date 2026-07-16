@@ -17,6 +17,8 @@ export class ActivityLogService {
     entityId?: string | null;
     description?: string | null;
     details?: Record<string, any> | null;
+    ip?: string | null;
+    userAgent?: string | null;
   }): Promise<void> {
     const log = new ActivityLog(
       randomUUID(),
@@ -26,6 +28,8 @@ export class ActivityLogService {
       data.entityId ?? null,
       data.description ?? null,
       data.details ?? null,
+      data.ip ?? null,
+      data.userAgent ?? null,
       new Date().toISOString(),
     );
     await this.repository.create(log);

@@ -25,6 +25,8 @@ interface RequestWithUser {
   route?: { path?: string };
   params: Record<string, string | undefined>;
   body?: Record<string, any>;
+  ip?: string;
+  headers: Record<string, string | undefined>;
 }
 
 @Injectable()
@@ -51,6 +53,8 @@ export class ActivityLogInterceptor implements NestInterceptor {
     }
 
     const startTime = Date.now();
+    const ip = request.ip ?? request.headers['x-forwarded-for'];
+    const userAgent = request.headers['user-agent'] ?? null;
 
     return next.handle().pipe(
       tap({
@@ -91,6 +95,8 @@ export class ActivityLogInterceptor implements NestInterceptor {
               entityId,
               description,
               details,
+              ip: ip ?? null,
+              userAgent,
             })
             .catch(() => {});
         },

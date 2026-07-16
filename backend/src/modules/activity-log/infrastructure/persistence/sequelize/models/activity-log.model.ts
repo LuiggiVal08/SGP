@@ -17,12 +17,20 @@ interface ActivityLogAttributes {
   entityId: string | null;
   description: string | null;
   details: Record<string, any> | null;
+  ip: string | null;
+  userAgent: string | null;
   createdAt: Date;
 }
 
 type ActivityLogCreationAttributes = Optional<
   ActivityLogAttributes,
-  'id' | 'entityId' | 'description' | 'details' | 'createdAt'
+  | 'id'
+  | 'entityId'
+  | 'description'
+  | 'details'
+  | 'ip'
+  | 'userAgent'
+  | 'createdAt'
 >;
 
 @Table({ tableName: 'activity_logs', timestamps: true, updatedAt: false })
@@ -58,6 +66,12 @@ export class ActivityLogModel extends Model<
 
   @Column({ type: DataType.JSON, allowNull: true })
   declare details: Record<string, any> | null;
+
+  @Column({ type: DataType.STRING(45), allowNull: true })
+  declare ip: string | null;
+
+  @Column({ type: DataType.STRING(255), allowNull: true })
+  declare userAgent: string | null;
 
   @Column({ type: DataType.DATE, allowNull: false })
   declare createdAt: Date;

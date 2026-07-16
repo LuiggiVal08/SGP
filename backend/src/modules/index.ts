@@ -16,6 +16,8 @@ import { CommunityPlacesModule } from './community-places/community-places.modul
 import { CommunityTutorsModule } from './community-tutors/community-tutors.module';
 import { TagsModule } from './tags/tags.module';
 import { ProjectTagsModule } from './project-tags/project-tags.module';
+import { CompletionCertificatesModule } from './completion-certificates/completion-certificates.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 const modules = [
   UsersModule,
@@ -32,6 +34,8 @@ const modules = [
   ProjectsModule,
   SecurityQuestionsModule,
   ActivityLogModule,
+  CompletionCertificatesModule,
+  NotificationsModule,
   AuthModule,
   StudentsModule,
   ProfessorsModule,

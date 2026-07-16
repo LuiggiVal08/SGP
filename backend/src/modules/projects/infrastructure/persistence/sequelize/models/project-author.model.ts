@@ -4,6 +4,7 @@ import {
   Model,
   DataType,
   ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { ProjectModel } from './project.model';
 import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
@@ -14,7 +15,13 @@ export class ProjectAuthorModel extends Model {
   @Column({ type: DataType.UUID, allowNull: false, primaryKey: true })
   declare projectId: string;
 
+  @BelongsTo(() => ProjectModel)
+  declare project?: ProjectModel;
+
   @ForeignKey(() => UserModel)
   @Column({ type: DataType.UUID, allowNull: false, primaryKey: true })
   declare userId: string;
+
+  @BelongsTo(() => UserModel)
+  declare user?: UserModel;
 }
