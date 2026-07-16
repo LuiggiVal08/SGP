@@ -22,6 +22,11 @@ export class StudentSequelizeAdapter implements IStudentRepository {
     );
   }
 
+  async findById(id: string): Promise<Student | null> {
+    const student = await this.studentModel.findByPk(id);
+    return this.toDomain(student);
+  }
+
   async findByUserId(userId: string): Promise<Student | null> {
     const student = await this.studentModel.findOne({ where: { userId } });
     return this.toDomain(student);
@@ -44,5 +49,9 @@ export class StudentSequelizeAdapter implements IStudentRepository {
       cohort: student.cohort,
       currentTrayecto: student.currentTrayecto,
     });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.studentModel.destroy({ where: { id } });
   }
 }

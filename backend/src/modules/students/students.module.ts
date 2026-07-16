@@ -11,6 +11,6 @@ import { StudentSequelizeAdapter } from './infrastructure/persistence/sequelize/
       useClass: StudentSequelizeAdapter,
     },
   ],
-  exports: ['IStudentRepository'],
+  exports: ['IStudentRepository', SequelizeModule],
 })
 export class StudentsModule {}

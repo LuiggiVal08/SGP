@@ -11,6 +11,6 @@ import { ProfessorSequelizeAdapter } from './infrastructure/persistence/sequeliz
       useClass: ProfessorSequelizeAdapter,
     },
   ],
-  exports: ['IProfessorRepository'],
+  exports: ['IProfessorRepository', SequelizeModule],
 })
 export class ProfessorsModule {}

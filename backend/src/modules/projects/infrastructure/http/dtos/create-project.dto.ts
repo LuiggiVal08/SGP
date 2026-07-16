@@ -1,30 +1,30 @@
-import {
-  IsString,
-  IsNumber,
-  IsUUID,
-  IsArray,
-  ArrayMaxSize,
-  ArrayMinSize,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsBoolean, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateProjectDto {
   @IsString()
   title!: string;
 
-  @Type(() => Number)
-  @IsNumber()
-  year!: number;
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  problemStatement?: string;
 
   @IsUUID()
-  careerId!: string;
+  subjectAssignmentId!: string;
 
-  @IsArray()
+  @IsUUID()
+  locationId!: string;
+
+  @IsUUID()
+  communityTutorId!: string;
+
+  @IsOptional()
+  @IsBoolean()
+  cdSubmitted?: boolean;
+
   @IsUUID('4', { each: true })
-  @ArrayMinSize(1)
-  @ArrayMaxSize(3)
-  authorIds!: string[];
-
-  @IsUUID()
-  tutorId!: string;
+  studentIds!: string[];
 }

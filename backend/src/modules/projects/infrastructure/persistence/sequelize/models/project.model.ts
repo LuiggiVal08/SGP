@@ -3,27 +3,25 @@ import {
   Column,
   Model,
   DataType,
-  ForeignKey,
-  BelongsTo,
-  BelongsToMany,
   HasMany,
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize';
-import { CareerModel } from '@modules/careers/infrastructure/persistence/sequelize/models/career.model';
-import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
 import { ProjectFileModel } from './project-file.model';
 import { ProjectAuthorModel } from './project-author.model';
 
 interface ProjectAttributes {
   id: string;
   title: string;
-  year: number;
+  description: string | null;
+  problemStatement: string | null;
+  subjectAssignmentId: string;
+  locationId: string;
+  communityTutorId: string;
   status: string;
-  careerId: string;
-  tutorId: string;
+  cdSubmitted: boolean;
 }
 
-type ProjectCreationAttributes = Optional<ProjectAttributes, 'id' | 'status'>;
+type ProjectCreationAttributes = Optional<ProjectAttributes, 'id' | 'status' | 'cdSubmitted'>;
 
 @Table({ tableName: 'projects', timestamps: true })
 export class ProjectModel extends Model<
@@ -40,29 +38,34 @@ export class ProjectModel extends Model<
   @Column({ type: DataType.STRING(255), allowNull: false })
   declare title: string;
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  declare year: number;
+  @Column({ type: DataType.TEXT, allowNull: true })
+  declare description: string | null;
 
-  @Column({ type: DataType.STRING(30), defaultValue: 'PENDING_VALIDATION' })
+  @Column({ type: DataType.TEXT, allowNull: true })
+  declare problemStatement: string | null;
+
+  @Column({ type: DataType.UUID, allowNull: false })
+  declare subjectAssignmentId: string;
+
+  @Column({ type: DataType.UUID, allowNull: false })
+  declare locationId: string;
+
+  @Column({ type: DataType.UUID, allowNull: false })
+  declare communityTutorId: string;
+
+  @Column({
+    type: DataType.ENUM('BORRADOR', 'EN_PROCESO', 'ENTREGADO', 'APROBADO', 'RECHAZADO'),
+    allowNull: false,
+    defaultValue: 'BORRADOR',
+  })
   declare status: string;
 
-  @ForeignKey(() => CareerModel)
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare careerId: string;
-
-  @BelongsTo(() => CareerModel)
-  declare career?: CareerModel;
-
-  @ForeignKey(() => UserModel)
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare tutorId: string;
-
-  @BelongsTo(() => UserModel, 'tutorId')
-  declare tutor?: UserModel;
-
-  @BelongsToMany(() => UserModel, () => ProjectAuthorModel)
-  declare authors?: UserModel[];
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  declare cdSubmitted: boolean;
 
   @HasMany(() => ProjectFileModel)
   declare files?: ProjectFileModel[];
+
+  @HasMany(() => ProjectAuthorModel)
+  declare authors?: ProjectAuthorModel[];
 }

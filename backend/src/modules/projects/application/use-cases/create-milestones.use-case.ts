@@ -22,19 +22,34 @@ export class CreateMilestonesUseCase {
     }
 
     const milestones: ProjectMilestone[] = [];
-    for (let t = 1; t <= 3; t++) {
-      const m = await this.projectRepository.createMilestone(
-        projectId,
-        'TRIMESTRE',
-        t,
-      );
-      milestones.push(m);
-    }
-    const defensa = await this.projectRepository.createMilestone(
+
+    const resumenMilestone = await this.projectRepository.createMilestone(
       projectId,
-      'DEFENSA',
+      'ENTREGA_TOMO',
+      1,
     );
-    milestones.push(defensa);
+    milestones.push(resumenMilestone);
+
+    const tomoMilestone = await this.projectRepository.createMilestone(
+      projectId,
+      'ENTREGA_TOMO',
+      2,
+    );
+    milestones.push(tomoMilestone);
+
+    const revisionMilestone = await this.projectRepository.createMilestone(
+      projectId,
+      'REVISION',
+      3,
+    );
+    milestones.push(revisionMilestone);
+
+    const otraMilestone = await this.projectRepository.createMilestone(
+      projectId,
+      'OTRA',
+      4,
+    );
+    milestones.push(otraMilestone);
 
     return milestones;
   }

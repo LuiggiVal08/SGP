@@ -20,6 +20,11 @@ export class ProfessorSequelizeAdapter implements IProfessorRepository {
     );
   }
 
+  async findById(id: string): Promise<Professor | null> {
+    const professor = await this.professorModel.findByPk(id);
+    return this.toDomain(professor);
+  }
+
   async findByUserId(userId: string): Promise<Professor | null> {
     const professor = await this.professorModel.findOne({ where: { userId } });
     return this.toDomain(professor);

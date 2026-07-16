@@ -1,98 +1,97 @@
 import { CreateProjectUseCase } from './create-project.use-case';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
-import { ICareerRepository } from '../../../careers/domain/ports/ICareerRepository';
-import { IUserRepository } from '../../../users/domain/ports/IUserRepository';
 import { ICacheService } from '@share/domain/ports/ICacheService';
-import { Career } from '../../../careers/domain/entities/Career';
-import { User } from '../../../users/domain/entities/User';
+import { IProjectSubjectAssignmentRepository } from '@modules/project-subject-assignments/domain/ports/IProjectSubjectAssignmentRepository';
+import { ICommunityTutorRepository } from '@modules/community-tutors/domain/ports/ICommunityTutorRepository';
 import { BadRequestException } from '@nestjs/common';
 
 describe('CreateProjectUseCase', () => {
   let useCase: CreateProjectUseCase;
   let projectRepository: jest.Mocked<IProjectRepository>;
-  let careerRepository: jest.Mocked<ICareerRepository>;
-  let userRepository: jest.Mocked<IUserRepository>;
   let cacheService: jest.Mocked<ICacheService>;
-
-  const mockCareer = new Career('career-uuid', 'Engineering');
-  const mockTutor = new User(
-    'tutor-uuid',
-    '11111111',
-    'Prof',
-    'Smith',
-    'smith@test.com',
-    'hash',
-    true,
-    'career-uuid',
-    'inst-uuid',
-    'role-uuid',
-  );
-  const mockAuthor = new User(
-    'author-1',
-    '22222222',
-    'Student',
-    'A',
-    'a@test.com',
-    'hash',
-    true,
-    'career-uuid',
-    'inst-uuid',
-    'role-uuid',
-  );
+  let assignmentRepository: jest.Mocked<IProjectSubjectAssignmentRepository>;
+  let communityTutorRepository: jest.Mocked<ICommunityTutorRepository>;
 
   beforeEach(() => {
     projectRepository = {
       findById: jest.fn(),
       findAll: jest.fn(),
       findByStatus: jest.fn(),
-      findByCareer: jest.fn(),
-      findByTutor: jest.fn(),
+      findBySubjectAssignment: jest.fn(),
+      findByLocation: jest.fn(),
+      findByCommunityTutor: jest.fn(),
       save: jest.fn(),
-      saveFiles: jest.fn(),
+      update: jest.fn(),
       delete: jest.fn(),
-    };
-    careerRepository = {
-      findById: jest.fn(),
-      findAll: jest.fn(),
-      save: jest.fn(),
-    };
-    userRepository = {
-      findById: jest.fn(),
-      findByEmail: jest.fn(),
-      findByDni: jest.fn(),
-      findAll: jest.fn(),
-      findByRoleId: jest.fn(),
-      save: jest.fn(),
+      saveFiles: jest.fn(),
+      findFileById: jest.fn(),
+      findFilesByProjectId: jest.fn(),
+      deleteFile: jest.fn(),
+      getMaxVersion: jest.fn(),
+      findAllPaginated: jest.fn(),
+      countFiles: jest.fn(),
+      countByStatus: jest.fn(),
+      countByYear: jest.fn(),
+      countThisYear: jest.fn(),
+      findRecentActivity: jest.fn(),
+      findMilestonesByProject: jest.fn(),
+      findMilestoneById: jest.fn(),
+      createMilestone: jest.fn(),
+      updateMilestoneStatus: jest.fn(),
+      findRevisionsByMilestone: jest.fn(),
+      createRevision: jest.fn(),
+      findDefensaByProject: jest.fn(),
+      saveDefensa: jest.fn(),
+      findCartasByProject: jest.fn(),
+      createCarta: jest.fn(),
+      deleteCartasByProject: jest.fn(),
     };
     cacheService = {
       get: jest.fn(),
       set: jest.fn(),
       delete: jest.fn(),
     };
+    assignmentRepository = {
+      findById: jest.fn(),
+      findAllPaginated: jest.fn(),
+      findByUnique: jest.fn(),
+      save: jest.fn(),
+      delete: jest.fn(),
+    };
+    communityTutorRepository = {
+      findById: jest.fn(),
+      findAll: jest.fn(),
+      findAllPaginated: jest.fn(),
+      save: jest.fn(),
+      delete: jest.fn(),
+    };
 
     useCase = new CreateProjectUseCase(
       projectRepository,
-      careerRepository,
-      userRepository,
       cacheService,
+      assignmentRepository,
+      communityTutorRepository,
     );
   });
 
   it('should create project with valid data', async () => {
-    careerRepository.findById.mockResolvedValue(mockCareer);
-    userRepository.findById.mockImplementation((id: string) => {
-      if (id === 'tutor-uuid') return Promise.resolve(mockTutor);
-      if (id === 'author-1') return Promise.resolve(mockAuthor);
-      return Promise.resolve(null);
-    });
+    assignmentRepository.findById.mockResolvedValue({
+      id: 'sa-uuid',
+      subjectId: 's1',
+      professorId: 'p1',
+      periodId: 'per1',
+    } as never);
+    communityTutorRepository.findById.mockResolvedValue({
+      id: 'ct-uuid',
+    } as never);
     projectRepository.save.mockResolvedValue({} as never);
 
     await useCase.execute({
       title: 'My Project',
-      year: 2025,
-      careerId: 'career-uuid',
-      authorIds: ['author-1'],
-      tutorId: 'tutor-uuid',
+      subjectAssignmentId: 'sa-uuid',
+      locationId: 'loc-uuid',
+      communityTutorId: 'ct-uuid',
+      studentIds: ['student-1'],
     });
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -103,42 +102,41 @@ describe('CreateProjectUseCase', () => {
     await expect(
       useCase.execute({
         title: 'Overload',
-        year: 2025,
-        careerId: 'career-uuid',
-        authorIds: ['a', 'b', 'c', 'd'],
-        tutorId: 'tutor-uuid',
+        subjectAssignmentId: 'sa-uuid',
+        locationId: 'loc-uuid',
+        communityTutorId: 'ct-uuid',
+        studentIds: ['a', 'b', 'c', 'd'],
       }),
     ).rejects.toThrow(BadRequestException);
   });
 
-  it('should reject when career not found', async () => {
-    careerRepository.findById.mockResolvedValue(null);
+  it('should reject when subject assignment does not exist', async () => {
+    assignmentRepository.findById.mockResolvedValue(null);
 
     await expect(
       useCase.execute({
-        title: 'No Career',
-        year: 2025,
-        careerId: 'nonexistent',
-        authorIds: ['author-1'],
-        tutorId: 'tutor-uuid',
+        title: 'No Assignment',
+        subjectAssignmentId: 'bad-sa',
+        locationId: 'loc-uuid',
+        communityTutorId: 'ct-uuid',
+        studentIds: ['student-1'],
       }),
     ).rejects.toThrow(BadRequestException);
   });
 
-  it('should reject when tutor not found', async () => {
-    careerRepository.findById.mockResolvedValue(mockCareer);
-    userRepository.findById.mockImplementation((id: string) => {
-      if (id === 'author-1') return Promise.resolve(mockAuthor);
-      return Promise.resolve(null);
-    });
+  it('should reject when community tutor does not exist', async () => {
+    assignmentRepository.findById.mockResolvedValue({
+      id: 'sa-uuid',
+    } as never);
+    communityTutorRepository.findById.mockResolvedValue(null);
 
     await expect(
       useCase.execute({
         title: 'No Tutor',
-        year: 2025,
-        careerId: 'career-uuid',
-        authorIds: ['author-1'],
-        tutorId: 'nonexistent',
+        subjectAssignmentId: 'sa-uuid',
+        locationId: 'loc-uuid',
+        communityTutorId: 'bad-ct',
+        studentIds: ['student-1'],
       }),
     ).rejects.toThrow(BadRequestException);
   });
