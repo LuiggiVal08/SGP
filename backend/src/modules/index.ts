@@ -19,9 +19,9 @@ import { ProjectTagsModule } from './project-tags/project-tags.module';
 // TODO: stubs disabled until sessions rebuild them — DI deps missing
 // import { CompletionCertificatesModule } from './completion-certificates/completion-certificates.module';
 // import { NotificationsModule } from './notifications/notifications.module';
-// import { DefensesModule } from './defenses/defenses.module';
-// import { DefenseJudgesModule } from './defense-judges/defense-judges.module';
-// import { DefenseEvaluationsModule } from './defense-evaluations/defense-evaluations.module';
+import { DefensesModule } from './defenses/defenses.module';
+import { DefenseJudgesModule } from './defense-judges/defense-judges.module';
+import { DefenseEvaluationsModule } from './defense-evaluations/defense-evaluations.module';
 // import { ProjectCorrectionsModule } from './project-corrections/project-corrections.module';
 
 const modules = [
@@ -43,5 +43,8 @@ const modules = [
   StudentsModule,
   ProfessorsModule,
   LoopModule,
+  DefensesModule,
+  DefenseJudgesModule,
+  DefenseEvaluationsModule,
 ];
 export default modules;

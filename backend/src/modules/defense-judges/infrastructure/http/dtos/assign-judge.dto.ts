@@ -1,8 +1,14 @@
 import { IsString, IsOptional, IsIn } from 'class-validator';
 import { JudgeType } from '../../../domain/entities/DefenseJudge';
 
+const VALID_JUDGE_TYPES: JudgeType[] = [
+  'SUBJECT_PROFESSOR',
+  'ACADEMIC_TUTOR',
+  'COMMUNITY_TUTOR',
+];
+
 export class AssignJudgeDto {
-  @IsIn(['DOCENTE', 'TUTOR_INSTITUCIONAL', 'TUTOR_COMUNITARIO'])
+  @IsIn(VALID_JUDGE_TYPES)
   judgeType!: JudgeType;
 
   @IsOptional()

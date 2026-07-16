@@ -31,14 +31,14 @@ export class SubmitEvaluationUseCase {
 }
 
 @Injectable()
-export class ListEvaluationsByJudgeUseCase {
+export class ListEvaluationsByDefenseUseCase {
   constructor(
     @Inject('IDefenseEvaluationRepository')
     private readonly defenseEvaluationRepository: IDefenseEvaluationRepository,
   ) {}
 
-  async execute(judgeId: string) {
-    return this.defenseEvaluationRepository.findByJudge(judgeId);
+  async execute(defenseId: string) {
+    return this.defenseEvaluationRepository.findByDefenseId(defenseId);
   }
 }
 

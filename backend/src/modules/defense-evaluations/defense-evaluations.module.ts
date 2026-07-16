@@ -4,7 +4,7 @@ import { DefenseEvaluationModel } from './infrastructure/persistence/sequelize/m
 import { DefenseEvaluationSequelizeAdapter } from './infrastructure/persistence/sequelize/defense-evaluation-sequelize.adapter';
 import {
   SubmitEvaluationUseCase,
-  ListEvaluationsByJudgeUseCase,
+  ListEvaluationsByDefenseUseCase,
   GetAllEvaluationsUseCase,
 } from './application/use-cases/defense-evaluation.use-cases';
 import { DefenseEvaluationController } from './infrastructure/http/controllers/defense-evaluation.controller';
@@ -21,7 +21,7 @@ import { DefenseJudgesModule } from '@modules/defense-judges/defense-judges.modu
       useClass: DefenseEvaluationSequelizeAdapter,
     },
     SubmitEvaluationUseCase,
-    ListEvaluationsByJudgeUseCase,
+    ListEvaluationsByDefenseUseCase,
     GetAllEvaluationsUseCase,
   ],
   controllers: [DefenseEvaluationController],

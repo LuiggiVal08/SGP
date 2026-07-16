@@ -17,12 +17,11 @@ interface DefenseJudgeAttributes {
   judgeType: string;
   professorId: string | null;
   communityTutorId: string | null;
-  score: number | null;
 }
 
 type DefenseJudgeCreationAttributes = Optional<
   DefenseJudgeAttributes,
-  'id' | 'score'
+  'id'
 >;
 
 @Table({ tableName: 'defense_judges', timestamps: true })
@@ -64,7 +63,4 @@ export class DefenseJudgeModel extends Model<
 
   @BelongsTo(() => CommunityTutorModel)
   declare communityTutor?: CommunityTutorModel;
-
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  declare score: number | null;
 }

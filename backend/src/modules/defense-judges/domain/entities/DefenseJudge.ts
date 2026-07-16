@@ -1,4 +1,7 @@
-export type JudgeType = 'DOCENTE' | 'TUTOR_INSTITUCIONAL' | 'TUTOR_COMUNITARIO';
+export type JudgeType =
+  | 'SUBJECT_PROFESSOR'
+  | 'ACADEMIC_TUTOR'
+  | 'COMMUNITY_TUTOR';
 
 export class DefenseJudge {
   constructor(
@@ -7,6 +10,5 @@ export class DefenseJudge {
     public readonly judgeType: JudgeType,
     public readonly professorId: string | null,
     public readonly communityTutorId: string | null,
-    public readonly score: number | null,
   ) {}
 }

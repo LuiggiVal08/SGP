@@ -1,33 +1,43 @@
-import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../../../../auth/infrastructure/http/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../auth/infrastructure/http/guards/roles.guard';
+import { Roles } from '../../../../auth/infrastructure/http/guards/roles.decorator';
 import {
   SubmitEvaluationUseCase,
-  ListEvaluationsByJudgeUseCase,
-  GetAllEvaluationsUseCase,
+  ListEvaluationsByDefenseUseCase,
 } from '../../../application/use-cases/defense-evaluation.use-cases';
 import { SubmitEvaluationDto } from '../dtos/submit-evaluation.dto';
 
-@Controller('defense-judges/:judgeId/evaluations')
+@Controller('defenses/:defenseId/evaluations')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class DefenseEvaluationController {
   constructor(
     private readonly submitEvaluationUseCase: SubmitEvaluationUseCase,
-    private readonly listEvaluationsByJudgeUseCase: ListEvaluationsByJudgeUseCase,
-    private readonly getAllEvaluationsUseCase: GetAllEvaluationsUseCase,
+    private readonly listEvaluationsByDefenseUseCase: ListEvaluationsByDefenseUseCase,
   ) {}
 
   @Post()
+  @Roles('ADMIN')
   async submit(
-    @Param('judgeId') judgeId: string,
+    @Param('defenseId') defenseId: string,
     @Body() dto: SubmitEvaluationDto,
   ) {
     return this.submitEvaluationUseCase.execute({
-      judgeId,
+      judgeId: dto.judgeId,
       score: dto.score,
       comments: dto.comments ?? '',
     });
   }
 
   @Get()
-  async list(@Param('judgeId') judgeId: string) {
-    return this.listEvaluationsByJudgeUseCase.execute(judgeId);
+  async list(@Param('defenseId') defenseId: string) {
+    return this.listEvaluationsByDefenseUseCase.execute(defenseId);
   }
 }

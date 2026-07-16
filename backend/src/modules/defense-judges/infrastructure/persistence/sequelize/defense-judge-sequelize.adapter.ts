@@ -19,7 +19,6 @@ export class DefenseJudgeSequelizeAdapter implements IDefenseJudgeRepository {
       model.judgeType as JudgeType,
       model.professorId ?? null,
       model.communityTutorId ?? null,
-      model.score ?? null,
     );
   }
 
@@ -38,9 +37,12 @@ export class DefenseJudgeSequelizeAdapter implements IDefenseJudgeRepository {
           j.judgeType as JudgeType,
           j.professorId ?? null,
           j.communityTutorId ?? null,
-          j.score ?? null,
         ),
     );
+  }
+
+  async countByDefense(defenseId: string): Promise<number> {
+    return this.defenseJudgeModel.count({ where: { defenseId } });
   }
 
   async save(defenseJudge: DefenseJudge): Promise<void> {
@@ -50,7 +52,6 @@ export class DefenseJudgeSequelizeAdapter implements IDefenseJudgeRepository {
       judgeType: defenseJudge.judgeType,
       professorId: defenseJudge.professorId,
       communityTutorId: defenseJudge.communityTutorId,
-      score: defenseJudge.score,
     });
   }
 

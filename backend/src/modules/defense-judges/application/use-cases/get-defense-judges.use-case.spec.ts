@@ -9,6 +9,7 @@ describe('RemoveJudgeUseCase', () => {
     defenseJudgeRepository = {
       findById: jest.fn(),
       findByDefense: jest.fn(),
+      countByDefense: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
     };

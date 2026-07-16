@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
 import { IDefenseEvaluationRepository } from '../../../domain/ports/IDefenseEvaluationRepository';
 import { DefenseEvaluationModel } from './models/defense-evaluation.model';
+import { DefenseJudgeModel } from '@modules/defense-judges/infrastructure/persistence/sequelize/models/defense-judge.model';
 import { DefenseEvaluation } from '../../../domain/entities/DefenseEvaluation';
 
 @Injectable()
@@ -11,9 +13,7 @@ export class DefenseEvaluationSequelizeAdapter implements IDefenseEvaluationRepo
     private readonly defenseEvaluationModel: typeof DefenseEvaluationModel,
   ) {}
 
-  private toDomain(
-    model: DefenseEvaluationModel | null,
-  ): DefenseEvaluation | null {
+  private toDomain(model: DefenseEvaluationModel | null): DefenseEvaluation | null {
     if (!model) return null;
     return new DefenseEvaluation(
       model.id,
@@ -31,6 +31,29 @@ export class DefenseEvaluationSequelizeAdapter implements IDefenseEvaluationRepo
   async findByJudge(judgeId: string): Promise<DefenseEvaluation | null> {
     const e = await this.defenseEvaluationModel.findOne({ where: { judgeId } });
     return this.toDomain(e);
+  }
+
+  async findByDefenseId(defenseId: string): Promise<DefenseEvaluation[]> {
+    const judgeIds = await DefenseJudgeModel.findAll({
+      where: { defenseId },
+      attributes: ['id'],
+    }).then((judges) => judges.map((j) => j.id));
+
+    if (judgeIds.length === 0) return [];
+
+    const evaluations = await this.defenseEvaluationModel.findAll({
+      where: { judgeId: { [Op.in]: judgeIds } },
+    });
+
+    return evaluations.map(
+      (e) =>
+        new DefenseEvaluation(
+          e.id,
+          e.judgeId,
+          Number(e.score),
+          e.comments ?? '',
+        ),
+    );
   }
 
   async findAll(): Promise<DefenseEvaluation[]> {
