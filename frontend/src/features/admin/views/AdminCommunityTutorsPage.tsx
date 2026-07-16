@@ -1,71 +1,120 @@
 import { useState } from 'react';
 import { Button, Input, Table, Modal, Skeleton, Spinner, Tooltip, Select, ListBox } from '@heroui/react';
 import { useOverlayState } from '@heroui/react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebouncedCallback } from 'use-debounce';
-import { Plus, Search, Pencil, Trash2, UserRound } from 'lucide-react';
+import { catalogService } from '@/features/catalogs/services/catalog.service';
+import { Plus, Search, Pencil, Trash2, Users } from 'lucide-react';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { Pagination } from '@/shared/components/Pagination';
-import { usePageTitle } from '@/shared/hooks/usePageTitle';
+import { sileo } from 'sileo';
+import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { communityTutorSchema, type CommunityTutorFormData } from '../schemas/communityTutor.schema';
-import { useCommunityTutors, useCommunityTutorMutations } from '@/features/catalogs/hooks/useCommunityTutors';
+import { communityTutorSchema, type CommunityTutorFormData } from '../schemas/community-tutor.schema';
+import type { CommunityTutor, CommunityPlace } from '@/shared/types/catalog.types';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { useCommunityPlaces } from '@/features/catalogs/hooks/useCommunityPlaces';
-import type { CommunityPlace, CommunityTutor } from '@/shared/types/catalog.types';
 
 const PER_PAGE = 10;
 
 export default function AdminCommunityTutorsPage() {
-  usePageTitle('Admin - Tutores Comunitarios');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [editing, setEditing] = useState<CommunityTutor | null>(null);
-  const [deleting, setDeleting] = useState<CommunityTutor | null>(null);
-
+  usePageTitle('Admin - Tutores Comunales');
+  const queryClient = useQueryClient();
   const createModal = useOverlayState();
   const editModal = useOverlayState();
   const deleteModal = useOverlayState();
+  const [editing, setEditing] = useState<CommunityTutor | null>(null);
+  const [deleting, setDeleting] = useState<CommunityTutor | null>(null);
 
   const createForm = useForm<CommunityTutorFormData>({
-    resolver: zodResolver(communityTutorSchema) as never,
+    resolver: zodResolver(communityTutorSchema) as any,
     mode: 'onChange',
     defaultValues: { locationId: '', fullName: '', dni: '', phone: '', email: '', position: '' },
   });
 
   const editForm = useForm<CommunityTutorFormData>({
-    resolver: zodResolver(communityTutorSchema) as never,
+    resolver: zodResolver(communityTutorSchema) as any,
     mode: 'onChange',
   });
 
-  const { data: result, isLoading, isError } = useCommunityTutors(page, search);
-  const { data: places = [] } = useCommunityPlaces(1, '');
-  const { createMutation, updateMutation, deleteMutation } = useCommunityTutorMutations();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const { data: result, isLoading, isError } = useQuery({
+    queryKey: ['communityTutors', 'paginated', page, search],
+    queryFn: ({ signal }) => catalogService.getCommunityTutorsPaginated(page, PER_PAGE, search || undefined, signal),
+    placeholderData: (prev) => prev,
+  });
+
+  const { data: places = [] } = useCommunityPlaces();
 
   const tutors = result?.data ?? [];
   const totalPages = result?.meta?.totalPages ?? 1;
 
-  const placeMap = Object.fromEntries(places.map((p: CommunityPlace) => [p.id, p.name]));
+  const placeMap = Object.fromEntries(
+    places.map((cp: CommunityPlace) => [cp.id, cp.name]),
+  );
+
+  const createMutation = useMutation({
+    mutationFn: () => catalogService.createCommunityTutor(createForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['communityTutors'] });
+      sileo.success({ title: 'Tutor comunal creado exitosamente', description: 'El tutor ya está disponible.' });
+      createModal.close();
+      createForm.reset();
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al crear el tutor comunal', description: 'Verifique los datos e intente nuevamente.' });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) => catalogService.updateCommunityTutor(id, editForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['communityTutors'] });
+      sileo.success({ title: 'Tutor comunal actualizado exitosamente', description: 'Los cambios han sido guardados.' });
+      editModal.close();
+      setEditing(null);
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al actualizar el tutor comunal', description: 'Ocurrió un problema al guardar.' });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => catalogService.deleteCommunityTutor(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['communityTutors'] });
+      sileo.success({ title: 'Tutor comunal eliminado exitosamente', description: 'El tutor ha sido removido.' });
+      deleteModal.close();
+      setDeleting(null);
+    },
+    onError: (err: unknown) => {
+      sileo.error({ title: extractApiError(err, 'Error al eliminar el tutor comunal'), description: 'No se pudo eliminar el tutor comunal.' });
+    },
+  });
 
   const debouncedSetSearch = useDebouncedCallback((val: string) => {
     setSearch(val);
     setPage(1);
   }, 300);
 
-  const openEdit = (t: CommunityTutor) => {
-    setEditing(t);
+  const openEdit = (ct: CommunityTutor) => {
+    setEditing(ct);
     editForm.reset({
-      locationId: t.locationId,
-      fullName: t.fullName ?? '',
-      dni: t.dni ?? '',
-      phone: t.phone ?? '',
-      email: t.email ?? '',
-      position: t.position ?? '',
+      locationId: ct.locationId,
+      fullName: ct.fullName ?? '',
+      dni: ct.dni ?? '',
+      phone: ct.phone ?? '',
+      email: ct.email ?? '',
+      position: ct.position ?? '',
     });
     editModal.open();
   };
 
-  const openDelete = (t: CommunityTutor) => {
-    setDeleting(t);
+  const openDelete = (ct: CommunityTutor) => {
+    setDeleting(ct);
     deleteModal.open();
   };
 
@@ -74,7 +123,7 @@ export default function AdminCommunityTutorsPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="relative">
           <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
-          <h2 className="text-2xl font-semibold pl-3">Tutores Comunitarios</h2>
+          <h2 className="text-2xl font-semibold pl-3">Tutores Comunales</h2>
         </div>
         <Button variant="primary" onPress={createModal.open}>
           <Plus size={16} />
@@ -85,7 +134,7 @@ export default function AdminCommunityTutorsPage() {
       <div className="flex items-center gap-2 max-w-sm mb-4">
         <Search size={18} className="text-muted shrink-0" />
         <Input
-          placeholder="Buscar por nombre, cédula o correo…"
+          placeholder="Buscar por nombre…"
           defaultValue=""
           onChange={(e) => debouncedSetSearch(e.target.value)}
         />
@@ -106,30 +155,32 @@ export default function AdminCommunityTutorsPage() {
       ) : (
         <>
           <Table>
-            <Table.Content aria-label="Tutores Comunitarios">
+            <Table.Content aria-label="Tutores Comunales">
               <Table.Header>
                 <Table.Column id="fullName" isRowHeader>Nombre</Table.Column>
-                <Table.Column id="location">Espacio</Table.Column>
+                <Table.Column id="dni">DNI</Table.Column>
                 <Table.Column id="position">Cargo</Table.Column>
+                <Table.Column id="location">Espacio</Table.Column>
                 <Table.Column id="actions" className="w-28">Acciones</Table.Column>
               </Table.Header>
               <Table.Body
                 items={tutors}
                 renderEmptyState={() => (
-                  <EmptyState message={search ? 'No se encontraron tutores.' : 'No hay tutores registrados.'} />
+                  <EmptyState message={search ? 'No se encontraron tutores.' : 'No hay tutores comunales registrados.'} />
                 )}
               >
-                {(t: CommunityTutor) => (
+                {(ct: CommunityTutor) => (
                   <Table.Row className="even:bg-surface-secondary/40 hover:bg-surface-secondary/80 hover:translate-x-0.5 transition-all duration-150">
-                    <Table.Cell>{t.fullName ?? '—'}</Table.Cell>
-                    <Table.Cell className="text-muted text-sm">{placeMap[t.locationId] ?? '—'}</Table.Cell>
-                    <Table.Cell className="text-muted text-sm">{t.position ?? '—'}</Table.Cell>
+                    <Table.Cell>{ct.fullName ?? '—'}</Table.Cell>
+                    <Table.Cell className="text-muted text-sm">{ct.dni ?? '—'}</Table.Cell>
+                    <Table.Cell className="text-muted text-sm">{ct.position ?? '—'}</Table.Cell>
+                    <Table.Cell className="text-muted text-sm">{placeMap[ct.locationId] ?? '—'}</Table.Cell>
                     <Table.Cell>
                       <div className="flex items-center gap-1">
                         <Tooltip>
                           <Tooltip.Trigger>
                             <button
-                              onClick={() => openEdit(t)}
+                              onClick={() => openEdit(ct)}
                               className="p-1.5 rounded-lg text-muted hover:text-accent hover:bg-accent/10 transition-colors"
                               aria-label="Editar"
                             >
@@ -141,7 +192,7 @@ export default function AdminCommunityTutorsPage() {
                         <Tooltip>
                           <Tooltip.Trigger>
                             <button
-                              onClick={() => openDelete(t)}
+                              onClick={() => openDelete(ct)}
                               className="p-1.5 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors"
                               aria-label="Eliminar"
                             >
@@ -164,23 +215,25 @@ export default function AdminCommunityTutorsPage() {
       <Modal.Root state={createModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[420px] max-h-[85vh] overflow-hidden">
+            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
               <Modal.Header>
                 <Modal.Icon className="bg-default text-foreground">
-                  <UserRound className="size-5" />
+                  <Users className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Nuevo Tutor Comunitario</Modal.Heading>
+                <Modal.Heading>Nuevo Tutor Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3 overflow-y-auto">
+              <Modal.Body className="space-y-3 p-3">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-location" className="text-sm">Espacio comunitario</label>
+                  <label htmlFor="ct-location" className="text-sm">Espacio Comunal</label>
                   <Select
                     id="ct-location"
-                    aria-label="Espacio comunitario"
+                    aria-label="Espacio Comunal"
                     placeholder="Seleccionar espacio"
                     selectedKey={createForm.watch('locationId') || null}
-                    onSelectionChange={(key) => createForm.setValue('locationId', key as string, { shouldValidate: true })}
+                    onSelectionChange={(key) => {
+                      createForm.setValue('locationId', key as string, { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -188,10 +241,10 @@ export default function AdminCommunityTutorsPage() {
                     </Select.Trigger>
                     <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
                       <ListBox>
-                        {places.map((p: CommunityPlace) => (
-                          <ListBox.Item key={p.id} id={p.id} textValue={p.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {p.name}
+                        {places.map((cp: CommunityPlace) => (
+                          <ListBox.Item key={cp.id} id={cp.id} textValue={cp.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
                             <ListBox.ItemIndicator />
+                            {cp.name}
                           </ListBox.Item>
                         ))}
                       </ListBox>
@@ -203,33 +256,52 @@ export default function AdminCommunityTutorsPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="ct-name" className="text-sm">Nombre completo</label>
-                  <Input id="ct-name" {...createForm.register('fullName')} autoFocus />
+                  <Input
+                    id="ct-name"
+                    {...createForm.register('fullName')}
+                    placeholder="Ej: Juan Pérez"
+                    autoFocus
+                  />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="ct-dni" className="text-sm">Cédula</label>
-                    <Input id="ct-dni" {...createForm.register('dni')} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="ct-phone" className="text-sm">Teléfono</label>
-                    <Input id="ct-phone" {...createForm.register('phone')} />
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="ct-dni" className="text-sm">DNI</label>
+                  <Input
+                    id="ct-dni"
+                    {...createForm.register('dni')}
+                    placeholder="Ej: 1234567"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="ct-phone" className="text-sm">Teléfono</label>
+                  <Input
+                    id="ct-phone"
+                    {...createForm.register('phone')}
+                    placeholder="Ej: 021-123456"
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="ct-email" className="text-sm">Email</label>
-                  <Input id="ct-email" {...createForm.register('email')} />
+                  <Input
+                    id="ct-email"
+                    {...createForm.register('email')}
+                    placeholder="Ej: juan@comunal.py"
+                  />
                   {createForm.formState.errors.email && (
                     <p className="text-danger text-xs">{createForm.formState.errors.email.message}</p>
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="ct-position" className="text-sm">Cargo</label>
-                  <Input id="ct-position" {...createForm.register('position')} />
+                  <Input
+                    id="ct-position"
+                    {...createForm.register('position')}
+                    placeholder="Ej: Coordinador"
+                  />
                 </div>
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { createModal.close(); createForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate(createForm.getValues())}>
+                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate()}>
                   {createMutation.isPending ? <Spinner size="sm" /> : 'Crear'}
                 </Button>
               </Modal.Footer>
@@ -241,23 +313,25 @@ export default function AdminCommunityTutorsPage() {
       <Modal.Root state={editModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[420px] max-h-[85vh] overflow-hidden">
+            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
               <Modal.Header>
                 <Modal.Icon className="bg-default text-foreground">
-                  <UserRound className="size-5" />
+                  <Users className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Editar Tutor Comunitario</Modal.Heading>
+                <Modal.Heading>Editar Tutor Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3 overflow-y-auto">
+              <Modal.Body className="space-y-3 p-3">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-ct-location" className="text-sm">Espacio comunitario</label>
+                  <label htmlFor="edit-ct-location" className="text-sm">Espacio Comunal</label>
                   <Select
                     id="edit-ct-location"
-                    aria-label="Espacio comunitario"
+                    aria-label="Espacio Comunal"
                     placeholder="Seleccionar espacio"
                     selectedKey={editForm.watch('locationId') || null}
-                    onSelectionChange={(key) => editForm.setValue('locationId', key as string, { shouldValidate: true })}
+                    onSelectionChange={(key) => {
+                      editForm.setValue('locationId', key as string, { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -265,10 +339,10 @@ export default function AdminCommunityTutorsPage() {
                     </Select.Trigger>
                     <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
                       <ListBox>
-                        {places.map((p: CommunityPlace) => (
-                          <ListBox.Item key={p.id} id={p.id} textValue={p.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {p.name}
+                        {places.map((cp: CommunityPlace) => (
+                          <ListBox.Item key={cp.id} id={cp.id} textValue={cp.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
                             <ListBox.ItemIndicator />
+                            {cp.name}
                           </ListBox.Item>
                         ))}
                       </ListBox>
@@ -280,33 +354,47 @@ export default function AdminCommunityTutorsPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="edit-ct-name" className="text-sm">Nombre completo</label>
-                  <Input id="edit-ct-name" {...editForm.register('fullName')} autoFocus />
+                  <Input
+                    id="edit-ct-name"
+                    {...editForm.register('fullName')}
+                    autoFocus
+                  />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="edit-ct-dni" className="text-sm">Cédula</label>
-                    <Input id="edit-ct-dni" {...editForm.register('dni')} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="edit-ct-phone" className="text-sm">Teléfono</label>
-                    <Input id="edit-ct-phone" {...editForm.register('phone')} />
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="edit-ct-dni" className="text-sm">DNI</label>
+                  <Input
+                    id="edit-ct-dni"
+                    {...editForm.register('dni')}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="edit-ct-phone" className="text-sm">Teléfono</label>
+                  <Input
+                    id="edit-ct-phone"
+                    {...editForm.register('phone')}
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="edit-ct-email" className="text-sm">Email</label>
-                  <Input id="edit-ct-email" {...editForm.register('email')} />
+                  <Input
+                    id="edit-ct-email"
+                    {...editForm.register('email')}
+                  />
                   {editForm.formState.errors.email && (
                     <p className="text-danger text-xs">{editForm.formState.errors.email.message}</p>
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="edit-ct-position" className="text-sm">Cargo</label>
-                  <Input id="edit-ct-position" {...editForm.register('position')} />
+                  <Input
+                    id="edit-ct-position"
+                    {...editForm.register('position')}
+                  />
                 </div>
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { editModal.close(); setEditing(null); editForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id, payload: editForm.getValues() })}>
+                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id })}>
                   {updateMutation.isPending ? <Spinner size="sm" /> : 'Guardar'}
                 </Button>
               </Modal.Footer>
@@ -323,12 +411,12 @@ export default function AdminCommunityTutorsPage() {
                 <Modal.Icon className="bg-danger/10 text-danger">
                   <Trash2 className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Eliminar Tutor</Modal.Heading>
+                <Modal.Heading>Eliminar Tutor Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
               <Modal.Body>
                 <p className="text-sm text-muted">
-                  ¿Está seguro de eliminar <strong>{deleting?.fullName}</strong>? Esta acción no se puede deshacer.
+                  ¿Está seguro de eliminar al tutor <strong>{deleting?.fullName ?? '—'}</strong>? Esta acción no se puede deshacer.
                 </p>
               </Modal.Body>
               <Modal.Footer>

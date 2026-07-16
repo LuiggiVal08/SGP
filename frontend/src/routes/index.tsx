@@ -98,6 +98,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'admin/tags',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
+            {suspense(<AdminTagsPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: 'admin/community-places',
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
@@ -110,14 +118,6 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
             {suspense(<AdminCommunityTutorsPage />)}
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin/tags',
-        element: (
-          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
-            {suspense(<AdminTagsPage />)}
           </ProtectedRoute>
         ),
       },

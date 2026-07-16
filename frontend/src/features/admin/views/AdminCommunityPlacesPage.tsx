@@ -1,79 +1,122 @@
 import { useState } from 'react';
 import { Button, Input, Table, Modal, Skeleton, Spinner, Tooltip, Select, ListBox } from '@heroui/react';
 import { useOverlayState } from '@heroui/react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebouncedCallback } from 'use-debounce';
+import { catalogService } from '@/features/catalogs/services/catalog.service';
 import { Plus, Search, Pencil, Trash2, MapPin } from 'lucide-react';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { Pagination } from '@/shared/components/Pagination';
-import { usePageTitle } from '@/shared/hooks/usePageTitle';
+import { sileo } from 'sileo';
+import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { communityPlaceSchema, type CommunityPlaceFormData } from '../schemas/communityPlace.schema';
-import { useCommunityPlaces, useCommunityPlaceMutations } from '@/features/catalogs/hooks/useCommunityPlaces';
+import { communityPlaceSchema, type CommunityPlaceFormData } from '../schemas/community-place.schema';
+import type { CommunityPlace, Institution } from '@/shared/types/catalog.types';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { useInstitutions } from '@/features/catalogs/hooks/useInstitutions';
-import type { CommunityPlace, CommunityPlaceType, Institution } from '@/shared/types/catalog.types';
 
 const PER_PAGE = 10;
-
-const TYPE_LABELS: Record<CommunityPlaceType, string> = {
-  COMMUNITY: 'Comunidad',
-  ORGANIZATION: 'Organización',
-  INSTITUTION: 'Institución',
-  COMPANY: 'Empresa',
-};
+const PLACE_TYPES = ['COMMUNITY', 'ORGANIZATION', 'INSTITUTION', 'COMPANY'] as const;
 
 export default function AdminCommunityPlacesPage() {
-  usePageTitle('Admin - Espacios Comunitarios');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [editing, setEditing] = useState<CommunityPlace | null>(null);
-  const [deleting, setDeleting] = useState<CommunityPlace | null>(null);
-
+  usePageTitle('Admin - Espacios Comunales');
+  const queryClient = useQueryClient();
   const createModal = useOverlayState();
   const editModal = useOverlayState();
   const deleteModal = useOverlayState();
+  const [editing, setEditing] = useState<CommunityPlace | null>(null);
+  const [deleting, setDeleting] = useState<CommunityPlace | null>(null);
 
   const createForm = useForm<CommunityPlaceFormData>({
-    resolver: zodResolver(communityPlaceSchema) as never,
+    resolver: zodResolver(communityPlaceSchema) as any,
     mode: 'onChange',
     defaultValues: { institutionId: '', name: '', type: 'COMMUNITY', description: '', address: '', contactPhone: '', contactEmail: '' },
   });
 
   const editForm = useForm<CommunityPlaceFormData>({
-    resolver: zodResolver(communityPlaceSchema) as never,
+    resolver: zodResolver(communityPlaceSchema) as any,
     mode: 'onChange',
   });
 
-  const { data: result, isLoading, isError } = useCommunityPlaces(page, search);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const { data: result, isLoading, isError } = useQuery({
+    queryKey: ['communityPlaces', 'paginated', page, search],
+    queryFn: ({ signal }) => catalogService.getCommunityPlacesPaginated(page, PER_PAGE, search || undefined, signal),
+    placeholderData: (prev) => prev,
+  });
+
   const { data: institutions = [] } = useInstitutions();
-  const { createMutation, updateMutation, deleteMutation } = useCommunityPlaceMutations();
 
   const places = result?.data ?? [];
   const totalPages = result?.meta?.totalPages ?? 1;
 
-  const institutionMap = Object.fromEntries(institutions.map((i: Institution) => [i.id, i.name]));
+  const institutionMap = Object.fromEntries(
+    institutions.map((i: Institution) => [i.id, i.name]),
+  );
+
+  const createMutation = useMutation({
+    mutationFn: () => catalogService.createCommunityPlace(createForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['communityPlaces'] });
+      sileo.success({ title: 'Espacio comunal creado exitosamente', description: 'El espacio ya está disponible.' });
+      createModal.close();
+      createForm.reset();
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al crear el espacio comunal', description: 'Verifique los datos e intente nuevamente.' });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) => catalogService.updateCommunityPlace(id, editForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['communityPlaces'] });
+      sileo.success({ title: 'Espacio comunal actualizado exitosamente', description: 'Los cambios han sido guardados.' });
+      editModal.close();
+      setEditing(null);
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al actualizar el espacio comunal', description: 'Ocurrió un problema al guardar.' });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => catalogService.deleteCommunityPlace(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['communityPlaces'] });
+      sileo.success({ title: 'Espacio comunal eliminado exitosamente', description: 'El espacio ha sido removido.' });
+      deleteModal.close();
+      setDeleting(null);
+    },
+    onError: (err: unknown) => {
+      sileo.error({ title: extractApiError(err, 'Error al eliminar el espacio comunal'), description: 'No se pudo eliminar el espacio comunal.' });
+    },
+  });
 
   const debouncedSetSearch = useDebouncedCallback((val: string) => {
     setSearch(val);
     setPage(1);
   }, 300);
 
-  const openEdit = (p: CommunityPlace) => {
-    setEditing(p);
+  const openEdit = (cp: CommunityPlace) => {
+    setEditing(cp);
     editForm.reset({
-      institutionId: p.institutionId,
-      name: p.name,
-      type: p.type,
-      description: p.description ?? '',
-      address: p.address ?? '',
-      contactPhone: p.contactPhone ?? '',
-      contactEmail: p.contactEmail ?? '',
+      institutionId: cp.institutionId,
+      name: cp.name,
+      type: cp.type as CommunityPlaceFormData['type'],
+      description: cp.description ?? '',
+      address: cp.address ?? '',
+      contactPhone: cp.contactPhone ?? '',
+      contactEmail: cp.contactEmail ?? '',
     });
     editModal.open();
   };
 
-  const openDelete = (p: CommunityPlace) => {
-    setDeleting(p);
+  const openDelete = (cp: CommunityPlace) => {
+    setDeleting(cp);
     deleteModal.open();
   };
 
@@ -82,7 +125,7 @@ export default function AdminCommunityPlacesPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="relative">
           <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
-          <h2 className="text-2xl font-semibold pl-3">Espacios Comunitarios</h2>
+          <h2 className="text-2xl font-semibold pl-3">Espacios Comunales</h2>
         </div>
         <Button variant="primary" onPress={createModal.open}>
           <Plus size={16} />
@@ -114,30 +157,32 @@ export default function AdminCommunityPlacesPage() {
       ) : (
         <>
           <Table>
-            <Table.Content aria-label="Espacios Comunitarios">
+            <Table.Content aria-label="Espacios Comunales">
               <Table.Header>
                 <Table.Column id="name" isRowHeader>Nombre</Table.Column>
-                <Table.Column id="institution">Institución</Table.Column>
                 <Table.Column id="type">Tipo</Table.Column>
+                <Table.Column id="institution">Institución</Table.Column>
+                <Table.Column id="address">Dirección</Table.Column>
                 <Table.Column id="actions" className="w-28">Acciones</Table.Column>
               </Table.Header>
               <Table.Body
                 items={places}
                 renderEmptyState={() => (
-                  <EmptyState message={search ? 'No se encontraron espacios.' : 'No hay espacios registrados.'} />
+                  <EmptyState message={search ? 'No se encontraron espacios.' : 'No hay espacios comunales registrados.'} />
                 )}
               >
-                {(p: CommunityPlace) => (
+                {(cp: CommunityPlace) => (
                   <Table.Row className="even:bg-surface-secondary/40 hover:bg-surface-secondary/80 hover:translate-x-0.5 transition-all duration-150">
-                    <Table.Cell>{p.name}</Table.Cell>
-                    <Table.Cell className="text-muted text-sm">{institutionMap[p.institutionId] ?? '—'}</Table.Cell>
-                    <Table.Cell className="text-muted text-sm">{TYPE_LABELS[p.type] ?? p.type}</Table.Cell>
+                    <Table.Cell>{cp.name}</Table.Cell>
+                    <Table.Cell className="text-muted text-sm">{cp.type}</Table.Cell>
+                    <Table.Cell className="text-muted text-sm">{institutionMap[cp.institutionId] ?? '—'}</Table.Cell>
+                    <Table.Cell className="text-muted text-sm">{cp.address ?? '—'}</Table.Cell>
                     <Table.Cell>
                       <div className="flex items-center gap-1">
                         <Tooltip>
                           <Tooltip.Trigger>
                             <button
-                              onClick={() => openEdit(p)}
+                              onClick={() => openEdit(cp)}
                               className="p-1.5 rounded-lg text-muted hover:text-accent hover:bg-accent/10 transition-colors"
                               aria-label="Editar"
                             >
@@ -149,7 +194,7 @@ export default function AdminCommunityPlacesPage() {
                         <Tooltip>
                           <Tooltip.Trigger>
                             <button
-                              onClick={() => openDelete(p)}
+                              onClick={() => openDelete(cp)}
                               className="p-1.5 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors"
                               aria-label="Eliminar"
                             >
@@ -172,15 +217,27 @@ export default function AdminCommunityPlacesPage() {
       <Modal.Root state={createModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[420px] max-h-[85vh] overflow-hidden">
+            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
               <Modal.Header>
                 <Modal.Icon className="bg-default text-foreground">
                   <MapPin className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Nuevo Espacio Comunitario</Modal.Heading>
+                <Modal.Heading>Nuevo Espacio Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3 overflow-y-auto">
+              <Modal.Body className="space-y-3 p-3">
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="cp-name" className="text-sm">Nombre</label>
+                  <Input
+                    id="cp-name"
+                    {...createForm.register('name')}
+                    placeholder="Ej: Consejo Comunal El Carmen"
+                    autoFocus
+                  />
+                  {createForm.formState.errors.name && (
+                    <p className="text-danger text-xs">{createForm.formState.errors.name.message}</p>
+                  )}
+                </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="cp-institution" className="text-sm">Institución</label>
                   <Select
@@ -188,7 +245,9 @@ export default function AdminCommunityPlacesPage() {
                     aria-label="Institución"
                     placeholder="Seleccionar institución"
                     selectedKey={createForm.watch('institutionId') || null}
-                    onSelectionChange={(key) => createForm.setValue('institutionId', key as string, { shouldValidate: true })}
+                    onSelectionChange={(key) => {
+                      createForm.setValue('institutionId', key as string, { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -196,10 +255,10 @@ export default function AdminCommunityPlacesPage() {
                     </Select.Trigger>
                     <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
                       <ListBox>
-                        {institutions.map((i: Institution) => (
-                          <ListBox.Item key={i.id} id={i.id} textValue={i.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {i.name}
+                        {institutions.map((inst: Institution) => (
+                          <ListBox.Item key={inst.id} id={inst.id} textValue={inst.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
                             <ListBox.ItemIndicator />
+                            {inst.name}
                           </ListBox.Item>
                         ))}
                       </ListBox>
@@ -210,19 +269,15 @@ export default function AdminCommunityPlacesPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="cp-name" className="text-sm">Nombre</label>
-                  <Input id="cp-name" {...createForm.register('name')} placeholder="Ej: Consejo Comunal El Carmen" autoFocus />
-                  {createForm.formState.errors.name && (
-                    <p className="text-danger text-xs">{createForm.formState.errors.name.message}</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
                   <label htmlFor="cp-type" className="text-sm">Tipo</label>
                   <Select
                     id="cp-type"
                     aria-label="Tipo"
-                    selectedKey={createForm.watch('type')}
-                    onSelectionChange={(key) => createForm.setValue('type', key as CommunityPlaceType, { shouldValidate: true })}
+                    placeholder="Seleccionar tipo"
+                    selectedKey={createForm.watch('type') || null}
+                    onSelectionChange={(key) => {
+                      createForm.setValue('type', key as CommunityPlaceFormData['type'], { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -230,41 +285,58 @@ export default function AdminCommunityPlacesPage() {
                     </Select.Trigger>
                     <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
                       <ListBox>
-                        {(Object.keys(TYPE_LABELS) as CommunityPlaceType[]).map((t) => (
-                          <ListBox.Item key={t} id={t} textValue={TYPE_LABELS[t]} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {TYPE_LABELS[t]}
+                        {PLACE_TYPES.map((t) => (
+                          <ListBox.Item key={t} id={t} textValue={t} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
                             <ListBox.ItemIndicator />
+                            {t}
                           </ListBox.Item>
                         ))}
                       </ListBox>
                     </Select.Popover>
                   </Select>
+                  {createForm.formState.errors.type && (
+                    <p className="text-danger text-xs">{createForm.formState.errors.type.message}</p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="cp-desc" className="text-sm">Descripción</label>
-                  <Input id="cp-desc" {...createForm.register('description')} />
+                  <label htmlFor="cp-description" className="text-sm">Descripción</label>
+                  <Input
+                    id="cp-description"
+                    {...createForm.register('description')}
+                    placeholder="Descripción opcional"
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="cp-address" className="text-sm">Dirección</label>
-                  <Input id="cp-address" {...createForm.register('address')} />
+                  <Input
+                    id="cp-address"
+                    {...createForm.register('address')}
+                    placeholder="Dirección opcional"
+                  />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="cp-phone" className="text-sm">Teléfono</label>
-                    <Input id="cp-phone" {...createForm.register('contactPhone')} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="cp-email" className="text-sm">Email</label>
-                    <Input id="cp-email" {...createForm.register('contactEmail')} />
-                    {createForm.formState.errors.contactEmail && (
-                      <p className="text-danger text-xs">{createForm.formState.errors.contactEmail.message}</p>
-                    )}
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="cp-phone" className="text-sm">Teléfono</label>
+                  <Input
+                    id="cp-phone"
+                    {...createForm.register('contactPhone')}
+                    placeholder="Ej: 021-123456"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="cp-email" className="text-sm">Email</label>
+                  <Input
+                    id="cp-email"
+                    {...createForm.register('contactEmail')}
+                    placeholder="Ej: contacto@comunal.py"
+                  />
+                  {createForm.formState.errors.contactEmail && (
+                    <p className="text-danger text-xs">{createForm.formState.errors.contactEmail.message}</p>
+                  )}
                 </div>
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { createModal.close(); createForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate(createForm.getValues())}>
+                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate()}>
                   {createMutation.isPending ? <Spinner size="sm" /> : 'Crear'}
                 </Button>
               </Modal.Footer>
@@ -276,15 +348,26 @@ export default function AdminCommunityPlacesPage() {
       <Modal.Root state={editModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[420px] max-h-[85vh] overflow-hidden">
+            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
               <Modal.Header>
                 <Modal.Icon className="bg-default text-foreground">
                   <MapPin className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Editar Espacio Comunitario</Modal.Heading>
+                <Modal.Heading>Editar Espacio Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3 overflow-y-auto">
+              <Modal.Body className="space-y-3 p-3">
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="edit-cp-name" className="text-sm">Nombre</label>
+                  <Input
+                    id="edit-cp-name"
+                    {...editForm.register('name')}
+                    autoFocus
+                  />
+                  {editForm.formState.errors.name && (
+                    <p className="text-danger text-xs">{editForm.formState.errors.name.message}</p>
+                  )}
+                </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="edit-cp-institution" className="text-sm">Institución</label>
                   <Select
@@ -292,7 +375,9 @@ export default function AdminCommunityPlacesPage() {
                     aria-label="Institución"
                     placeholder="Seleccionar institución"
                     selectedKey={editForm.watch('institutionId') || null}
-                    onSelectionChange={(key) => editForm.setValue('institutionId', key as string, { shouldValidate: true })}
+                    onSelectionChange={(key) => {
+                      editForm.setValue('institutionId', key as string, { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -300,10 +385,10 @@ export default function AdminCommunityPlacesPage() {
                     </Select.Trigger>
                     <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
                       <ListBox>
-                        {institutions.map((i: Institution) => (
-                          <ListBox.Item key={i.id} id={i.id} textValue={i.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {i.name}
+                        {institutions.map((inst: Institution) => (
+                          <ListBox.Item key={inst.id} id={inst.id} textValue={inst.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
                             <ListBox.ItemIndicator />
+                            {inst.name}
                           </ListBox.Item>
                         ))}
                       </ListBox>
@@ -314,19 +399,15 @@ export default function AdminCommunityPlacesPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-cp-name" className="text-sm">Nombre</label>
-                  <Input id="edit-cp-name" {...editForm.register('name')} autoFocus />
-                  {editForm.formState.errors.name && (
-                    <p className="text-danger text-xs">{editForm.formState.errors.name.message}</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
                   <label htmlFor="edit-cp-type" className="text-sm">Tipo</label>
                   <Select
                     id="edit-cp-type"
                     aria-label="Tipo"
-                    selectedKey={editForm.watch('type')}
-                    onSelectionChange={(key) => editForm.setValue('type', key as CommunityPlaceType, { shouldValidate: true })}
+                    placeholder="Seleccionar tipo"
+                    selectedKey={editForm.watch('type') || null}
+                    onSelectionChange={(key) => {
+                      editForm.setValue('type', key as CommunityPlaceFormData['type'], { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -334,41 +415,54 @@ export default function AdminCommunityPlacesPage() {
                     </Select.Trigger>
                     <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
                       <ListBox>
-                        {(Object.keys(TYPE_LABELS) as CommunityPlaceType[]).map((t) => (
-                          <ListBox.Item key={t} id={t} textValue={TYPE_LABELS[t]} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {TYPE_LABELS[t]}
+                        {PLACE_TYPES.map((t) => (
+                          <ListBox.Item key={t} id={t} textValue={t} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
                             <ListBox.ItemIndicator />
+                            {t}
                           </ListBox.Item>
                         ))}
                       </ListBox>
                     </Select.Popover>
                   </Select>
+                  {editForm.formState.errors.type && (
+                    <p className="text-danger text-xs">{editForm.formState.errors.type.message}</p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-cp-desc" className="text-sm">Descripción</label>
-                  <Input id="edit-cp-desc" {...editForm.register('description')} />
+                  <label htmlFor="edit-cp-description" className="text-sm">Descripción</label>
+                  <Input
+                    id="edit-cp-description"
+                    {...editForm.register('description')}
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="edit-cp-address" className="text-sm">Dirección</label>
-                  <Input id="edit-cp-address" {...editForm.register('address')} />
+                  <Input
+                    id="edit-cp-address"
+                    {...editForm.register('address')}
+                  />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="edit-cp-phone" className="text-sm">Teléfono</label>
-                    <Input id="edit-cp-phone" {...editForm.register('contactPhone')} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="edit-cp-email" className="text-sm">Email</label>
-                    <Input id="edit-cp-email" {...editForm.register('contactEmail')} />
-                    {editForm.formState.errors.contactEmail && (
-                      <p className="text-danger text-xs">{editForm.formState.errors.contactEmail.message}</p>
-                    )}
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="edit-cp-phone" className="text-sm">Teléfono</label>
+                  <Input
+                    id="edit-cp-phone"
+                    {...editForm.register('contactPhone')}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="edit-cp-email" className="text-sm">Email</label>
+                  <Input
+                    id="edit-cp-email"
+                    {...editForm.register('contactEmail')}
+                  />
+                  {editForm.formState.errors.contactEmail && (
+                    <p className="text-danger text-xs">{editForm.formState.errors.contactEmail.message}</p>
+                  )}
                 </div>
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { editModal.close(); setEditing(null); editForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id, payload: editForm.getValues() })}>
+                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id })}>
                   {updateMutation.isPending ? <Spinner size="sm" /> : 'Guardar'}
                 </Button>
               </Modal.Footer>
@@ -385,7 +479,7 @@ export default function AdminCommunityPlacesPage() {
                 <Modal.Icon className="bg-danger/10 text-danger">
                   <Trash2 className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Eliminar Espacio</Modal.Heading>
+                <Modal.Heading>Eliminar Espacio Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
               <Modal.Body>

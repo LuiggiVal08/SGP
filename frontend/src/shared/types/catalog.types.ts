@@ -34,29 +34,6 @@ export interface Period {
   isActive: boolean;
 }
 
-export type CommunityPlaceType = 'COMMUNITY' | 'ORGANIZATION' | 'INSTITUTION' | 'COMPANY';
-
-export interface CommunityPlace {
-  id: string;
-  institutionId: string;
-  name: string;
-  type: CommunityPlaceType;
-  description?: string | null;
-  address?: string | null;
-  contactPhone?: string | null;
-  contactEmail?: string | null;
-}
-
-export interface CommunityTutor {
-  id: string;
-  locationId: string;
-  fullName?: string | null;
-  dni?: string | null;
-  phone?: string | null;
-  email?: string | null;
-  position?: string | null;
-}
-
 export interface Trajectory {
   id: string;
   pnfId: string;
@@ -70,10 +47,29 @@ export interface Subject {
   name: string;
 }
 
-export type TagCategory = 'TECNOLOGIA' | 'TEMA' | 'TUTOR' | 'METODOLOGIA';
-
 export interface Tag {
   id: string;
   name: string;
-  category: TagCategory;
+  category: string;
+}
+
+export interface CommunityPlace {
+  id: string;
+  institutionId: string;
+  name: string;
+  type: string;
+  description: string | null;
+  address: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+}
+
+export interface CommunityTutor {
+  id: string;
+  locationId: string;
+  fullName: string | null;
+  dni: string | null;
+  phone: string | null;
+  email: string | null;
+  position: string | null;
 }

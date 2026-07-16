@@ -1,50 +1,99 @@
 import { useState } from 'react';
 import { Button, Input, Table, Modal, Skeleton, Spinner, Tooltip, Select, ListBox } from '@heroui/react';
 import { useOverlayState } from '@heroui/react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebouncedCallback } from 'use-debounce';
+import { catalogService } from '@/features/catalogs/services/catalog.service';
 import { Plus, Search, Pencil, Trash2, GitBranch } from 'lucide-react';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { Pagination } from '@/shared/components/Pagination';
-import { usePageTitle } from '@/shared/hooks/usePageTitle';
+import { sileo } from 'sileo';
+import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { trajectorySchema, type TrajectoryFormData } from '../schemas/trajectory.schema';
-import { useTrajectories, useTrajectoryMutations } from '@/features/catalogs/hooks/useTrajectories';
+import type { Trajectory, Pnf } from '@/shared/types/catalog.types';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { usePnf } from '@/features/catalogs/hooks/usePnf';
-import type { Pnf, Trajectory } from '@/shared/types/catalog.types';
 
 const PER_PAGE = 10;
 
 export default function AdminTrajectoriesPage() {
   usePageTitle('Admin - Trayectos');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [editing, setEditing] = useState<Trajectory | null>(null);
-  const [deleting, setDeleting] = useState<Trajectory | null>(null);
-
+  const queryClient = useQueryClient();
   const createModal = useOverlayState();
   const editModal = useOverlayState();
   const deleteModal = useOverlayState();
+  const [editing, setEditing] = useState<Trajectory | null>(null);
+  const [deleting, setDeleting] = useState<Trajectory | null>(null);
 
   const createForm = useForm<TrajectoryFormData>({
-    resolver: zodResolver(trajectorySchema) as never,
+    resolver: zodResolver(trajectorySchema),
     mode: 'onChange',
     defaultValues: { pnfId: '', name: '', orderNumber: 1 },
   });
 
   const editForm = useForm<TrajectoryFormData>({
-    resolver: zodResolver(trajectorySchema) as never,
+    resolver: zodResolver(trajectorySchema),
     mode: 'onChange',
   });
 
-  const { data: result, isLoading, isError } = useTrajectories(page, search);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const { data: result, isLoading, isError } = useQuery({
+    queryKey: ['trajectories', 'paginated', page, search],
+    queryFn: ({ signal }) => catalogService.getTrajectoriesPaginated(page, PER_PAGE, search || undefined, signal),
+    placeholderData: (prev) => prev,
+  });
+
   const { data: pnfs = [] } = usePnf();
-  const { createMutation, updateMutation, deleteMutation } = useTrajectoryMutations();
 
   const trajectories = result?.data ?? [];
   const totalPages = result?.meta?.totalPages ?? 1;
 
-  const pnfMap = Object.fromEntries(pnfs.map((p: Pnf) => [p.id, p.name]));
+  const pnfMap = Object.fromEntries(
+    pnfs.map((p: Pnf) => [p.id, p.name]),
+  );
+
+  const createMutation = useMutation({
+    mutationFn: () => catalogService.createTrajectory(createForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trajectories'] });
+      sileo.success({ title: 'Trayecto creado exitosamente', description: 'El trayecto ya está disponible.' });
+      createModal.close();
+      createForm.reset();
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al crear el trayecto', description: 'Verifique los datos e intente nuevamente.' });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) => catalogService.updateTrajectory(id, editForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trajectories'] });
+      sileo.success({ title: 'Trayecto actualizado exitosamente', description: 'Los cambios han sido guardados.' });
+      editModal.close();
+      setEditing(null);
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al actualizar el trayecto', description: 'Ocurrió un problema al guardar.' });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => catalogService.deleteTrajectory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trajectories'] });
+      sileo.success({ title: 'Trayecto eliminado exitosamente', description: 'El trayecto ha sido removido.' });
+      deleteModal.close();
+      setDeleting(null);
+    },
+    onError: (err: unknown) => {
+      sileo.error({ title: extractApiError(err, 'Error al eliminar el trayecto'), description: 'No se pudo eliminar el trayecto.' });
+    },
+  });
 
   const debouncedSetSearch = useDebouncedCallback((val: string) => {
     setSearch(val);
@@ -167,13 +216,27 @@ export default function AdminTrajectoriesPage() {
               </Modal.Header>
               <Modal.Body className="space-y-3 p-3">
                 <div className="flex flex-col gap-1">
+                  <label htmlFor="traj-name" className="text-sm">Nombre</label>
+                  <Input
+                    id="traj-name"
+                    {...createForm.register('name')}
+                    placeholder="Ej: Trayecto I"
+                    autoFocus
+                  />
+                  {createForm.formState.errors.name && (
+                    <p className="text-danger text-xs">{createForm.formState.errors.name.message}</p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
                   <label htmlFor="traj-pnf" className="text-sm">PNF</label>
                   <Select
                     id="traj-pnf"
                     aria-label="PNF"
                     placeholder="Seleccionar PNF"
                     selectedKey={createForm.watch('pnfId') || null}
-                    onSelectionChange={(key) => createForm.setValue('pnfId', key as string, { shouldValidate: true })}
+                    onSelectionChange={(key) => {
+                      createForm.setValue('pnfId', key as string, { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -183,8 +246,8 @@ export default function AdminTrajectoriesPage() {
                       <ListBox>
                         {pnfs.map((p: Pnf) => (
                           <ListBox.Item key={p.id} id={p.id} textValue={p.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {p.name}
                             <ListBox.ItemIndicator />
+                            {p.name}
                           </ListBox.Item>
                         ))}
                       </ListBox>
@@ -195,15 +258,13 @@ export default function AdminTrajectoriesPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="traj-name" className="text-sm">Nombre</label>
-                  <Input id="traj-name" {...createForm.register('name')} placeholder="Ej: Trayecto I" autoFocus />
-                  {createForm.formState.errors.name && (
-                    <p className="text-danger text-xs">{createForm.formState.errors.name.message}</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
                   <label htmlFor="traj-order" className="text-sm">Orden</label>
-                  <Input id="traj-order" type="number" {...createForm.register('orderNumber')} />
+                  <Input
+                    id="traj-order"
+                    type="number"
+                    min="1"
+                    {...createForm.register('orderNumber')}
+                  />
                   {createForm.formState.errors.orderNumber && (
                     <p className="text-danger text-xs">{createForm.formState.errors.orderNumber.message}</p>
                   )}
@@ -211,7 +272,7 @@ export default function AdminTrajectoriesPage() {
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { createModal.close(); createForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate(createForm.getValues())}>
+                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate()}>
                   {createMutation.isPending ? <Spinner size="sm" /> : 'Crear'}
                 </Button>
               </Modal.Footer>
@@ -233,13 +294,26 @@ export default function AdminTrajectoriesPage() {
               </Modal.Header>
               <Modal.Body className="space-y-3 p-3">
                 <div className="flex flex-col gap-1">
+                  <label htmlFor="edit-traj-name" className="text-sm">Nombre</label>
+                  <Input
+                    id="edit-traj-name"
+                    {...editForm.register('name')}
+                    autoFocus
+                  />
+                  {editForm.formState.errors.name && (
+                    <p className="text-danger text-xs">{editForm.formState.errors.name.message}</p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
                   <label htmlFor="edit-traj-pnf" className="text-sm">PNF</label>
                   <Select
                     id="edit-traj-pnf"
                     aria-label="PNF"
                     placeholder="Seleccionar PNF"
                     selectedKey={editForm.watch('pnfId') || null}
-                    onSelectionChange={(key) => editForm.setValue('pnfId', key as string, { shouldValidate: true })}
+                    onSelectionChange={(key) => {
+                      editForm.setValue('pnfId', key as string, { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -249,8 +323,8 @@ export default function AdminTrajectoriesPage() {
                       <ListBox>
                         {pnfs.map((p: Pnf) => (
                           <ListBox.Item key={p.id} id={p.id} textValue={p.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {p.name}
                             <ListBox.ItemIndicator />
+                            {p.name}
                           </ListBox.Item>
                         ))}
                       </ListBox>
@@ -261,15 +335,13 @@ export default function AdminTrajectoriesPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-traj-name" className="text-sm">Nombre</label>
-                  <Input id="edit-traj-name" {...editForm.register('name')} autoFocus />
-                  {editForm.formState.errors.name && (
-                    <p className="text-danger text-xs">{editForm.formState.errors.name.message}</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
                   <label htmlFor="edit-traj-order" className="text-sm">Orden</label>
-                  <Input id="edit-traj-order" type="number" {...editForm.register('orderNumber')} />
+                  <Input
+                    id="edit-traj-order"
+                    type="number"
+                    min="1"
+                    {...editForm.register('orderNumber')}
+                  />
                   {editForm.formState.errors.orderNumber && (
                     <p className="text-danger text-xs">{editForm.formState.errors.orderNumber.message}</p>
                   )}
@@ -277,7 +349,7 @@ export default function AdminTrajectoriesPage() {
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { editModal.close(); setEditing(null); editForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id, payload: editForm.getValues() })}>
+                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id })}>
                   {updateMutation.isPending ? <Spinner size="sm" /> : 'Guardar'}
                 </Button>
               </Modal.Footer>

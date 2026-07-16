@@ -6,11 +6,9 @@ import type {
   Period,
   Trajectory,
   Subject,
-  CommunityPlace,
-  CommunityPlaceType,
-  CommunityTutor,
   Tag,
-  TagCategory,
+  CommunityPlace,
+  CommunityTutor,
 } from '@/shared/types/catalog.types';
 import type { PaginatedResult } from '@/shared/types/pagination.types';
 
@@ -195,6 +193,27 @@ export const catalogService = {
     await axiosClient.delete(`/subjects/${id}`, { signal });
   },
 
+  async getTagsPaginated(page = 1, limit = 10, search?: string, signal?: AbortSignal): Promise<PaginatedResult<Tag>> {
+    const params: Record<string, string | number> = { page, limit };
+    if (search) params.search = search;
+    const { data } = await axiosClient.get<PaginatedResult<Tag>>('/tags', { params, signal });
+    return data;
+  },
+
+  async createTag(payload: { name: string; category: string }, signal?: AbortSignal): Promise<Tag> {
+    const { data } = await axiosClient.post<Tag>('/tags', payload, { signal });
+    return data;
+  },
+
+  async updateTag(id: string, payload: { name?: string; category?: string }, signal?: AbortSignal): Promise<Tag> {
+    const { data } = await axiosClient.patch<Tag>(`/tags/${id}`, payload, { signal });
+    return data;
+  },
+
+  async deleteTag(id: string, signal?: AbortSignal): Promise<void> {
+    await axiosClient.delete(`/tags/${id}`, { signal });
+  },
+
   async getCommunityPlacesPaginated(page = 1, limit = 10, search?: string, signal?: AbortSignal): Promise<PaginatedResult<CommunityPlace>> {
     const params: Record<string, string | number> = { page, limit };
     if (search) params.search = search;
@@ -202,12 +221,28 @@ export const catalogService = {
     return data;
   },
 
-  async createCommunityPlace(payload: { institutionId: string; name: string; type: CommunityPlaceType; description?: string; address?: string; contactPhone?: string; contactEmail?: string }, signal?: AbortSignal): Promise<CommunityPlace> {
+  async createCommunityPlace(payload: {
+    institutionId: string;
+    name: string;
+    type: string;
+    description?: string;
+    address?: string;
+    contactPhone?: string;
+    contactEmail?: string;
+  }, signal?: AbortSignal): Promise<CommunityPlace> {
     const { data } = await axiosClient.post<CommunityPlace>('/community-places', payload, { signal });
     return data;
   },
 
-  async updateCommunityPlace(id: string, payload: { institutionId?: string; name?: string; type?: CommunityPlaceType; description?: string; address?: string; contactPhone?: string; contactEmail?: string }, signal?: AbortSignal): Promise<CommunityPlace> {
+  async updateCommunityPlace(id: string, payload: {
+    institutionId?: string;
+    name?: string;
+    type?: string;
+    description?: string;
+    address?: string;
+    contactPhone?: string;
+    contactEmail?: string;
+  }, signal?: AbortSignal): Promise<CommunityPlace> {
     const { data } = await axiosClient.patch<CommunityPlace>(`/community-places/${id}`, payload, { signal });
     return data;
   },
@@ -223,38 +258,31 @@ export const catalogService = {
     return data;
   },
 
-  async createCommunityTutor(payload: { locationId: string; fullName?: string; dni?: string; phone?: string; email?: string; position?: string }, signal?: AbortSignal): Promise<CommunityTutor> {
+  async createCommunityTutor(payload: {
+    locationId: string;
+    fullName?: string;
+    dni?: string;
+    phone?: string;
+    email?: string;
+    position?: string;
+  }, signal?: AbortSignal): Promise<CommunityTutor> {
     const { data } = await axiosClient.post<CommunityTutor>('/community-tutors', payload, { signal });
     return data;
   },
 
-  async updateCommunityTutor(id: string, payload: { locationId?: string; fullName?: string; dni?: string; phone?: string; email?: string; position?: string }, signal?: AbortSignal): Promise<CommunityTutor> {
+  async updateCommunityTutor(id: string, payload: {
+    locationId?: string;
+    fullName?: string;
+    dni?: string;
+    phone?: string;
+    email?: string;
+    position?: string;
+  }, signal?: AbortSignal): Promise<CommunityTutor> {
     const { data } = await axiosClient.patch<CommunityTutor>(`/community-tutors/${id}`, payload, { signal });
     return data;
   },
 
   async deleteCommunityTutor(id: string, signal?: AbortSignal): Promise<void> {
     await axiosClient.delete(`/community-tutors/${id}`, { signal });
-  },
-
-  async getTagsPaginated(page = 1, limit = 10, search?: string, signal?: AbortSignal): Promise<PaginatedResult<Tag>> {
-    const params: Record<string, string | number> = { page, limit };
-    if (search) params.search = search;
-    const { data } = await axiosClient.get<PaginatedResult<Tag>>('/tags', { params, signal });
-    return data;
-  },
-
-  async createTag(payload: { name: string; category: TagCategory }, signal?: AbortSignal): Promise<Tag> {
-    const { data } = await axiosClient.post<Tag>('/tags', payload, { signal });
-    return data;
-  },
-
-  async updateTag(id: string, payload: { name?: string; category?: TagCategory }, signal?: AbortSignal): Promise<Tag> {
-    const { data } = await axiosClient.patch<Tag>(`/tags/${id}`, payload, { signal });
-    return data;
-  },
-
-  async deleteTag(id: string, signal?: AbortSignal): Promise<void> {
-    await axiosClient.delete(`/tags/${id}`, { signal });
   },
 };

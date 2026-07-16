@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const subjectSchema = z.object({
   trajectoryId: z.string().uuid('Selecciona un trayecto'),
-  name: z.string().min(1, 'El nombre es requerido'),
+  name: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
 });
 
 export type SubjectFormData = z.infer<typeof subjectSchema>;

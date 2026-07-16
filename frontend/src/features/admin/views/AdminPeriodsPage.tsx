@@ -1,46 +1,92 @@
 import { useState } from 'react';
 import { Button, Input, Table, Modal, Skeleton, Spinner, Tooltip } from '@heroui/react';
 import { useOverlayState } from '@heroui/react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebouncedCallback } from 'use-debounce';
-import { Plus, Search, Pencil, Trash2, CalendarRange } from 'lucide-react';
+import { catalogService } from '@/features/catalogs/services/catalog.service';
+import { Plus, Search, Pencil, Trash2, Calendar } from 'lucide-react';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { Pagination } from '@/shared/components/Pagination';
-import { usePageTitle } from '@/shared/hooks/usePageTitle';
+import { sileo } from 'sileo';
+import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { periodSchema, type PeriodFormData } from '../schemas/period.schema';
-import { usePeriods, usePeriodMutations } from '@/features/catalogs/hooks/usePeriods';
 import type { Period } from '@/shared/types/catalog.types';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
 
 const PER_PAGE = 10;
 
 export default function AdminPeriodsPage() {
   usePageTitle('Admin - Periodos');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [editing, setEditing] = useState<Period | null>(null);
-  const [deleting, setDeleting] = useState<Period | null>(null);
-
+  const queryClient = useQueryClient();
   const createModal = useOverlayState();
   const editModal = useOverlayState();
   const deleteModal = useOverlayState();
+  const [editing, setEditing] = useState<Period | null>(null);
+  const [deleting, setDeleting] = useState<Period | null>(null);
 
   const createForm = useForm<PeriodFormData>({
-    resolver: zodResolver(periodSchema) as never,
+    resolver: zodResolver(periodSchema) as any,
     mode: 'onChange',
-    defaultValues: { name: '', startDate: '', endDate: '', isActive: true },
+    defaultValues: { name: '', startDate: '', endDate: '', isActive: false },
   });
 
   const editForm = useForm<PeriodFormData>({
-    resolver: zodResolver(periodSchema) as never,
+    resolver: zodResolver(periodSchema) as any,
     mode: 'onChange',
   });
 
-  const { data: result, isLoading, isError } = usePeriods(page, search);
-  const { createMutation, updateMutation, deleteMutation } = usePeriodMutations();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const { data: result, isLoading, isError } = useQuery({
+    queryKey: ['periods', 'paginated', page, search],
+    queryFn: ({ signal }) => catalogService.getPeriodsPaginated(page, PER_PAGE, search || undefined, signal),
+    placeholderData: (prev) => prev,
+  });
 
   const periods = result?.data ?? [];
   const totalPages = result?.meta?.totalPages ?? 1;
+
+  const createMutation = useMutation({
+    mutationFn: () => catalogService.createPeriod(createForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['periods'] });
+      sileo.success({ title: 'Periodo creado exitosamente', description: 'El periodo ya está disponible.' });
+      createModal.close();
+      createForm.reset();
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al crear el periodo', description: 'Verifique los datos e intente nuevamente.' });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) => catalogService.updatePeriod(id, editForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['periods'] });
+      sileo.success({ title: 'Periodo actualizado exitosamente', description: 'Los cambios han sido guardados.' });
+      editModal.close();
+      setEditing(null);
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al actualizar el periodo', description: 'Ocurrió un problema al guardar.' });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => catalogService.deletePeriod(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['periods'] });
+      sileo.success({ title: 'Periodo eliminado exitosamente', description: 'El periodo ha sido removido.' });
+      deleteModal.close();
+      setDeleting(null);
+    },
+    onError: (err: unknown) => {
+      sileo.error({ title: extractApiError(err, 'Error al eliminar el periodo'), description: 'No se pudo eliminar el periodo.' });
+    },
+  });
 
   const debouncedSetSearch = useDebouncedCallback((val: string) => {
     setSearch(val);
@@ -49,12 +95,7 @@ export default function AdminPeriodsPage() {
 
   const openEdit = (p: Period) => {
     setEditing(p);
-    editForm.reset({
-      name: p.name,
-      startDate: p.startDate ? p.startDate.slice(0, 10) : '',
-      endDate: p.endDate ? p.endDate.slice(0, 10) : '',
-      isActive: p.isActive,
-    });
+    editForm.reset({ name: p.name, startDate: p.startDate?.split('T')[0] ?? '', endDate: p.endDate?.split('T')[0] ?? '', isActive: p.isActive });
     editModal.open();
   };
 
@@ -105,7 +146,7 @@ export default function AdminPeriodsPage() {
                 <Table.Column id="name" isRowHeader>Nombre</Table.Column>
                 <Table.Column id="startDate">Inicio</Table.Column>
                 <Table.Column id="endDate">Fin</Table.Column>
-                <Table.Column id="isActive">Activo</Table.Column>
+                <Table.Column id="isActive">Estado</Table.Column>
                 <Table.Column id="actions" className="w-28">Acciones</Table.Column>
               </Table.Header>
               <Table.Body
@@ -117,14 +158,12 @@ export default function AdminPeriodsPage() {
                 {(p: Period) => (
                   <Table.Row className="even:bg-surface-secondary/40 hover:bg-surface-secondary/80 hover:translate-x-0.5 transition-all duration-150">
                     <Table.Cell>{p.name}</Table.Cell>
-                    <Table.Cell className="text-muted text-sm">{p.startDate ? p.startDate.slice(0, 10) : '—'}</Table.Cell>
-                    <Table.Cell className="text-muted text-sm">{p.endDate ? p.endDate.slice(0, 10) : '—'}</Table.Cell>
+                    <Table.Cell className="text-muted text-sm">{p.startDate?.split('T')[0]}</Table.Cell>
+                    <Table.Cell className="text-muted text-sm">{p.endDate?.split('T')[0]}</Table.Cell>
                     <Table.Cell>
-                      {p.isActive ? (
-                        <span className="text-success text-xs font-medium">Activo</span>
-                      ) : (
-                        <span className="text-muted text-xs">Inactivo</span>
-                      )}
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${p.isActive ? 'bg-success/10 text-success' : 'bg-default text-muted'}`}>
+                        {p.isActive ? 'Activo' : 'Inactivo'}
+                      </span>
                     </Table.Cell>
                     <Table.Cell>
                       <div className="flex items-center gap-1">
@@ -169,7 +208,7 @@ export default function AdminPeriodsPage() {
             <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
               <Modal.Header>
                 <Modal.Icon className="bg-default text-foreground">
-                  <CalendarRange className="size-5" />
+                  <Calendar className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Nuevo Periodo</Modal.Heading>
                 <Modal.CloseTrigger />
@@ -177,33 +216,42 @@ export default function AdminPeriodsPage() {
               <Modal.Body className="space-y-3 p-3">
                 <div className="flex flex-col gap-1">
                   <label htmlFor="period-name" className="text-sm">Nombre</label>
-                  <Input id="period-name" {...createForm.register('name')} placeholder="Ej: 2026-I" autoFocus />
+                  <Input
+                    id="period-name"
+                    {...createForm.register('name')}
+                    placeholder="Ej: 2024-I"
+                    autoFocus
+                  />
                   {createForm.formState.errors.name && (
                     <p className="text-danger text-xs">{createForm.formState.errors.name.message}</p>
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="period-start" className="text-sm">Fecha de inicio</label>
-                  <Input id="period-start" type="date" {...createForm.register('startDate')} />
+                  <Input
+                    id="period-start"
+                    type="date"
+                    {...createForm.register('startDate')}
+                  />
                   {createForm.formState.errors.startDate && (
                     <p className="text-danger text-xs">{createForm.formState.errors.startDate.message}</p>
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="period-end" className="text-sm">Fecha de fin</label>
-                  <Input id="period-end" type="date" {...createForm.register('endDate')} />
+                  <Input
+                    id="period-end"
+                    type="date"
+                    {...createForm.register('endDate')}
+                  />
                   {createForm.formState.errors.endDate && (
                     <p className="text-danger text-xs">{createForm.formState.errors.endDate.message}</p>
                   )}
                 </div>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" {...createForm.register('isActive')} className="accent-primary" />
-                  Periodo activo
-                </label>
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { createModal.close(); createForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate(createForm.getValues())}>
+                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate()}>
                   {createMutation.isPending ? <Spinner size="sm" /> : 'Crear'}
                 </Button>
               </Modal.Footer>
@@ -218,7 +266,7 @@ export default function AdminPeriodsPage() {
             <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
               <Modal.Header>
                 <Modal.Icon className="bg-default text-foreground">
-                  <CalendarRange className="size-5" />
+                  <Calendar className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Editar Periodo</Modal.Heading>
                 <Modal.CloseTrigger />
@@ -226,33 +274,41 @@ export default function AdminPeriodsPage() {
               <Modal.Body className="space-y-3 p-3">
                 <div className="flex flex-col gap-1">
                   <label htmlFor="edit-period-name" className="text-sm">Nombre</label>
-                  <Input id="edit-period-name" {...editForm.register('name')} autoFocus />
+                  <Input
+                    id="edit-period-name"
+                    {...editForm.register('name')}
+                    autoFocus
+                  />
                   {editForm.formState.errors.name && (
                     <p className="text-danger text-xs">{editForm.formState.errors.name.message}</p>
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="edit-period-start" className="text-sm">Fecha de inicio</label>
-                  <Input id="edit-period-start" type="date" {...editForm.register('startDate')} />
+                  <Input
+                    id="edit-period-start"
+                    type="date"
+                    {...editForm.register('startDate')}
+                  />
                   {editForm.formState.errors.startDate && (
                     <p className="text-danger text-xs">{editForm.formState.errors.startDate.message}</p>
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="edit-period-end" className="text-sm">Fecha de fin</label>
-                  <Input id="edit-period-end" type="date" {...editForm.register('endDate')} />
+                  <Input
+                    id="edit-period-end"
+                    type="date"
+                    {...editForm.register('endDate')}
+                  />
                   {editForm.formState.errors.endDate && (
                     <p className="text-danger text-xs">{editForm.formState.errors.endDate.message}</p>
                   )}
                 </div>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" {...editForm.register('isActive')} className="accent-primary" />
-                  Periodo activo
-                </label>
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { editModal.close(); setEditing(null); editForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id, payload: editForm.getValues() })}>
+                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id })}>
                   {updateMutation.isPending ? <Spinner size="sm" /> : 'Guardar'}
                 </Button>
               </Modal.Footer>

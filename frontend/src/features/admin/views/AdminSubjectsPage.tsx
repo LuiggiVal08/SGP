@@ -1,50 +1,99 @@
 import { useState } from 'react';
 import { Button, Input, Table, Modal, Skeleton, Spinner, Tooltip, Select, ListBox } from '@heroui/react';
 import { useOverlayState } from '@heroui/react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDebouncedCallback } from 'use-debounce';
+import { catalogService } from '@/features/catalogs/services/catalog.service';
 import { Plus, Search, Pencil, Trash2, BookOpen } from 'lucide-react';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { Pagination } from '@/shared/components/Pagination';
-import { usePageTitle } from '@/shared/hooks/usePageTitle';
+import { sileo } from 'sileo';
+import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { subjectSchema, type SubjectFormData } from '../schemas/subject.schema';
-import { useSubjects, useSubjectMutations } from '@/features/catalogs/hooks/useSubjects';
-import { useTrajectories } from '@/features/catalogs/hooks/useTrajectories';
 import type { Subject, Trajectory } from '@/shared/types/catalog.types';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
+import { useTrajectories } from '@/features/catalogs/hooks/useTrajectories';
 
 const PER_PAGE = 10;
 
 export default function AdminSubjectsPage() {
-  usePageTitle('Admin - Materias');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [editing, setEditing] = useState<Subject | null>(null);
-  const [deleting, setDeleting] = useState<Subject | null>(null);
-
+  usePageTitle('Admin - Asignaturas');
+  const queryClient = useQueryClient();
   const createModal = useOverlayState();
   const editModal = useOverlayState();
   const deleteModal = useOverlayState();
+  const [editing, setEditing] = useState<Subject | null>(null);
+  const [deleting, setDeleting] = useState<Subject | null>(null);
 
   const createForm = useForm<SubjectFormData>({
-    resolver: zodResolver(subjectSchema) as never,
+    resolver: zodResolver(subjectSchema),
     mode: 'onChange',
     defaultValues: { trajectoryId: '', name: '' },
   });
 
   const editForm = useForm<SubjectFormData>({
-    resolver: zodResolver(subjectSchema) as never,
+    resolver: zodResolver(subjectSchema),
     mode: 'onChange',
   });
 
-  const { data: result, isLoading, isError } = useSubjects(page, search);
-  const { data: trajectories = [] } = useTrajectories(1, '');
-  const { createMutation, updateMutation, deleteMutation } = useSubjectMutations();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const { data: result, isLoading, isError } = useQuery({
+    queryKey: ['subjects', 'paginated', page, search],
+    queryFn: ({ signal }) => catalogService.getSubjectsPaginated(page, PER_PAGE, search || undefined, signal),
+    placeholderData: (prev) => prev,
+  });
+
+  const { data: trajectories = [] } = useTrajectories();
 
   const subjects = result?.data ?? [];
   const totalPages = result?.meta?.totalPages ?? 1;
 
-  const trajectoryMap = Object.fromEntries(trajectories.map((t: Trajectory) => [t.id, t.name]));
+  const trajectoryMap = Object.fromEntries(
+    trajectories.map((t: Trajectory) => [t.id, t.name]),
+  );
+
+  const createMutation = useMutation({
+    mutationFn: () => catalogService.createSubject(createForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subjects'] });
+      sileo.success({ title: 'Asignatura creada exitosamente', description: 'La asignatura ya está disponible.' });
+      createModal.close();
+      createForm.reset();
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al crear la asignatura', description: 'Verifique los datos e intente nuevamente.' });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) => catalogService.updateSubject(id, editForm.getValues()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subjects'] });
+      sileo.success({ title: 'Asignatura actualizada exitosamente', description: 'Los cambios han sido guardados.' });
+      editModal.close();
+      setEditing(null);
+    },
+    onError: () => {
+      sileo.error({ title: 'Error al actualizar la asignatura', description: 'Ocurrió un problema al guardar.' });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => catalogService.deleteSubject(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subjects'] });
+      sileo.success({ title: 'Asignatura eliminada exitosamente', description: 'La asignatura ha sido removida.' });
+      deleteModal.close();
+      setDeleting(null);
+    },
+    onError: (err: unknown) => {
+      sileo.error({ title: extractApiError(err, 'Error al eliminar la asignatura'), description: 'No se pudo eliminar la asignatura.' });
+    },
+  });
 
   const debouncedSetSearch = useDebouncedCallback((val: string) => {
     setSearch(val);
@@ -67,11 +116,11 @@ export default function AdminSubjectsPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="relative">
           <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
-          <h2 className="text-2xl font-semibold pl-3">Materias</h2>
+          <h2 className="text-2xl font-semibold pl-3">Asignaturas</h2>
         </div>
         <Button variant="primary" onPress={createModal.open}>
           <Plus size={16} />
-          Nueva Materia
+          Nueva Asignatura
         </Button>
       </div>
 
@@ -99,7 +148,7 @@ export default function AdminSubjectsPage() {
       ) : (
         <>
           <Table>
-            <Table.Content aria-label="Materias">
+            <Table.Content aria-label="Asignaturas">
               <Table.Header>
                 <Table.Column id="name" isRowHeader>Nombre</Table.Column>
                 <Table.Column id="trajectory">Trayecto</Table.Column>
@@ -108,7 +157,7 @@ export default function AdminSubjectsPage() {
               <Table.Body
                 items={subjects}
                 renderEmptyState={() => (
-                  <EmptyState message={search ? 'No se encontraron materias.' : 'No hay materias registradas.'} />
+                  <EmptyState message={search ? 'No se encontraron asignaturas.' : 'No hay asignaturas registradas.'} />
                 )}
               >
                 {(s: Subject) => (
@@ -160,18 +209,32 @@ export default function AdminSubjectsPage() {
                 <Modal.Icon className="bg-default text-foreground">
                   <BookOpen className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Nueva Materia</Modal.Heading>
+                <Modal.Heading>Nueva Asignatura</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
               <Modal.Body className="space-y-3 p-3">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="sub-traj" className="text-sm">Trayecto</label>
+                  <label htmlFor="subj-name" className="text-sm">Nombre</label>
+                  <Input
+                    id="subj-name"
+                    {...createForm.register('name')}
+                    placeholder="Ej: Programación I"
+                    autoFocus
+                  />
+                  {createForm.formState.errors.name && (
+                    <p className="text-danger text-xs">{createForm.formState.errors.name.message}</p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="subj-trajectory" className="text-sm">Trayecto</label>
                   <Select
-                    id="sub-traj"
+                    id="subj-trajectory"
                     aria-label="Trayecto"
                     placeholder="Seleccionar trayecto"
                     selectedKey={createForm.watch('trajectoryId') || null}
-                    onSelectionChange={(key) => createForm.setValue('trajectoryId', key as string, { shouldValidate: true })}
+                    onSelectionChange={(key) => {
+                      createForm.setValue('trajectoryId', key as string, { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -181,8 +244,8 @@ export default function AdminSubjectsPage() {
                       <ListBox>
                         {trajectories.map((t: Trajectory) => (
                           <ListBox.Item key={t.id} id={t.id} textValue={t.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {t.name}
                             <ListBox.ItemIndicator />
+                            {t.name}
                           </ListBox.Item>
                         ))}
                       </ListBox>
@@ -192,17 +255,10 @@ export default function AdminSubjectsPage() {
                     <p className="text-danger text-xs">{createForm.formState.errors.trajectoryId.message}</p>
                   )}
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="sub-name" className="text-sm">Nombre</label>
-                  <Input id="sub-name" {...createForm.register('name')} placeholder="Ej: Programación I" autoFocus />
-                  {createForm.formState.errors.name && (
-                    <p className="text-danger text-xs">{createForm.formState.errors.name.message}</p>
-                  )}
-                </div>
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { createModal.close(); createForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate(createForm.getValues())}>
+                <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate()}>
                   {createMutation.isPending ? <Spinner size="sm" /> : 'Crear'}
                 </Button>
               </Modal.Footer>
@@ -219,18 +275,31 @@ export default function AdminSubjectsPage() {
                 <Modal.Icon className="bg-default text-foreground">
                   <BookOpen className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Editar Materia</Modal.Heading>
+                <Modal.Heading>Editar Asignatura</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
               <Modal.Body className="space-y-3 p-3">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-sub-traj" className="text-sm">Trayecto</label>
+                  <label htmlFor="edit-subj-name" className="text-sm">Nombre</label>
+                  <Input
+                    id="edit-subj-name"
+                    {...editForm.register('name')}
+                    autoFocus
+                  />
+                  {editForm.formState.errors.name && (
+                    <p className="text-danger text-xs">{editForm.formState.errors.name.message}</p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="edit-subj-trajectory" className="text-sm">Trayecto</label>
                   <Select
-                    id="edit-sub-traj"
+                    id="edit-subj-trajectory"
                     aria-label="Trayecto"
                     placeholder="Seleccionar trayecto"
                     selectedKey={editForm.watch('trajectoryId') || null}
-                    onSelectionChange={(key) => editForm.setValue('trajectoryId', key as string, { shouldValidate: true })}
+                    onSelectionChange={(key) => {
+                      editForm.setValue('trajectoryId', key as string, { shouldValidate: true });
+                    }}
                   >
                     <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
                       <Select.Value />
@@ -240,8 +309,8 @@ export default function AdminSubjectsPage() {
                       <ListBox>
                         {trajectories.map((t: Trajectory) => (
                           <ListBox.Item key={t.id} id={t.id} textValue={t.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
-                            {t.name}
                             <ListBox.ItemIndicator />
+                            {t.name}
                           </ListBox.Item>
                         ))}
                       </ListBox>
@@ -251,17 +320,10 @@ export default function AdminSubjectsPage() {
                     <p className="text-danger text-xs">{editForm.formState.errors.trajectoryId.message}</p>
                   )}
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-sub-name" className="text-sm">Nombre</label>
-                  <Input id="edit-sub-name" {...editForm.register('name')} autoFocus />
-                  {editForm.formState.errors.name && (
-                    <p className="text-danger text-xs">{editForm.formState.errors.name.message}</p>
-                  )}
-                </div>
               </Modal.Body>
               <Modal.Footer>
                 <Button className="w-full" variant="secondary" onPress={() => { editModal.close(); setEditing(null); editForm.reset(); }}>Cancelar</Button>
-                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id, payload: editForm.getValues() })}>
+                <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id })}>
                   {updateMutation.isPending ? <Spinner size="sm" /> : 'Guardar'}
                 </Button>
               </Modal.Footer>
@@ -278,7 +340,7 @@ export default function AdminSubjectsPage() {
                 <Modal.Icon className="bg-danger/10 text-danger">
                   <Trash2 className="size-5" />
                 </Modal.Icon>
-                <Modal.Heading>Eliminar Materia</Modal.Heading>
+                <Modal.Heading>Eliminar Asignatura</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
               <Modal.Body>
