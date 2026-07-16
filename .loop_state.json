@@ -1,9 +1,9 @@
 {
-  "storyId": null,
-  "status": "IDLE",
-  "testsPassedBefore": 0,
-  "testsPassedAfter": 0,
-  "lastCommit": null,
+  "storyId": "C2",
+  "status": "EN_REVISION",
+  "testsPassedBefore": 3,
+  "testsPassedAfter": 4,
+  "lastCommit": "0414f31",
   "halted": false,
-  "haltReason": null
+  "haltReason": "GREEN"
 }

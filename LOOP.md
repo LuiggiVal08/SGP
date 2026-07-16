@@ -25,7 +25,7 @@
 
 ### Épica C — Actores: profesores y estudiantes
 - [ ] **C1** Perfil de profesor — `PENDIENTE`
-- [ ] **C2** Perfil de estudiante — `PENDIENTE`
+- [~] **C2** Perfil de estudiante — `EN_REVISION` (ciclo de prueba del loop: +/loop/health)
 
 ### Épica D — Asignaciones, proyectos y tutores
 - [ ] **D1** Asignación docente a materia — `PENDIENTE`
@@ -77,3 +77,12 @@
 -->
 
 _(sin ciclos ejecutados aún)_
+
+### loop/C2 — 2026-07-16
+- halt_reason: GREEN
+- tests_before: 3/3
+- tests_after: 4/4
+- cost: ciclo de prueba (manual)
+- commit: 0414f31
+- checker: sgp-verifier — VERDICT APPROVE (diff mínimo: GET /loop/health + spec; respeta DoD, sin cambios no relacionados)
+- escalado: pendiente PR a ADMIN (nunca auto-merge)
