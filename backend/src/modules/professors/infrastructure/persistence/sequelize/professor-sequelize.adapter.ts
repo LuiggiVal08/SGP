@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { ProfessorModel } from './models/professor.model';
 import { IProfessorRepository } from '../../../domain/ports/IProfessorRepository';
 import { Professor } from '../../../domain/entities/Professor';
@@ -8,6 +8,7 @@ import type {
   PaginationDto,
   PaginatedResult,
 } from '@share/application/dtos/pagination.dto';
+import type { ProfessorProfileDto } from '../../http/dtos/professor-profile.dto';
 
 @Injectable()
 export class ProfessorSequelizeAdapter implements IProfessorRepository {
@@ -33,6 +34,60 @@ export class ProfessorSequelizeAdapter implements IProfessorRepository {
   async findByUserId(userId: string): Promise<Professor | null> {
     const professor = await this.professorModel.findOne({ where: { userId } });
     return this.toDomain(professor);
+  }
+
+  async findProfileById(id: string): Promise<ProfessorProfileDto | null> {
+    const professor = await this.professorModel.findByPk(id);
+    if (!professor) return null;
+
+    const sequelize = this.professorModel.sequelize!;
+    const rows = await sequelize.query<{
+      id: string;
+      userId: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      dni: string;
+      phone: string | null;
+      specialization: string | null;
+      subjectId: string | null;
+      subjectName: string | null;
+      trajectoryName: string | null;
+    }>(
+      `SELECT p.id, p.userId, u.firstName, u.lastName, u.email, u.dni, u.phone,
+              p.specialization,
+              s.id AS subjectId, s.name AS subjectName, t.name AS trajectoryName
+       FROM professors p
+       INNER JOIN users u ON u.id = p.userId
+       LEFT JOIN project_subject_assignments psa ON psa.professorId = p.id
+       LEFT JOIN subjects s ON s.id = psa.subjectId
+       LEFT JOIN trajectories t ON t.id = s.trajectoryId
+       WHERE p.id = :id`,
+      { replacements: { id }, type: QueryTypes.SELECT },
+    );
+
+    if (rows.length === 0) return null;
+
+    const first = rows[0];
+    const subjects = rows
+      .filter((r) => r.subjectId !== null)
+      .map((r) => ({
+        id: r.subjectId!,
+        name: r.subjectName!,
+        trajectoryName: r.trajectoryName!,
+      }));
+
+    return {
+      id: first.id,
+      userId: first.userId,
+      firstName: first.firstName,
+      lastName: first.lastName,
+      email: first.email,
+      dni: first.dni,
+      phone: first.phone,
+      specialization: first.specialization,
+      subjects,
+    };
   }
 
   async findAllPaginated(

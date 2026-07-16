@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { StudentModel } from './models/student.model';
 import { IStudentRepository } from '../../../domain/ports/IStudentRepository';
 import { Student } from '../../../domain/entities/Student';
@@ -8,6 +8,7 @@ import type {
   PaginationDto,
   PaginatedResult,
 } from '@share/application/dtos/pagination.dto';
+import type { StudentProfileDto } from '../../http/dtos/student-profile.dto';
 
 @Injectable()
 export class StudentSequelizeAdapter implements IStudentRepository {
@@ -45,6 +46,67 @@ export class StudentSequelizeAdapter implements IStudentRepository {
       where: { enrollmentNumber },
     });
     return this.toDomain(student);
+  }
+
+  async findProfileById(id: string): Promise<StudentProfileDto | null> {
+    const student = await this.studentModel.findByPk(id);
+    if (!student) return null;
+
+    const sequelize = this.studentModel.sequelize!;
+    const rows = await sequelize.query<{
+      id: string;
+      userId: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      dni: string;
+      phone: string | null;
+      trajectoryId: string;
+      trajectoryName: string;
+      enrollmentNumber: string;
+      cohort: number;
+      currentTrayecto: number;
+      subjectId: string | null;
+      subjectName: string | null;
+    }>(
+      `SELECT st.id, st.userId, u.firstName, u.lastName, u.email, u.dni, u.phone,
+              st.trajectoryId, t.name AS trajectoryName,
+              st.enrollmentNumber, st.cohort, st.currentTrayecto,
+              s.id AS subjectId, s.name AS subjectName
+       FROM students st
+       INNER JOIN users u ON u.id = st.userId
+       INNER JOIN trajectories t ON t.id = st.trajectoryId
+       LEFT JOIN subjects s ON s.trajectoryId = st.trajectoryId
+       WHERE st.id = :id
+       ORDER BY s.name ASC`,
+      { replacements: { id }, type: QueryTypes.SELECT },
+    );
+
+    if (rows.length === 0) return null;
+
+    const first = rows[0];
+    const subjects = rows
+      .filter((r) => r.subjectId !== null)
+      .map((r) => ({
+        id: r.subjectId!,
+        name: r.subjectName!,
+      }));
+
+    return {
+      id: first.id,
+      userId: first.userId,
+      firstName: first.firstName,
+      lastName: first.lastName,
+      email: first.email,
+      dni: first.dni,
+      phone: first.phone,
+      trajectoryId: first.trajectoryId,
+      trajectoryName: first.trajectoryName,
+      enrollmentNumber: first.enrollmentNumber,
+      cohort: first.cohort,
+      currentTrayecto: first.currentTrayecto,
+      subjects,
+    };
   }
 
   async findAllPaginated(

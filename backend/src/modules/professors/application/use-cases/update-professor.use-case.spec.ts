@@ -11,6 +11,7 @@ describe('UpdateProfessorUseCase', () => {
     professorRepository = {
       findById: jest.fn(),
       findByUserId: jest.fn(),
+      findProfileById: jest.fn(),
       findAllPaginated: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
@@ -18,22 +19,23 @@ describe('UpdateProfessorUseCase', () => {
     useCase = new UpdateProfessorUseCase(professorRepository);
   });
 
-  it('should create/persist a professor profile with specialization', async () => {
-    professorRepository.findById.mockResolvedValue(null);
+  it('should update a professor profile specialization', async () => {
+    const existing = new Professor('uuid-1', 'user-1', 'Sistemas');
+    professorRepository.findById.mockResolvedValue(existing);
     professorRepository.save.mockResolvedValue(undefined);
 
     const result = await useCase.execute('uuid-1', {
-      specialization: 'Sistemas',
+      specialization: 'Software',
     });
 
     expect(result).toBeInstanceOf(Professor);
     expect(result.id).toBe('uuid-1');
-    expect(result.specialization).toBe('Sistemas');
+    expect(result.specialization).toBe('Software');
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(professorRepository.save).toHaveBeenCalledTimes(1);
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(professorRepository.save).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'uuid-1', specialization: 'Sistemas' }),
+      expect.objectContaining({ id: 'uuid-1', specialization: 'Software' }),
     );
   });
 

@@ -14,7 +14,7 @@ import { RolesGuard } from '../../../../auth/infrastructure/http/guards/roles.gu
 import { Roles } from '../../../../auth/infrastructure/http/guards/roles.decorator';
 import { LogActivity } from '../../../../activity-log/infrastructure/http/log-activity.decorator';
 import { GetAllStudentsUseCase } from '../../../application/use-cases/get-all-students.use-case';
-import { GetStudentByIdUseCase } from '../../../application/use-cases/get-student-by-id.use-case';
+import { GetStudentProfileUseCase } from '../../../application/use-cases/get-student-profile.use-case';
 import { UpdateStudentUseCase } from '../../../application/use-cases/update-student.use-case';
 import { DeleteStudentUseCase } from '../../../application/use-cases/delete-student.use-case';
 import { UpdateStudentDto } from '../dtos/update-student.dto';
@@ -26,7 +26,7 @@ import { UpdateStudentDto } from '../dtos/update-student.dto';
 export class StudentController {
   constructor(
     private readonly getAllStudentsUseCase: GetAllStudentsUseCase,
-    private readonly getStudentByIdUseCase: GetStudentByIdUseCase,
+    private readonly getStudentProfileUseCase: GetStudentProfileUseCase,
     private readonly updateStudentUseCase: UpdateStudentUseCase,
     private readonly deleteStudentUseCase: DeleteStudentUseCase,
   ) {}
@@ -46,9 +46,9 @@ export class StudentController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener estudiante por ID' })
+  @ApiOperation({ summary: 'Obtener perfil de estudiante' })
   async findOne(@Param('id') id: string) {
-    return this.getStudentByIdUseCase.execute(id);
+    return this.getStudentProfileUseCase.execute(id);
   }
 
   @Patch(':id')

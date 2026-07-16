@@ -21,6 +21,7 @@ describe('DeleteStudentUseCase', () => {
       findById: jest.fn(),
       findByUserId: jest.fn(),
       findByEnrollmentNumber: jest.fn(),
+      findProfileById: jest.fn(),
       findAllPaginated: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),

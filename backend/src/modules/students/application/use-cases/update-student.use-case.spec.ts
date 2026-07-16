@@ -12,6 +12,7 @@ describe('UpdateStudentUseCase', () => {
       findById: jest.fn(),
       findByUserId: jest.fn(),
       findByEnrollmentNumber: jest.fn(),
+      findProfileById: jest.fn(),
       findAllPaginated: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
@@ -19,8 +20,16 @@ describe('UpdateStudentUseCase', () => {
     useCase = new UpdateStudentUseCase(studentRepository);
   });
 
-  it('should create/persist a student profile with trajectory and cohort', async () => {
-    studentRepository.findById.mockResolvedValue(null);
+  it('should update a student profile trajectory and cohort', async () => {
+    const existing = new Student(
+      'uuid-1',
+      'user-1',
+      'traj-1',
+      '2024-001',
+      2024,
+      1,
+    );
+    studentRepository.findById.mockResolvedValue(existing);
     studentRepository.save.mockResolvedValue(undefined);
 
     const result = await useCase.execute('uuid-1', {

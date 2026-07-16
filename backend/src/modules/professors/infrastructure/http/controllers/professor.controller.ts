@@ -14,7 +14,7 @@ import { RolesGuard } from '../../../../auth/infrastructure/http/guards/roles.gu
 import { Roles } from '../../../../auth/infrastructure/http/guards/roles.decorator';
 import { LogActivity } from '../../../../activity-log/infrastructure/http/log-activity.decorator';
 import { GetAllProfessorsUseCase } from '../../../application/use-cases/get-all-professors.use-case';
-import { GetProfessorByIdUseCase } from '../../../application/use-cases/get-professor-by-id.use-case';
+import { GetProfessorProfileUseCase } from '../../../application/use-cases/get-professor-profile.use-case';
 import { UpdateProfessorUseCase } from '../../../application/use-cases/update-professor.use-case';
 import { DeleteProfessorUseCase } from '../../../application/use-cases/delete-professor.use-case';
 import { UpdateProfessorDto } from '../dtos/update-professor.dto';
@@ -26,7 +26,7 @@ import { UpdateProfessorDto } from '../dtos/update-professor.dto';
 export class ProfessorController {
   constructor(
     private readonly getAllProfessorsUseCase: GetAllProfessorsUseCase,
-    private readonly getProfessorByIdUseCase: GetProfessorByIdUseCase,
+    private readonly getProfessorProfileUseCase: GetProfessorProfileUseCase,
     private readonly updateProfessorUseCase: UpdateProfessorUseCase,
     private readonly deleteProfessorUseCase: DeleteProfessorUseCase,
   ) {}
@@ -46,9 +46,9 @@ export class ProfessorController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener profesor por ID' })
+  @ApiOperation({ summary: 'Obtener perfil de profesor' })
   async findOne(@Param('id') id: string) {
-    return this.getProfessorByIdUseCase.execute(id);
+    return this.getProfessorProfileUseCase.execute(id);
   }
 
   @Patch(':id')
