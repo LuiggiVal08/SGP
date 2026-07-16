@@ -47,4 +47,13 @@ export class LoopController {
   getRunState(): LoopState | null {
     return this.loopService.getState();
   }
+
+  @Get('health')
+  @ApiOperation({
+    summary: 'Health del loop',
+    description: 'Indica si la capa de orquestación del loop está operativa',
+  })
+  getHealth(): { status: string; timestamp: string } {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  }
 }
