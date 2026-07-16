@@ -8,8 +8,8 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { JwtAuthGuard } from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
+import { RolesGuard } from '@modules/auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '@modules/auth/infrastructure/http/guards/roles.decorator';
 import { GetAllProjectSubjectAssignmentsUseCase } from '../../../application/use-cases/get-all-project-subject-assignments.use-case';
 import { CreateProjectSubjectAssignmentUseCase } from '../../../application/use-cases/create-project-subject-assignment.use-case';
@@ -19,7 +19,7 @@ import type {
   PaginationDto,
   PaginatedResult,
 } from '@share/application/dtos/pagination.dto';
-import { ProjectSubjectAssignment } from '../../domain/entities/ProjectSubjectAssignment';
+import { ProjectSubjectAssignment } from '../../../domain/entities/ProjectSubjectAssignment';
 
 @Controller('project-subject-assignments')
 @UseGuards(JwtAuthGuard, RolesGuard)

@@ -25,6 +25,6 @@ import { ProjectSubjectAssignmentsModule } from '@modules/project-subject-assign
     DeleteProfessorUseCase,
   ],
   controllers: [ProfessorController],
-  exports: ['IProfessorRepository'],
+  exports: ['IProfessorRepository', SequelizeModule],
 })
 export class ProfessorsModule {}

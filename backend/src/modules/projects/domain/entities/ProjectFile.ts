@@ -1,4 +1,4 @@
-export type FileType = 'THESIS_PDF' | 'SOURCE_CODE' | 'BUSINESS_PLAN';
+export type DocumentType = 'RESUMEN' | 'TOMO';
 
 export class ProjectFile {
   constructor(
@@ -6,7 +6,10 @@ export class ProjectFile {
     public readonly projectId: string,
     public readonly fileName: string,
     public readonly urlPath: string,
-    public readonly fileType: FileType,
-    public readonly documentType: string | null = null,
+    public readonly documentType: DocumentType,
+    public readonly uploadedBy: string,
+    public readonly version: number,
+    public readonly mimeType: string,
+    public readonly size: number,
   ) {}
 }

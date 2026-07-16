@@ -4,17 +4,57 @@ import {
   Model,
   DataType,
   ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
+import { Optional } from 'sequelize';
 import { ProjectModel } from './project.model';
-import { ProfessorModel } from '@modules/professors/infrastructure/persistence/sequelize/models/professor.model';
+import { StudentModel } from '@modules/students/infrastructure/persistence/sequelize/models/student.model';
 
-@Table({ tableName: 'project_authors', timestamps: false })
-export class ProjectAuthorModel extends Model {
+interface ProjectAuthorAttributes {
+  id: string;
+  projectId: string;
+  studentId: string;
+  authorOrder: number;
+}
+
+type ProjectAuthorCreationAttributes = Optional<ProjectAuthorAttributes, 'id' | 'authorOrder'>;
+
+@Table({
+  tableName: 'project_authors',
+  timestamps: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['projectId', 'studentId'],
+      name: 'uniq_project_student',
+    },
+  ],
+})
+export class ProjectAuthorModel extends Model<
+  ProjectAuthorAttributes,
+  ProjectAuthorCreationAttributes
+> {
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
+  declare id: string;
+
   @ForeignKey(() => ProjectModel)
-  @Column({ type: DataType.UUID, allowNull: false, primaryKey: true })
+  @Column({ type: DataType.UUID, allowNull: false })
   declare projectId: string;
 
-  @ForeignKey(() => ProfessorModel)
-  @Column({ type: DataType.UUID, allowNull: false, primaryKey: true })
-  declare professorId: string;
+  @BelongsTo(() => ProjectModel)
+  declare project?: ProjectModel;
+
+  @ForeignKey(() => StudentModel)
+  @Column({ type: DataType.UUID, allowNull: false })
+  declare studentId: string;
+
+  @BelongsTo(() => StudentModel)
+  declare student?: StudentModel;
+
+  @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 1 })
+  declare authorOrder: number;
 }

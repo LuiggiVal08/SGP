@@ -1,14 +1,11 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
-import { IFileStorageService } from '@share/domain/ports/IFileStorageService';
 
 @Injectable()
 export class DeleteProjectFileUseCase {
   constructor(
     @Inject('IProjectRepository')
     private readonly projectRepository: IProjectRepository,
-    @Inject('IFileStorageService')
-    private readonly storageService: IFileStorageService,
   ) {}
 
   async execute(projectId: string, fileId: string) {
@@ -23,7 +20,6 @@ export class DeleteProjectFileUseCase {
       throw new NotFoundException('Archivo no encontrado');
     }
 
-    await this.storageService.delete(file.urlPath);
     await this.projectRepository.deleteFile(fileId);
     return { message: 'Archivo eliminado exitosamente' };
   }

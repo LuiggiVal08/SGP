@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '@modules/auth/infrastructure/http/guards/roles.decorator';
 import { AssignProjectAcademicTutorUseCase } from '../../../application/use-cases/assign-project-academic-tutor.use-case';
 import { ListProjectAcademicTutorsUseCase } from '../../../application/use-cases/list-project-academic-tutors.use-case';
 import { RemoveProjectAcademicTutorUseCase } from '../../../application/use-cases/remove-project-academic-tutor.use-case';
-import { ProjectAcademicTutor } from '../../domain/entities/ProjectAcademicTutor';
+import { ProjectAcademicTutor } from '../../../domain/entities/ProjectAcademicTutor';
 
 @Controller('projects/:projectId/academic-tutors')
 @UseGuards(JwtAuthGuard, RolesGuard)

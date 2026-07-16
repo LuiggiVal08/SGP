@@ -1,12 +1,4 @@
-import {
-  IsString,
-  IsUUID,
-  IsArray,
-  ArrayMaxSize,
-  ArrayMinSize,
-  IsOptional,
-  IsBoolean,
-} from 'class-validator';
+import { IsString, IsBoolean, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateProjectDto {
   @IsString()
@@ -29,13 +21,10 @@ export class CreateProjectDto {
   @IsUUID()
   communityTutorId!: string;
 
-  @IsArray()
-  @IsUUID('4', { each: true })
-  @ArrayMinSize(1)
-  @ArrayMaxSize(3)
-  authorIds!: string[];
-
   @IsOptional()
   @IsBoolean()
   cdSubmitted?: boolean;
+
+  @IsUUID('4', { each: true })
+  studentIds!: string[];
 }

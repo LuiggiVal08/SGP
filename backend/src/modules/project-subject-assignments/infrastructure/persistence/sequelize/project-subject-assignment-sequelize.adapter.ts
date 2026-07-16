@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
 import { IProjectSubjectAssignmentRepository } from '../../../domain/ports/IProjectSubjectAssignmentRepository';
 import { ProjectSubjectAssignment } from '../../../domain/entities/ProjectSubjectAssignment';
 import { ProjectSubjectAssignmentModel } from './models/project-subject-assignment.model';

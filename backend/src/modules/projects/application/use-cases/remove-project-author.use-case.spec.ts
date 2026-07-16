@@ -1,11 +1,12 @@
-import { GetAllProjectsUseCase } from './get-all-projects.use-case';
+import { RemoveProjectAuthorUseCase } from './remove-project-author.use-case';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
-import { ICacheService } from '@share/domain/ports/ICacheService';
+import { ProjectAuthorModel } from '../../infrastructure/persistence/sequelize/models/project-author.model';
+import { NotFoundException } from '@nestjs/common';
 
-describe('GetAllProjectsUseCase', () => {
-  let useCase: GetAllProjectsUseCase;
+describe('RemoveProjectAuthorUseCase', () => {
+  let useCase: RemoveProjectAuthorUseCase;
   let projectRepository: jest.Mocked<IProjectRepository>;
-  let cacheService: jest.Mocked<ICacheService>;
+  let authorModel: { destroy: jest.Mock };
 
   beforeEach(() => {
     projectRepository = {
@@ -41,37 +42,32 @@ describe('GetAllProjectsUseCase', () => {
       createCarta: jest.fn(),
       deleteCartasByProject: jest.fn(),
     };
-    cacheService = {
-      get: jest.fn(),
-      set: jest.fn(),
-      delete: jest.fn(),
-    };
+    authorModel = { destroy: jest.fn() };
 
-    useCase = new GetAllProjectsUseCase(projectRepository, cacheService);
+    useCase = new RemoveProjectAuthorUseCase(
+      projectRepository,
+      authorModel as unknown as typeof ProjectAuthorModel,
+    );
   });
 
-  it('should return cached projects when available', async () => {
-    const cached = [{ id: 'cached-1', title: 'Cached' }];
-    cacheService.get.mockResolvedValue(JSON.stringify(cached));
+  it('should remove an author from a project', async () => {
+    projectRepository.findById.mockResolvedValue({
+      id: 'proj-1',
+    } as never);
+    authorModel.destroy.mockResolvedValue(1);
 
-    const result = await useCase.execute();
+    await useCase.execute('proj-1', 'student-1');
 
-    expect(result).toEqual(cached);
-    expect(projectRepository.findAll).not.toHaveBeenCalled();
+    expect(authorModel.destroy).toHaveBeenCalledWith({
+      where: { projectId: 'proj-1', studentId: 'student-1' },
+    });
   });
 
-  it('should fetch and cache projects when cache is empty', async () => {
-    const projects = [{ id: 'p1', title: 'A' }];
-    cacheService.get.mockResolvedValue(null);
-    projectRepository.findAll.mockResolvedValue(projects as never);
+  it('should throw NotFoundException when project not found', async () => {
+    projectRepository.findById.mockResolvedValue(null);
 
-    const result = await useCase.execute();
-
-    expect(result).toEqual(projects);
-    expect(cacheService.set).toHaveBeenCalledWith(
-      'projects:all',
-      JSON.stringify(projects),
-      3600,
+    await expect(useCase.execute('bad', 's1')).rejects.toThrow(
+      NotFoundException,
     );
   });
 });

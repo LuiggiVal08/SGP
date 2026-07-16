@@ -12,22 +12,25 @@ import { ProjectModel } from './project.model';
 import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
 import { ProjectRevisionModel } from './project-revision.model';
 
-export type MilestoneType = 'TRIMESTRE' | 'DEFENSA';
-export type MilestoneStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type MilestoneType = 'ENTREGA_TOMO' | 'REVISION' | 'OTRA';
+export type MilestoneStatus = 'PENDIENTE' | 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
 
 interface ProjectMilestoneAttributes {
   id: string;
   projectId: string;
   type: MilestoneType;
-  trimestre: number | null;
+  stage: number | null;
   status: MilestoneStatus;
+  dueDate: Date | null;
+  submittedAt: Date | null;
+  reviewedAt: Date | null;
   approvedBy: string | null;
   approvedAt: Date | null;
 }
 
 type ProjectMilestoneCreationAttributes = Optional<
   ProjectMilestoneAttributes,
-  'id' | 'status' | 'approvedBy' | 'approvedAt'
+  'id' | 'status' | 'stage' | 'dueDate' | 'submittedAt' | 'reviewedAt' | 'approvedBy' | 'approvedAt'
 >;
 
 @Table({ tableName: 'project_milestones', timestamps: true })
@@ -49,14 +52,23 @@ export class ProjectMilestoneModel extends Model<
   @BelongsTo(() => ProjectModel)
   declare project?: ProjectModel;
 
-  @Column({ type: DataType.STRING(20), allowNull: false })
+  @Column({ type: DataType.STRING(30), allowNull: false })
   declare type: MilestoneType;
 
   @Column({ type: DataType.INTEGER, allowNull: true })
-  declare trimestre: number | null;
+  declare stage: number | null;
 
-  @Column({ type: DataType.STRING(20), defaultValue: 'PENDING' })
+  @Column({ type: DataType.STRING(20), defaultValue: 'PENDIENTE' })
   declare status: MilestoneStatus;
+
+  @Column({ type: DataType.DATEONLY, allowNull: true })
+  declare dueDate: Date | null;
+
+  @Column({ type: DataType.DATE, allowNull: true })
+  declare submittedAt: Date | null;
+
+  @Column({ type: DataType.DATE, allowNull: true })
+  declare reviewedAt: Date | null;
 
   @ForeignKey(() => UserModel)
   @Column({ type: DataType.UUID, allowNull: true })

@@ -25,6 +25,6 @@ import { TrajectoriesModule } from '@modules/trajectories/trajectories.module';
     DeleteStudentUseCase,
   ],
   controllers: [StudentController],
-  exports: ['IStudentRepository'],
+  exports: ['IStudentRepository', SequelizeModule],
 })
 export class StudentsModule {}

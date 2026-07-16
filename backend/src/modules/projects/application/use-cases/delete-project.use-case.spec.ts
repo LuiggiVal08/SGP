@@ -1,7 +1,7 @@
 import { DeleteProjectUseCase } from './delete-project.use-case';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
 import { ICacheService } from '@share/domain/ports/ICacheService';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ConflictException } from '@nestjs/common';
 
 describe('DeleteProjectUseCase', () => {
   let useCase: DeleteProjectUseCase;
@@ -13,11 +13,34 @@ describe('DeleteProjectUseCase', () => {
       findById: jest.fn(),
       findAll: jest.fn(),
       findByStatus: jest.fn(),
+      findBySubjectAssignment: jest.fn(),
+      findByLocation: jest.fn(),
+      findByCommunityTutor: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
       saveFiles: jest.fn(),
       findFileById: jest.fn(),
-      delete: jest.fn(),
+      findFilesByProjectId: jest.fn(),
+      deleteFile: jest.fn(),
+      getMaxVersion: jest.fn(),
+      findAllPaginated: jest.fn(),
+      countFiles: jest.fn(),
+      countByStatus: jest.fn(),
+      countByYear: jest.fn(),
+      countThisYear: jest.fn(),
+      findRecentActivity: jest.fn(),
+      findMilestonesByProject: jest.fn(),
+      findMilestoneById: jest.fn(),
+      createMilestone: jest.fn(),
+      updateMilestoneStatus: jest.fn(),
+      findRevisionsByMilestone: jest.fn(),
+      createRevision: jest.fn(),
+      findDefensaByProject: jest.fn(),
+      saveDefensa: jest.fn(),
+      findCartasByProject: jest.fn(),
+      createCarta: jest.fn(),
+      deleteCartasByProject: jest.fn(),
     };
     cacheService = {
       get: jest.fn(),
@@ -30,6 +53,7 @@ describe('DeleteProjectUseCase', () => {
 
   it('should delete project', async () => {
     projectRepository.findById.mockResolvedValue({ id: 'uuid-1' } as never);
+    projectRepository.countFiles.mockResolvedValue(0);
 
     await useCase.execute('uuid-1');
 
@@ -41,6 +65,14 @@ describe('DeleteProjectUseCase', () => {
     projectRepository.findById.mockResolvedValue(null);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(NotFoundException);
+    expect(projectRepository.delete).not.toHaveBeenCalled();
+  });
+
+  it('should throw ConflictException when project has files', async () => {
+    projectRepository.findById.mockResolvedValue({ id: 'uuid-1' } as never);
+    projectRepository.countFiles.mockResolvedValue(3);
+
+    await expect(useCase.execute('uuid-1')).rejects.toThrow(ConflictException);
     expect(projectRepository.delete).not.toHaveBeenCalled();
   });
 });

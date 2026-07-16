@@ -1,10 +1,12 @@
-import { GetProjectByIdUseCase } from './get-project-by-id.use-case';
+import { ListProjectAuthorsUseCase } from './list-project-authors.use-case';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
+import { ProjectAuthorModel } from '../../infrastructure/persistence/sequelize/models/project-author.model';
 import { NotFoundException } from '@nestjs/common';
 
-describe('GetProjectByIdUseCase', () => {
-  let useCase: GetProjectByIdUseCase;
+describe('ListProjectAuthorsUseCase', () => {
+  let useCase: ListProjectAuthorsUseCase;
   let projectRepository: jest.Mocked<IProjectRepository>;
+  let authorModel: { findAll: jest.Mock };
 
   beforeEach(() => {
     projectRepository = {
@@ -40,22 +42,41 @@ describe('GetProjectByIdUseCase', () => {
       createCarta: jest.fn(),
       deleteCartasByProject: jest.fn(),
     };
+    authorModel = { findAll: jest.fn() };
 
-    useCase = new GetProjectByIdUseCase(projectRepository);
+    useCase = new ListProjectAuthorsUseCase(
+      projectRepository,
+      authorModel as unknown as typeof ProjectAuthorModel,
+    );
   });
 
-  it('should return project when found', async () => {
-    const mock = { id: 'uuid-1', title: 'Test' };
-    projectRepository.findById.mockResolvedValue(mock as never);
+  it('should list authors for a project', async () => {
+    projectRepository.findById.mockResolvedValue({
+      id: 'proj-1',
+    } as never);
+    authorModel.findAll.mockResolvedValue([
+      {
+        id: 'a1',
+        projectId: 'proj-1',
+        studentId: 's1',
+        authorOrder: 1,
+        student: {
+          id: 's1',
+          enrollmentNumber: 'E001',
+          user: { firstName: 'John', lastName: 'Doe', email: 'j@test.com' },
+        },
+      },
+    ]);
 
-    const result = await useCase.execute('uuid-1');
+    const result = await useCase.execute('proj-1');
 
-    expect(result).toBe(mock);
+    expect(result).toHaveLength(1);
+    expect(result[0].studentId).toBe('s1');
   });
 
-  it('should throw NotFoundException when project does not exist', async () => {
+  it('should throw NotFoundException when project not found', async () => {
     projectRepository.findById.mockResolvedValue(null);
 
-    await expect(useCase.execute('uuid-1')).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute('bad')).rejects.toThrow(NotFoundException);
   });
 });
