@@ -1,23 +1,24 @@
 import axiosClient from '@/shared/api/axiosClient';
-import type { LoginCredentials } from '@/shared/types/auth.types';
-
-interface RawLoginResponse {
-  accessToken: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-  };
-}
+import type { LoginCredentials, LoginResponse } from '@/shared/types/auth.types';
 
 export const authService = {
-  async login(credentials: LoginCredentials) {
-    const { data } = await axiosClient.post<RawLoginResponse>('/auth/login', credentials);
+  async login(credentials: LoginCredentials, signal?: AbortSignal) {
+    const { data } = await axiosClient.post<LoginResponse>('/auth/login', credentials, { signal });
     return {
       token: data.accessToken,
+      refreshToken: data.refreshToken,
       user: data.user,
     };
+  },
+
+  async refresh(refreshToken: string) {
+    const { data } = await axiosClient.post<LoginResponse>('/auth/refresh', {
+      refreshToken,
+    });
+    return data;
+  },
+
+  async logout(refreshToken: string, signal?: AbortSignal): Promise<void> {
+    await axiosClient.post('/auth/logout', { refreshToken }, { signal }).catch(() => {});
   },
 };

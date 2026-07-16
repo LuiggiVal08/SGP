@@ -5,11 +5,20 @@ const labelMap: Record<string, string> = {
   profile: 'Mi Perfil',
   projects: 'Proyectos',
   new: 'Nuevo Proyecto',
+  help: 'Ayuda',
   admin: 'Administración',
-  careers: 'Carreras',
+  pnf: 'PNFs',
   institutions: 'Instituciones',
   users: 'Usuarios',
 };
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function formatSegment(segment: string): string {
+  if (labelMap[segment]) return labelMap[segment];
+  if (UUID_RE.test(segment)) return 'Detalle';
+  return segment;
+}
 
 export function Breadcrumbs() {
   const { pathname } = useLocation();
@@ -19,7 +28,7 @@ export function Breadcrumbs() {
 
   const crumbs = segments.map((segment, i) => {
     const path = '/' + segments.slice(0, i + 1).join('/');
-    const label = labelMap[segment] ?? segment;
+    const label = formatSegment(segment);
     const isLast = i === segments.length - 1;
     return { path, label, isLast };
   });
@@ -28,7 +37,7 @@ export function Breadcrumbs() {
     <nav aria-label="Breadcrumb" className="mb-5">
       <ol className="flex items-center gap-1.5 text-sm text-muted">
         <li>
-          <Link to="/" className="hover:text-foreground transition-colors inline-flex">
+          <Link to="/" aria-label="Inicio" className="hover:text-foreground transition-colors inline-flex">
             <Home size={14} />
           </Link>
         </li>

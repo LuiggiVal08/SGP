@@ -1,0 +1,528 @@
+Table roles {
+  id            UUID [pk]
+  name          varchar(50) [not null, unique]
+  description   varchar(255)
+  createdAt     timestamp
+  updatedAt     timestamp
+}
+Table permissions {
+  id            UUID [pk]
+  name          varchar(100) [not null, unique]
+  description   varchar(255)
+  createdAt     timestamp
+  updatedAt     timestamp
+
+}
+
+Table role_permissions {
+  roleId        UUID [pk, ref: > roles.id]
+  permissionId  UUID [pk, ref: > permissions.id]
+}
+
+Table user_roles {
+  userId        UUID [pk, ref: > users.id]
+  roleId        UUID [pk, ref: > roles.id]
+}
+Table institutions {
+  id            UUID [pk]
+  name          varchar(100) [not null]
+  acronym       varchar(20)
+  email         varchar(100)
+  contactInfo   varchar(255)
+  createdAt     timestamp
+  updatedAt     timestamp
+}
+Table periods {
+  id              UUID [pk]
+  institutionId   UUID [not null, ref: > institutions.id]
+  code            varchar(20) [not null] // 2026-I
+  name            varchar(100)
+  startDate       date
+  endDate         date
+  isActive        boolean [default: true]
+  createdAt       timestamp
+  updatedAt       timestamp
+  indexes {
+    (institutionId, code) [unique]
+  }
+
+}
+
+
+Table pnfs {
+  id            UUID [pk]
+  institutionId UUID [not null, ref: > institutions.id]
+  coordinatorId UUID [ref: > professors.id]
+  name          varchar(100) [not null]
+  createdAt     timestamp
+  updatedAt     timestamp
+  Note: 'coordinatorId identifica al COORDINADOR del PNF (profesor). El coordinador solo puede ver los proyectos de su PNF.'
+
+}
+
+Table trajectories {
+  id            UUID [pk]
+  pnfId         UUID [not null, ref: > pnfs.id]
+  name          varchar(100) [not null]
+  orderNumber   int [not null]
+  createdAt     timestamp
+  updatedAt     timestamp
+}
+
+Table subjects {
+  id            UUID [pk]
+  trajectoryId  UUID [not null, ref: > trajectories.id]
+  name          varchar(100) [not null]
+  createdAt     timestamp
+  updatedAt     timestamp
+}
+Table users {
+  id            UUID [pk]
+  dni           varchar(20) [not null, unique]
+  firstName     varchar(50) [not null]
+  lastName      varchar(50) [not null]
+  email         varchar(100) [not null, unique]
+  password      varchar(255) [not null]
+  phone         varchar(20)
+  institutionId UUID [not null, ref: > institutions.id]
+  isActive      boolean [default: true]
+  createdAt     timestamp
+  updatedAt     timestamp
+}
+Table professors {
+  id              UUID [pk]
+  userId          UUID [not null, unique, ref: > users.id]
+  specialization  varchar(255)
+  createdAt       timestamp
+  updatedAt       timestamp
+}
+Table students {
+  id                 UUID [pk]
+  userId             UUID [not null, unique, ref: > users.id]
+  trajectoryId       UUID [not null, ref: > trajectories.id]
+  enrollmentNumber   varchar(30) [not null, unique]
+  cohort             int
+  createdAt          timestamp
+  updatedAt          timestamp
+
+}
+
+Table project_subject_assignments {
+  id            UUID [pk]
+  subjectId     UUID [not null, ref: > subjects.id]
+  professorId   UUID [not null, ref: > professors.id]
+  periodId      UUID [not null, ref: > periods.id]
+  createdAt     timestamp
+  indexes {
+    (subjectId, professorId, periodId) [unique]
+  }
+  Note: 'professorId es el docente que IMPARTE la materia a ese grupo (sección/trimestre/trayecto). Queda excluido como tutor institucional de los proyectos de esta asignación, pero sí puede ser tutor de otros grupos de distinta sección, trimestre o trayecto.'
+}
+Table projects {
+  id                UUID [pk]
+  title             varchar(255) [not null]
+  description       text
+  problemStatement  text
+  subjectAssignmentId UUID [not null, ref: > project_subject_assignments.id]
+  locationId        UUID [not null, ref: > community_places.id]
+  communityTutorId  UUID [not null, ref: > community_tutors.id]
+  status            varchar(30) // BORRADOR | EN_PROCESO | ENTREGADO | APROBADO | RECHAZADO
+  cdSubmitted       boolean
+  createdAt         timestamp
+  updatedAt         timestamp
+}
+
+Table project_academic_tutors {
+  id            UUID [pk]
+  projectId     UUID [not null, ref: > projects.id]
+  professorId   UUID [not null, ref: > professors.id]
+  assignedAt    timestamp
+  active        boolean [default:true]
+  createdAt     timestamp
+  indexes {
+    (projectId, professorId) [unique]
+  }
+  Note: 'El professorId NO debe coincidir con project.subjectAssignment.professorId (el docente que imparte la materia a ese grupo no puede ser su tutor institucional). Sí puede tutorar otros grupos de distinta sección, trimestre o trayecto. Validación de aplicación en backend.'
+}
+Table project_authors {
+  id            UUID [pk]
+  projectId     UUID [not null, ref: > projects.id]
+  studentId     UUID [not null, ref: > students.id]
+  authorOrder   int
+  indexes {
+    (projectId, studentId) [unique]
+  }
+}
+
+Table community_places {
+  id            UUID [pk]
+  institutionId UUID [not null, ref: > institutions.id]
+  name          varchar(200) [not null]
+  type          varchar(30) // COMMUNITY | ORGANIZATION | INSTITUTION | COMPANY
+  description   text
+  address       text
+  contactPhone  varchar(20)
+  contactEmail  varchar(100)
+  createdAt     timestamp
+  updatedAt     timestamp
+}
+
+Table community_tutors {
+  id            UUID [pk]
+  locationId    UUID [not null, ref: > community_places.id]
+  fullName      varchar(100)
+  dni           varchar(20)
+  phone         varchar(20)
+  email         varchar(100)
+  position      varchar(100)
+  createdAt     timestamp
+  updatedAt     timestamp
+
+}
+Table project_files {
+  id            UUID [pk]
+  projectId     UUID [not null, ref: > projects.id]
+  uploadedBy    UUID [ref: > users.id]
+  documentType  varchar(50) // RESUMEN | TOMO
+  fileName      varchar(255)
+  urlPath       varchar(500)
+  mimeType      varchar(100)
+  size          bigint
+  version       int
+  createdAt     timestamp
+  updatedAt     timestamp
+  Note: 'Solo existen 2 tipos de archivo por proyecto: RESUMEN (resumen del proyecto, alimenta el buscador de antecedentes) y TOMO (documento completo, objeto de correcciones).'
+}
+
+Table project_milestones {
+  id            UUID [pk]
+  projectId     UUID [not null, ref: > projects.id]
+  type          varchar(30) // ENTREGA_TOMO | REVISION | OTRA
+  stage         int
+  status        varchar(20) // PENDIENTE | EN_REVISION | APROBADO | RECHAZADO
+  dueDate       date
+  submittedAt   timestamp
+  reviewedAt    timestamp
+  approvedBy     UUID [ref: > users.id]
+  approvedAt    timestamp
+  createdAt     timestamp
+  updatedAt     timestamp
+}
+
+Table project_revisions {
+  id            UUID [pk]
+  revisedBy     UUID [not null, ref: > users.id]
+  milestoneId   UUID [not null, ref: > project_milestones.id]
+  comment       text
+  statusBefore  varchar(20)
+  statusAfter   varchar(20)
+  createdAt     timestamp
+}
+
+// Correcciones sobre el TOMO (documento completo). El tutor/docente comenta;
+// el grupo marca resuelta al re-subir el tomo.
+Table project_corrections {
+  id            UUID [pk]
+  fileId        UUID [not null, ref: > project_files.id] // el TOMO
+  commentedBy   UUID [not null, ref: > users.id]
+  comment       text
+  status        varchar(20) // PENDIENTE | RESUELTA
+  createdAt     timestamp
+  resolvedAt    timestamp
+  indexes {
+    (fileId) [name: 'idx_corrections_file']
+  }
+  Note: 'Cada corrección apunta al archivo TOMO versionado. status PENDIENTE hasta que el TUTOR (docente/tutor academico) marca RESUELTA al verificar la re-subida del tomo.'
+}
+
+// Catalogo de etiquetas para el buscador de resumenes (antecedentes)
+Table tags {
+  id            UUID [pk]
+  name          varchar(100) [not null]
+  category      varchar(50) // TECNOLOGIA | TEMA | TUTOR | METODOLOGIA
+  createdAt     timestamp
+  indexes {
+    (name, category) [unique]
+  }
+}
+
+Table project_tags {
+  projectId     UUID [not null, ref: > projects.id]
+  tagId         UUID [not null, ref: > tags.id]
+  indexes {
+    (projectId, tagId) [unique]
+  }
+}
+
+Table defenses {
+  id              UUID [pk]
+  projectId       UUID [not null, ref: > projects.id]
+  scheduledDate   timestamp
+  actualDate      timestamp
+  status          varchar(30) // PROGRAMADA | REALIZADA | APLAZADA | CANCELADA
+  createdAt       timestamp
+  updatedAt       timestamp
+  indexes {
+    projectId [unique]
+  }
+  Note: 'La defensa la AGENDA el DOCENTE (quien imparte la asignacion). Jurado obligatorio: docente que imparte (SUBJECT_PROFESSOR), tutor institucional (ACADEMIC_TUTOR) y tutor comunitario (COMMUNITY_TUTOR) del proyecto.'
+}
+
+Table defense_judges {
+  id UUID [pk]
+
+  defenseId UUID [not null, ref: > defenses.id]
+
+  professorId UUID [ref: > professors.id]
+
+  communityTutorId UUID [ref: > community_tutors.id]
+
+  judgeType varchar(30)
+  // SUBJECT_PROFESSOR
+  // ACADEMIC_TUTOR
+  // COMMUNITY_TUTOR
+
+  createdAt timestamp
+
+  indexes {
+    (defenseId, professorId) [unique]
+    (defenseId, communityTutorId) [unique]
+  }
+
+  Note: 'CHECK: (professorId IS NOT NULL AND communityTutorId IS NULL) OR (professorId IS NULL AND communityTutorId IS NOT NULL) -- a judge is exactly one of professor / community tutor'
+}
+//
+
+// Evaluaciones realizadas durante defensa
+
+//
+
+
+
+Table defense_evaluations {
+  id UUID [pk]
+
+  judgeId UUID [not null, ref: > defense_judges.id]
+
+  score decimal(5,2)
+
+  comments text
+
+  createdAt timestamp
+
+  indexes {
+    judgeId [unique]
+  }
+}
+//
+
+// Documento final del estudiante
+
+//
+
+
+
+Table completion_certificates {
+id            UUID [pk]
+pdfUrl        varchar(500)
+authorId UUID [not null, ref: > project_authors.id]
+
+createdAt     timestamp
+updatedAt     timestamp
+
+
+indexes {
+  authorId [unique]
+}
+
+}
+//
+
+// Recuperación de acceso
+
+//
+
+
+
+Table questions {
+id            UUID [pk]
+
+
+questionText  varchar(255)
+
+
+active        boolean
+
+
+createdAt     timestamp
+updatedAt     timestamp
+
+}
+Table user_questions {
+id            UUID [pk]
+
+
+userId        UUID [not null, ref: > users.id]
+
+
+questionId    UUID [not null, ref: > questions.id]
+
+
+answerHash    varchar(255)
+
+
+createdAt     timestamp
+updatedAt     timestamp
+
+}
+//
+
+// Tokens de seguridad
+
+//
+
+
+
+Table user_tokens {
+id            UUID [pk]
+
+
+userId        UUID [not null, ref: > users.id]
+
+
+token         varchar(255) [unique]
+
+
+type          varchar(30)
+
+
+
+  // PASSWORD_RESET
+
+  // EMAIL_VERIFY
+
+  // SESSION
+
+
+used          boolean [default:false]
+
+
+expiration    timestamp
+
+
+createdAt     timestamp
+
+}
+//
+
+// Sesiones activas
+
+//
+
+
+
+Table user_sessions {
+id            UUID [pk]
+
+
+userId        UUID [not null, ref: > users.id]
+
+
+device        varchar(100)
+
+
+ip            varchar(45)
+
+
+startAt       timestamp
+endAt         timestamp
+
+
+active        boolean [default:true]
+
+}
+//
+
+// Notificaciones
+
+//
+
+
+
+Table notifications {
+id            UUID [pk]
+
+
+userId        UUID [not null, ref: > users.id]
+
+
+title         varchar(100)
+
+
+message       text
+
+
+type          varchar(50)
+
+
+entityType    varchar(50)
+
+
+entityId      UUID
+
+
+readAt        timestamp
+
+
+createdAt     timestamp
+
+}
+//
+
+// Auditoría
+
+//
+
+
+
+Table activity_logs {
+id            UUID [pk]
+
+
+userId        UUID [not null, ref: > users.id]
+
+
+action        varchar(50)
+
+
+entityType    varchar(50)
+
+
+entityId      UUID
+
+
+description   text
+
+
+details       json
+
+
+ip            varchar(45)
+
+
+  userAgent     varchar(255)
+
+
+  createdAt     timestamp
+
+}
+
+Table defense_schedule_changes {
+  id UUID [pk]
+  defenseId UUID [not null, ref: > defenses.id]
+  previousDate timestamp
+  newDate timestamp
+  changedBy UUID [not null, ref: > users.id]
+  reason text
+  createdAt timestamp
+}

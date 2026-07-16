@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { IUserRepository } from '../../../domain/ports/IUserRepository';
 import { UserModel } from './models/user.model';
 import { User } from '../../../domain/entities/User';
+import type {
+  PaginationDto,
+  PaginatedResult,
+} from '@share/application/dtos/pagination.dto';
 
 @Injectable()
 export class UserSequelizeAdapter implements IUserRepository {
@@ -21,9 +26,10 @@ export class UserSequelizeAdapter implements IUserRepository {
       model.email,
       model.password,
       model.isActive,
-      model.careerId,
+      model.pnfId,
       model.institutionId,
       model.roleId,
+      model.phone,
     );
   }
 
@@ -54,9 +60,10 @@ export class UserSequelizeAdapter implements IUserRepository {
           u.email,
           u.password,
           u.isActive,
-          u.careerId,
+          u.pnfId,
           u.institutionId,
           u.roleId,
+          u.phone,
         ),
     );
   }
@@ -73,11 +80,63 @@ export class UserSequelizeAdapter implements IUserRepository {
           u.email,
           u.password,
           u.isActive,
-          u.careerId,
+          u.pnfId,
           u.institutionId,
           u.roleId,
+          u.phone,
         ),
     );
+  }
+
+  async findAllPaginated(
+    dto: PaginationDto,
+    role?: string,
+  ): Promise<PaginatedResult<User>> {
+    const page = dto.page ?? 1;
+    const limit = Math.min(dto.limit ?? 10, 100);
+
+    const where: Record<string | symbol, any> = {};
+    if (dto.search) {
+      const dniSearch = dto.search.replace(/\D/g, '');
+      const orConditions: Record<string | symbol, any>[] = [];
+      if (dniSearch) {
+        orConditions.push({ dni: { [Op.like]: `%${dniSearch}%` } });
+      }
+      orConditions.push(
+        { firstName: { [Op.like]: `%${dto.search}%` } },
+        { lastName: { [Op.like]: `%${dto.search}%` } },
+        { email: { [Op.like]: `%${dto.search}%` } },
+      );
+      where[Op.or] = orConditions;
+    }
+    if (role) {
+      where.roleId = role;
+    }
+    const { rows, count } = await this.userModel.findAndCountAll({
+      where,
+      limit,
+      offset: (page - 1) * limit,
+      order: [['firstName', 'ASC']],
+    });
+    return {
+      data: rows.map(
+        (u) =>
+          new User(
+            u.id,
+            u.dni,
+            u.firstName,
+            u.lastName,
+            u.email,
+            u.password,
+            u.isActive,
+            u.pnfId,
+            u.institutionId,
+            u.roleId,
+            u.phone,
+          ),
+      ),
+      meta: { total: count, page, limit, totalPages: Math.ceil(count / limit) },
+    };
   }
 
   async save(user: User): Promise<void> {
@@ -89,9 +148,34 @@ export class UserSequelizeAdapter implements IUserRepository {
       email: user.email,
       password: user.password,
       isActive: user.isActive,
-      careerId: user.careerId,
+      pnfId: user.pnfId,
       institutionId: user.institutionId,
       roleId: user.roleId,
+      phone: user.phone,
     });
+  }
+
+  async update(id: string, data: Partial<Omit<User, 'id'>>): Promise<void> {
+    await this.userModel.update(data, { where: { id } });
+  }
+
+  async countByInstitutionId(institutionId: string): Promise<number> {
+    return this.userModel.count({ where: { institutionId } });
+  }
+
+  async countByPnfId(pnfId: string): Promise<number> {
+    return this.userModel.count({ where: { pnfId } });
+  }
+
+  async countByRoleName(roleName: string): Promise<number> {
+    const [result] = await this.userModel.sequelize!.query(
+      'SELECT COUNT(*) AS `count` FROM `users` u INNER JOIN `roles` r ON r.`id` = u.`roleId` WHERE r.`name` = ?',
+      { replacements: [roleName], type: QueryTypes.SELECT },
+    );
+    return (result as any).count;
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.userModel.destroy({ where: { id } });
   }
 }

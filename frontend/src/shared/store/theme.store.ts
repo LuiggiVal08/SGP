@@ -6,6 +6,7 @@ interface ThemeState {
   mode: ThemeMode;
   resolved: 'light' | 'dark';
   setMode: (mode: ThemeMode) => void;
+  destroy: () => void;
 }
 
 const getSystemTheme = (): 'light' | 'dark' =>
@@ -31,10 +32,7 @@ const initialMode = getInitialMode();
 const initialResolved = resolveTheme(initialMode);
 applyTheme(initialResolved);
 
-let mediaQuery: MediaQueryList | null = null;
-if (typeof window !== 'undefined') {
-  mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-}
+const listeners: Array<() => void> = [];
 
 export const useThemeStore = create<ThemeState>((set, get) => {
   const onSystemChange = () => {
@@ -46,8 +44,10 @@ export const useThemeStore = create<ThemeState>((set, get) => {
     }
   };
 
-  if (mediaQuery) {
-    mediaQuery.addEventListener('change', onSystemChange);
+  const mq = typeof window !== 'undefined' ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  if (mq) {
+    mq.addEventListener('change', onSystemChange);
+    listeners.push(() => mq.removeEventListener('change', onSystemChange));
   }
 
   return {
@@ -58,6 +58,10 @@ export const useThemeStore = create<ThemeState>((set, get) => {
       const resolved = resolveTheme(mode);
       applyTheme(resolved);
       set({ mode, resolved });
+    },
+    destroy: () => {
+      listeners.forEach((fn) => fn());
+      listeners.length = 0;
     },
   };
 });

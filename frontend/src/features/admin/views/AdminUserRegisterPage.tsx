@@ -1,51 +1,60 @@
-import { useState } from 'react';
-import { Button, Input, Card } from '@heroui/react';
+import { Button, Input, Card, Spinner, Select, ListBox, Skeleton } from '@heroui/react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { catalogService } from '@/features/catalogs/services/catalog.service';
-import { useCareers } from '@/features/catalogs/hooks/useCareers';
+import { usePnf } from '@/features/catalogs/hooks/usePnf';
 import { useInstitutions } from '@/features/catalogs/hooks/useInstitutions';
+import { createUserSchema, type CreateUserFormData } from '@/features/admin/schemas/create-user.schema';
 import { ArrowLeft } from 'lucide-react';
+import { usePageTitle } from '@/shared/hooks/usePageTitle';
+import { formatDni, stripFormatting } from '@/shared/utils/formatters';
+import { PasswordInput } from '@/shared/components/PasswordInput';
+import { PhoneInputField } from '@/shared/components/PhoneInput';
+import { FieldLabel } from '@/shared/components/FieldLabel';
 
 const roles = [
   { value: 'STUDENT', label: 'Estudiante' },
-  { value: 'TUTOR', label: 'Tutor' },
+  { value: 'DOCENTE', label: 'Docente' },
   { value: 'ADMIN', label: 'Administrador' },
+  { value: 'IRCOP', label: 'Administrador suplente' },
 ];
 
 export default function AdminUserRegisterPage() {
+  usePageTitle('Admin - Registrar Usuario');
   const navigate = useNavigate();
-  const { data: careers = [] } = useCareers();
-  const { data: institutions = [] } = useInstitutions();
-  const [form, setForm] = useState({
-    dni: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    roleName: 'STUDENT',
-    careerId: '',
-    institutionId: '',
+  const queryClient = useQueryClient();
+  const { data: institutions = [], isLoading: loadingInstitutions } = useInstitutions();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<CreateUserFormData>({
+    resolver: zodResolver(createUserSchema),
+    mode: 'onChange',
+    defaultValues: {
+      roleName: 'STUDENT',
+      pnfId: '',
+      institutionId: '',
+    },
   });
 
+  const { data: pnfs = [], isLoading: loadingPnfs } = usePnf(watch('institutionId') || undefined);
+
   const mutation = useMutation({
-    mutationFn: () => catalogService.createUser(form),
+    mutationFn: (data: CreateUserFormData) => catalogService.createUser(data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       navigate('/admin/users', { replace: true });
     },
   });
 
-  const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
-
-  const isValid =
-    form.dni.trim() &&
-    form.firstName.trim() &&
-    form.lastName.trim() &&
-    form.email.trim() &&
-    form.password.trim();
-
   return (
-    <div>
+    <div className="mx-auto max-w-lg">
       <button
         onClick={() => navigate('/admin/users')}
         className="flex items-center gap-1 text-sm text-muted hover:text-foreground mb-4 transition-colors"
@@ -54,81 +63,155 @@ export default function AdminUserRegisterPage() {
         Volver a Usuarios
       </button>
 
-      <h2 className="text-2xl font-semibold mb-6">Registrar Usuario</h2>
+      <div className="relative mb-6">
+        <div className="absolute -left-8 top-0 bottom-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
+        <h2 className="text-2xl font-semibold pl-3">Registrar Usuario</h2>
+      </div>
 
-      <Card.Root variant="secondary" className="border border-border max-w-lg">
+      <Card.Root variant="secondary" className="border border-border">
         <Card.Content className="p-6 space-y-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">Cédula</label>
-            <Input value={form.dni} onChange={(e) => set('dni', e.target.value)} placeholder="Ej: 1234567" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
+          <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
             <div className="flex flex-col gap-1">
-              <label className="text-sm">Nombre</label>
-              <Input value={form.firstName} onChange={(e) => set('firstName', e.target.value)} placeholder="Ej: Juan" />
+              <FieldLabel label="Cédula" help="Se formatea automáticamente" htmlFor="dni" className="text-sm" />
+              <Input id="dni" value={formatDni(watch('dni') ?? '')} onChange={(e) => setValue('dni', stripFormatting(e.target.value), { shouldValidate: true })} placeholder="Ej: 28 532 259" />
+              {errors.dni && <p className="text-danger text-xs">{errors.dni.message}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <FieldLabel label="Nombre" help="Nombre(s) del usuario" htmlFor="firstName" className="text-sm" />
+                <Input id="firstName" {...register('firstName')} placeholder="Ej: Juan" />
+                {errors.firstName && <p className="text-danger text-xs">{errors.firstName.message}</p>}
+              </div>
+              <div className="flex flex-col gap-1">
+                <FieldLabel label="Apellido" help="Apellido(s) del usuario" htmlFor="lastName" className="text-sm" />
+                <Input id="lastName" {...register('lastName')} placeholder="Ej: Pérez" />
+                {errors.lastName && <p className="text-danger text-xs">{errors.lastName.message}</p>}
+              </div>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm">Apellido</label>
-              <Input value={form.lastName} onChange={(e) => set('lastName', e.target.value)} placeholder="Ej: Pérez" />
+              <FieldLabel label="Email" help="Correo electrónico del usuario" htmlFor="email" className="text-sm" />
+              <Input id="email" {...register('email')} type="email" placeholder="Ej: juan@example.com" />
+              {errors.email && <p className="text-danger text-xs">{errors.email.message}</p>}
             </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">Email</label>
-            <Input value={form.email} onChange={(e) => set('email', e.target.value)} type="email" placeholder="Ej: juan@example.com" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">Contraseña</label>
-            <Input value={form.password} onChange={(e) => set('password', e.target.value)} type="password" placeholder="••••••••" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">Rol</label>
-            <select
-              value={form.roleName}
-              onChange={(e) => set('roleName', e.target.value)}
-              className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
-            >
-              {roles.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">Carrera</label>
-            <select
-              value={form.careerId}
-              onChange={(e) => set('careerId', e.target.value)}
-              className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
-            >
-              <option value="">Seleccionar carrera</option>
-              {careers.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">Institución</label>
-            <select
-              value={form.institutionId}
-              onChange={(e) => set('institutionId', e.target.value)}
-              className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
-            >
-              <option value="">Seleccionar institución</option>
-              {institutions.map((i) => (
-                <option key={i.id} value={i.id}>{i.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="pt-2">
-            <Button variant="primary" isDisabled={!isValid || mutation.isPending} onPress={() => mutation.mutate()}>
-              {mutation.isPending ? 'Registrando…' : 'Registrar Usuario'}
-            </Button>
-          </div>
-          {mutation.isError && (
-            <p className="text-danger text-sm text-center">Error al registrar. Verifique los datos.</p>
-          )}
-          {mutation.isSuccess && (
-            <p className="text-success text-sm text-center">Usuario registrado correctamente.</p>
-          )}
+            <div className="flex flex-col gap-1">
+              <FieldLabel label="Contraseña" help="Mínimo 6 caracteres" htmlFor="password" className="text-sm" />
+              <PasswordInput
+                id="password"
+                {...register('password')}
+                placeholder="••••••••"
+              />
+              {errors.password && <p className="text-danger text-xs">{errors.password.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm">Rol</label>
+              <Select
+                aria-label="Rol"
+                selectedKey={watch('roleName') || null}
+                onSelectionChange={(key) => setValue('roleName', key as 'STUDENT' | 'DOCENTE' | 'ADMIN', { shouldValidate: true })}
+                placeholder="Seleccionar rol"
+              >
+                <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
+                  <ListBox>
+                    {roles.map((r) => (
+                      <ListBox.Item key={r.value} id={r.value} textValue={r.label} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
+                        {r.label}
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm">PNF</label>
+              {loadingPnfs ? (
+                <Skeleton className="h-10 w-full rounded-lg" />
+              ) : (
+                <Select
+                  aria-label="PNF"
+                  selectedKey={watch('pnfId') || null}
+                  onSelectionChange={(key) => setValue('pnfId', key as string, { shouldValidate: true })}
+                  placeholder="Seleccionar PNF"
+                >
+                  <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
+                    <Select.Value />
+                    <Select.Indicator />
+                  </Select.Trigger>
+                  <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
+                    <ListBox>
+                      <ListBox.Item id="" textValue="Seleccionar PNF">Seleccionar PNF
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                      {pnfs.map((c) => (
+                        <ListBox.Item key={c.id} id={c.id} textValue={c.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
+                          {c.name}
+                          <ListBox.ItemIndicator />
+                        </ListBox.Item>
+                      ))}
+                    </ListBox>
+                  </Select.Popover>
+                </Select>
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm">Institución</label>
+              {loadingInstitutions ? (
+                <Skeleton className="h-10 w-full rounded-lg" />
+              ) : (
+                <Select
+                  aria-label="Institución"
+                  selectedKey={watch('institutionId') || null}
+                  onSelectionChange={(key) => {
+                    setValue('institutionId', key as string, { shouldValidate: true });
+                    setValue('pnfId', '', { shouldValidate: true });
+                  }}
+                  placeholder="Seleccionar institución"
+                >
+                  <Select.Trigger className="border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground data-[pressed]:ring-2 data-[pressed]:ring-primary/40">
+                    <Select.Value />
+                    <Select.Indicator />
+                  </Select.Trigger>
+                  <Select.Popover className="bg-background border border-border rounded-lg shadow-lg">
+                    <ListBox>
+                      <ListBox.Item id="" textValue="Seleccionar institución">Seleccionar institución
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                      {institutions.map((i) => (
+                        <ListBox.Item key={i.id} id={i.id} textValue={i.name} className="px-3 py-2 text-sm hover:bg-surface-secondary cursor-pointer data-[selected]:bg-primary/10 data-[selected]:text-primary">
+                          {i.name}
+                          <ListBox.ItemIndicator />
+                        </ListBox.Item>
+                      ))}
+                    </ListBox>
+                  </Select.Popover>
+                </Select>
+              )}
+            </div>
+            <div className="flex flex-col gap-1">
+              <FieldLabel label="Teléfono" help="Formato internacional" htmlFor="phone" className="text-sm" />
+              <PhoneInputField
+                id="phone"
+                value={watch('phone')}
+                onChange={(v) => setValue('phone', v, { shouldValidate: true })}
+                error={errors.phone?.message}
+              />
+            </div>
+            <div className="pt-2">
+              <Button variant="primary" type="submit" isDisabled={!isValid || mutation.isPending}>
+                {mutation.isPending ? <Spinner size="sm" /> : 'Registrar Usuario'}
+              </Button>
+            </div>
+            {mutation.isError && (
+              <p className="text-danger text-sm text-center">Error al registrar. Verifique los datos.</p>
+            )}
+            {mutation.isSuccess && (
+              <p className="text-success text-sm text-center">Usuario registrado correctamente.</p>
+            )}
+          </form>
         </Card.Content>
       </Card.Root>
     </div>

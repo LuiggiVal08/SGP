@@ -1,4 +1,4 @@
 export { catalogService } from './services/catalog.service';
-export { useCareers } from './hooks/useCareers';
+export { usePnf } from './hooks/usePnf';
 export { useInstitutions } from './hooks/useInstitutions';
 export { useUsers } from './hooks/useUsers';

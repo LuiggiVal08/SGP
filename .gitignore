@@ -3,3 +3,5 @@ dist/
 .env
 # no realizar commits de este cambio
 .agents/
+
+.worktrees/

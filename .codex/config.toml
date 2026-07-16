@@ -1,0 +1,15 @@
+[mcpServers.toon-memory]
+command = "npx"
+args = ["-y", "toon-memory", "mcp"]
+
+[[hooks]]
+event = "SessionStart"
+command = "/home/egraterol/projects/sgp/.toon-memory/hooks/session-start-codex.sh"
+
+[[hooks]]
+event = "PostToolUse"
+command = "/home/egraterol/projects/sgp/.toon-memory/hooks/capture-codex.sh"
+
+[[hooks]]
+event = "Stop"
+command = "/home/egraterol/projects/sgp/.toon-memory/hooks/capture-codex.sh"

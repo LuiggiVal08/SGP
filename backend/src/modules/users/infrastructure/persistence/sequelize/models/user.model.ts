@@ -8,7 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize';
 import { RoleModel } from '@modules/roles/infrastructure/persistence/sequelize/models/role.model';
-import { CareerModel } from '@modules/careers/infrastructure/persistence/sequelize/models/career.model';
+import { PnfModel } from '@modules/pnf/infrastructure/persistence/sequelize/models/pnf.model';
 import { InstitutionModel } from '@modules/institutions/infrastructure/persistence/sequelize/models/institution.model';
 
 interface UserAttributes {
@@ -19,12 +19,16 @@ interface UserAttributes {
   email: string;
   password: string;
   isActive: boolean;
-  careerId: string;
+  pnfId: string;
   institutionId: string;
   roleId: string;
+  phone?: string;
 }
 
-type UserCreationAttributes = Optional<UserAttributes, 'id' | 'isActive'>;
+type UserCreationAttributes = Optional<
+  UserAttributes,
+  'id' | 'isActive' | 'phone'
+>;
 
 @Table({ tableName: 'users', timestamps: true })
 export class UserModel extends Model<UserAttributes, UserCreationAttributes> {
@@ -53,12 +57,15 @@ export class UserModel extends Model<UserAttributes, UserCreationAttributes> {
   @Column({ type: DataType.BOOLEAN, defaultValue: true })
   declare isActive: boolean;
 
-  @ForeignKey(() => CareerModel)
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare careerId: string;
+  @Column({ type: DataType.STRING(20), allowNull: true })
+  declare phone: string | undefined;
 
-  @BelongsTo(() => CareerModel)
-  declare career?: CareerModel;
+  @ForeignKey(() => PnfModel)
+  @Column({ type: DataType.UUID, allowNull: false })
+  declare pnfId: string;
+
+  @BelongsTo(() => PnfModel)
+  declare pnf?: PnfModel;
 
   @ForeignKey(() => InstitutionModel)
   @Column({ type: DataType.UUID, allowNull: false })

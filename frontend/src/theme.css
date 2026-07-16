@@ -11,37 +11,37 @@
 [data-theme='light'],
 [data-theme='default'] {
   /* Theme Colors (Light Mode) */
-  --accent: oklch(62.04% 0.195 253.83);
+  --accent: oklch(57.14% 0.1637 263.10);
   --accent-foreground: oklch(99.11% 0 0);
-  --background: oklch(97.02% 0.0015 253.83);
-  --border: oklch(90% 0.0015 253.83);
+  --background: oklch(95.51% 0 0);
+  --border: oklch(88% 0 0);
   --danger: oklch(65.32% 0.2335 25.74);
   --danger-foreground: oklch(99.11% 0 0);
-  --default: oklch(94% 0.0015 253.83);
-  --default-foreground: oklch(21.03% 0.0059 253.83);
-  --primary: oklch(62.04% 0.195 253.83);
+  --default: oklch(94% 0 0);
+  --default-foreground: oklch(21% 0 0);
+  --primary: oklch(57.14% 0.1637 263.10);
   --primary-foreground: oklch(99.11% 0 0);
-  --field-background: oklch(100% 0.0008 253.83);
+  --field-background: oklch(100% 0 0);
   --field-border: transparent;
-  --field-foreground: oklch(21.03% 0.0015 253.83);
-  --field-placeholder: oklch(55.17% 0.003 253.83);
-  --focus: oklch(62.04% 0.195 253.83);
-  --foreground: oklch(21.03% 0.0015 253.83);
-  --muted: oklch(55.17% 0.003 253.83);
-  --overlay: oklch(100% 0.0004 253.83);
-  --overlay-foreground: oklch(21.03% 0.0015 253.83);
-  --scrollbar: oklch(87.1% 0.0015 253.83);
-  --segment: oklch(100% 0.0015 253.83);
-  --segment-foreground: oklch(21.03% 0.0015 253.83);
-  --separator: oklch(92% 0.0015 253.83);
+  --field-foreground: oklch(21% 0 0);
+  --field-placeholder: oklch(55% 0 0);
+  --focus: oklch(57.14% 0.1637 263.10);
+  --foreground: oklch(21% 0 0);
+  --muted: oklch(55% 0 0);
+  --overlay: oklch(100% 0 0);
+  --overlay-foreground: oklch(21% 0 0);
+  --scrollbar: oklch(85% 0 0);
+  --segment: oklch(100% 0 0);
+  --segment-foreground: oklch(21% 0 0);
+  --separator: oklch(90% 0 0);
   --success: oklch(73.29% 0.1941 150.81);
   --success-foreground: oklch(21.03% 0.0059 150.81);
-  --surface: oklch(100% 0.0008 253.83);
-  --surface-foreground: oklch(21.03% 0.0015 253.83);
-  --surface-secondary: oklch(95.24% 0.0012 253.83);
-  --surface-secondary-foreground: oklch(21.03% 0.0015 253.83);
-  --surface-tertiary: oklch(93.73% 0.0012 253.83);
-  --surface-tertiary-foreground: oklch(21.03% 0.0015 253.83);
+  --surface: oklch(100% 0 0);
+  --surface-foreground: oklch(21% 0 0);
+  --surface-secondary: oklch(98% 0 0);
+  --surface-secondary-foreground: oklch(21% 0 0);
+  --surface-tertiary: oklch(96% 0 0);
+  --surface-tertiary-foreground: oklch(21% 0 0);
   --warning: oklch(78.19% 0.159 72.33);
   --warning-foreground: oklch(21.03% 0.0059 72.33);
 
@@ -52,6 +52,22 @@
   /* Font Family */
   /* Make sure to load Inter font in your app */
   --font-sans: var(--font-inter);
+}
+
+.light [data-theme='card'],
+:root .light [data-theme='card'] {
+  /* Shadow tokens */
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.08), 0 2px 4px -2px oklch(0% 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.08), 0 4px 6px -4px oklch(0% 0 0 / 0.04);
+  --shadow-xl: 0 20px 25px -5px oklch(0% 0 0 / 0.08), 0 8px 10px -6px oklch(0% 0 0 / 0.04);
+}
+
+.dark [data-theme='card'] {
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.4), 0 2px 4px -2px oklch(0% 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.4), 0 4px 6px -4px oklch(0% 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px oklch(0% 0 0 / 0.4), 0 8px 10px -6px oklch(0% 0 0 / 0.3);
 }
 
 .dark,
@@ -107,3 +123,37 @@
     margin-left: 0;
   }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blobPulse {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(30px, -50px) scale(1.1); }
+  66%      { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+@keyframes blobPulse2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(-40px, 30px) scale(1.15); }
+  66%      { transform: translate(30px, -40px) scale(0.85); }
+}
+
+.animate-blob {
+  animation: blobPulse 12s ease-in-out infinite;
+}
+
+.animate-blob2 {
+  animation: blobPulse2 15s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.animate-fade-in-1 { animation-delay: 0.05s; }
+.animate-fade-in-2 { animation-delay: 0.1s; }
+.animate-fade-in-3 { animation-delay: 0.15s; }
+.animate-fade-in-4 { animation-delay: 0.2s; }

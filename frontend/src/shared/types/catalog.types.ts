@@ -1,6 +1,7 @@
-export interface Career {
+export interface Pnf {
   id: string;
   name: string;
+  institutionId: string;
 }
 
 export interface Institution {
@@ -20,6 +21,7 @@ export interface CatalogUser {
   isActive: boolean;
   roleId: string;
   roleName: string;
-  careerId: string;
+  pnfId: string;
   institutionId: string;
+  phone?: string;
 }
