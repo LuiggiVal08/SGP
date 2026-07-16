@@ -2,3 +2,7 @@ export { catalogService } from './services/catalog.service';
 export { usePnf } from './hooks/usePnf';
 export { useInstitutions } from './hooks/useInstitutions';
 export { useUsers } from './hooks/useUsers';
+export { usePeriods } from './hooks/usePeriods';
+export { useTrajectories } from './hooks/useTrajectories';
+export { useSubjects } from './hooks/useSubjects';
+export { useCommunityPlaces } from './hooks/useCommunityPlaces';

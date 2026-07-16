@@ -21,6 +21,12 @@ const AdminUsersPage = lazy(() => import('@/features/admin/views/AdminUsersPage'
 const AdminUserRegisterPage = lazy(() => import('@/features/admin/views/AdminUserRegisterPage'));
 const RegisterStudentPage = lazy(() => import('@/features/admin/views/RegisterStudentPage'));
 const RegisterProfessorPage = lazy(() => import('@/features/admin/views/RegisterProfessorPage'));
+const AdminPeriodsPage = lazy(() => import('@/features/admin/views/AdminPeriodsPage'));
+const AdminTrajectoriesPage = lazy(() => import('@/features/admin/views/AdminTrajectoriesPage'));
+const AdminSubjectsPage = lazy(() => import('@/features/admin/views/AdminSubjectsPage'));
+const AdminTagsPage = lazy(() => import('@/features/admin/views/AdminTagsPage'));
+const AdminCommunityPlacesPage = lazy(() => import('@/features/admin/views/AdminCommunityPlacesPage'));
+const AdminCommunityTutorsPage = lazy(() => import('@/features/admin/views/AdminCommunityTutorsPage'));
 const HelpPage = lazy(() => import('@/features/help/views/HelpPage'));
 const ActivityLogPage = lazy(() => import('@/features/activity-log/views/ActivityLogPage'));
 const LoopDashboardPage = lazy(() => import('@/features/loop-dashboard/views/LoopDashboardPage'));
@@ -64,6 +70,54 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
             {suspense(<AdminInstitutionsPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/periods',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
+            {suspense(<AdminPeriodsPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/trajectories',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
+            {suspense(<AdminTrajectoriesPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/subjects',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
+            {suspense(<AdminSubjectsPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/tags',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
+            {suspense(<AdminTagsPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/community-places',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
+            {suspense(<AdminCommunityPlacesPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/community-tutors',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
+            {suspense(<AdminCommunityTutorsPage />)}
           </ProtectedRoute>
         ),
       },
