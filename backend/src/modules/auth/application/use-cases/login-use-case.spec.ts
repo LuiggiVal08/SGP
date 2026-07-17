@@ -35,11 +35,22 @@ describe('LoginUseCase', () => {
       findByEmail: jest.fn(),
       findByDni: jest.fn(),
       findAll: jest.fn(),
+      findAllPaginated: jest.fn(),
       findByRoleId: jest.fn(),
       save: jest.fn(),
+      update: jest.fn(),
+      countByInstitutionId: jest.fn(),
+      countByPnfId: jest.fn(),
+      countByRoleName: jest.fn(),
+      delete: jest.fn(),
     };
     hashService = { hash: jest.fn(), compare: jest.fn() };
-    tokenService = { generate: jest.fn(), verify: jest.fn() };
+    tokenService = {
+      generate: jest.fn(),
+      verify: jest.fn(),
+      generateRefresh: jest.fn(),
+      verifyRefresh: jest.fn(),
+    };
     roleRepository = {
       findById: jest.fn(),
       findByName: jest.fn(),

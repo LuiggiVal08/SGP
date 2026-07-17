@@ -1,4 +1,10 @@
 export { catalogService } from './services/catalog.service';
-export { useCareers } from './hooks/useCareers';
+export { usePnf } from './hooks/usePnf';
 export { useInstitutions } from './hooks/useInstitutions';
 export { useUsers } from './hooks/useUsers';
+export { usePeriods } from './hooks/usePeriods';
+export { useTrajectories } from './hooks/useTrajectories';
+export { useSubjects } from './hooks/useSubjects';
+export { useCommunityPlaces } from './hooks/useCommunityPlaces';
+export { useCommunityTutors, useCommunityTutorMutations } from './hooks/useCommunityTutors';
+export { useTags, useTagMutations } from './hooks/useTags';

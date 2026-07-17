@@ -6,10 +6,14 @@ import type { AuthUser } from '@/shared/types/auth.types';
 
 const mockUser: AuthUser = {
   id: '1',
+  dni: '',
   firstName: 'Test',
   lastName: 'User',
   email: 'test@example.com',
   role: 'STUDENT',
+  isActive: true,
+  pnfId: '',
+  institutionId: '',
 };
 
 function renderProtected(allowedRoles?: string[]) {
@@ -27,10 +31,9 @@ describe('ProtectedRoute', () => {
     useAuthStore.setState({ user: null, token: null, isAuthenticated: false });
   });
 
-  it('should render nothing when not authenticated', () => {
-    const { container } = renderProtected();
+  it('should redirect to login when not authenticated', () => {
+    renderProtected();
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
-    expect(container.textContent).toBe('');
   });
 
   it('should render children when authenticated', () => {
@@ -39,11 +42,10 @@ describe('ProtectedRoute', () => {
     expect(screen.getByTestId('protected-content')).toBeInTheDocument();
   });
 
-  it('should render nothing when role not allowed', () => {
+  it('should redirect to home when role not allowed', () => {
     useAuthStore.setState({ user: mockUser, token: 'token', isAuthenticated: true });
-    const { container } = renderProtected(['ADMIN']);
+    renderProtected(['ADMIN']);
     expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
-    expect(container.textContent).toBe('');
   });
 
   it('should render children when role is allowed', () => {

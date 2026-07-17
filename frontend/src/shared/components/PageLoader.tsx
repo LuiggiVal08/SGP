@@ -6,6 +6,7 @@ export function PageLoader() {
 
   return (
     <div
+      role="progressbar" aria-label="Cargando página"
       className={`fixed top-0 left-0 right-0 z-50 h-1 transition-opacity duration-300 ${
         isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}

@@ -1,7 +1,5 @@
-import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 import { Optional } from 'sequelize';
-import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
-import { ProjectModel } from '@modules/projects/infrastructure/persistence/sequelize/models/project.model';
 
 interface CareerAttributes {
   id: string;
@@ -24,10 +22,4 @@ export class CareerModel extends Model<
 
   @Column({ type: DataType.STRING(100), allowNull: false })
   declare name: string;
-
-  @HasMany(() => UserModel)
-  declare users?: UserModel[];
-
-  @HasMany(() => ProjectModel)
-  declare projects?: ProjectModel[];
 }

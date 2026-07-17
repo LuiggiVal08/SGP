@@ -1,4 +1,27 @@
 services:
+    sgp_minio:
+        container_name: sgp_minio
+        image: minio/minio:latest
+        command: server /data --console-address ":9001"
+        ports:
+            - '9000:9000'
+            - '9001:9001'
+        environment:
+            - MINIO_ROOT_USER=minioadmin
+            - MINIO_ROOT_PASSWORD=minioadmin
+            - MINIO_SERVER_URL=http://minio:9000
+        volumes:
+            - sgp_minio_data:/data
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+            interval: 10s
+            timeout: 5s
+            retries: 3
+        networks:
+            sgp_network:
+                aliases:
+                    - minio
+
     sgp_nginx:
         container_name: sgp_nginx
         image: nginx:alpine
@@ -30,6 +53,7 @@ services:
             dockerfile: Dockerfile
         volumes:
             - ./backend:/app
+            - ./docs/dbml:/app/docs-dbml:ro # DBML del root para validación (loop-check.sh / P3)
             - /app/node_modules # Protege la instalación limpia de la imagen
         environment:
             - NODE_ENV=development
@@ -38,11 +62,20 @@ services:
             - DB_USER=root
             - DB_PASSWORD=root_password
             - DB_NAME=sgp_dev
+            - DB_SYNCHRONIZE=true
             - REDIS_HOST=sgp_redis
             - REDIS_PORT=6379
             - PORT=3000
             - JWT_SECRET=super-secret-key-for-sgp-that-is-at-least-32-chars-long
-            - JWT_EXPIRES_IN=1h
+            - JWT_EXPIRES_IN=15m
+            - JWT_REFRESH_SECRET=super-secret-refresh-key-for-sgp-32-chars!!
+            - STORAGE_DRIVER=minio
+            - MINIO_ENDPOINT=minio
+            - MINIO_PORT=9000
+            - MINIO_ACCESS_KEY=minioadmin
+            - MINIO_SECRET_KEY=minioadmin
+            - MINIO_BUCKET=sgp-uploads
+            - MINIO_USE_SSL=false
         expose:
             - '3000'
         stop_grace_period: 10s
@@ -50,6 +83,8 @@ services:
             sgp_mysql:
                 condition: service_healthy
             sgp_redis:
+                condition: service_started
+            sgp_minio:
                 condition: service_started
         healthcheck:
             test: ['CMD', 'curl', '-f', 'http://localhost:3000/']
@@ -80,7 +115,7 @@ services:
             - /bin/bash
             - -c
             - |
-                echo "CREATE DATABASE IF NOT EXISTS sgp_dev; CREATE DATABASE IF NOT EXISTS sgp_test;" > /tmp/init.sql
+                echo "CREATE DATABASE IF NOT EXISTS sgp_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE DATABASE IF NOT EXISTS sgp_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" > /tmp/init.sql
                 exec /usr/local/bin/docker-entrypoint.sh mysqld
         networks:
             - sgp_network
@@ -97,3 +132,4 @@ networks:
 
 volumes:
     sgp_db_data:
+    sgp_minio_data:

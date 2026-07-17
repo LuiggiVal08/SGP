@@ -13,4 +13,15 @@ export class JwtTokenAdapter implements ITokenService {
   verify(token: string): TokenPayload {
     return this.jwtService.verify<TokenPayload>(token);
   }
+
+  generateRefresh(payload: TokenPayload): string {
+    return this.jwtService.sign(payload, {
+      expiresIn: '7d',
+      audience: 'refresh',
+    });
+  }
+
+  verifyRefresh(token: string): TokenPayload {
+    return this.jwtService.verify<TokenPayload>(token, { audience: 'refresh' });
+  }
 }

@@ -1,0 +1,56 @@
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ConflictException,
+  Logger,
+} from '@nestjs/common';
+import { ICompletionCertificateRepository } from '../../domain/ports/ICompletionCertificateRepository';
+import { CompletionCertificate } from '../../domain/entities/CompletionCertificate';
+import type { PaginationDto } from '@share/application/dtos/pagination.dto';
+
+@Injectable()
+export class CompletionCertificateService {
+  private readonly logger = new Logger(CompletionCertificateService.name);
+
+  constructor(
+    @Inject('ICompletionCertificateRepository')
+    private readonly repository: ICompletionCertificateRepository,
+  ) {}
+
+  async generateByAuthorId(authorId: string): Promise<CompletionCertificate> {
+    const existing = await this.repository.findByAuthorId(authorId);
+    if (existing) {
+      throw new ConflictException('Certificate already exists for this author');
+    }
+
+    const serialNumber = this.generateSerialNumber();
+    const pdfUrl = `/uploads/certificates/${serialNumber}.pdf`;
+
+    this.logger.log(`Generating certificate for author ${authorId}`);
+
+    return this.repository.create({
+      authorId,
+      pdfUrl,
+      serialNumber,
+    });
+  }
+
+  async findAllPaginated(dto: PaginationDto) {
+    return this.repository.findAllPaginated(dto);
+  }
+
+  async findById(id: string): Promise<CompletionCertificate> {
+    const cert = await this.repository.findById(id);
+    if (!cert) {
+      throw new NotFoundException('Certificate not found');
+    }
+    return cert;
+  }
+
+  private generateSerialNumber(): string {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `CERT-${timestamp}-${random}`;
+  }
+}

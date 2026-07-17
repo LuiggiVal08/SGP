@@ -1,0 +1,181 @@
+version: 1
+[2|]{id|category|key|content|file|tags|date}:
+  73b38397|knowledge|sgp-architecture-review|## Revisión Arquitectónica SGP — 2026-07-11
+
+### Métricas globales
+- **Nodos**: 2173 | **Aristas**: 4291
+- **Lenguajes**: TypeScript (268 files), YAML (2), CSS (2), SQL (1), HTML (1), JS (1)
+- **Módulos backend**: 11 (activity-log, auth, institutions, pnf, professors, projects, roles, security-questions, students, users, index)
+- **Features frontend**: 9 (activity-log, admin, auth, catalogs, help, not-found, profile, projects, security-questions)
+- **Rutas HTTP**: 24
+- **Entry points**: 20 (4 backend decorators + 16 frontend pages/services)
+
+### Hotspots (más fan-in)
+1. `usePageTitle` — fan-in 16 (usado en todas las páginas)
+2. `toDomain` (ProjectSequelizeAdapter) — fan-in 9
+3. `extractApiError` — fan-in 8 (error handling centralizado)
+4. `usePnf` — fan-in 7
+5. `Roles` (decorator) — fan-in 6
+6. `useInstitutions` — fan-in 6
+7. `isAdmin` — fan-in 4
+8. `stripFormatting` / `formatDni` — fan-in 4
+9. `LogActivity` — fan-in 4
+
+### Clusters (Leiden community detection)
+- **Frontend cluster 0**: 27 miembros, cohesión 0.75 (admin/auth/catalogs)
+- **Backend cluster 66**: 18 miembros, cohesión 1.0 (users/auth)
+- **Frontend cluster 17**: 17 miembros, cohesión 0.63 (projects/dashboard)
+- **Backend cluster 98**: 17 miembros, cohesión 1.0 (projects/milestones)
+- **Frontend cluster 16**: 12 miembros, cohesión 0.8 (layout/session)
+- **Frontend cluster 5**: 9 miembros, cohesión 1.0 (error handling)
+- **Backend cluster 330**: 8 miembros, cohesión 1.0 (pnf)
+- **Backend cluster 177**: 7 miembros, cohesión 1.0 (institutions)
+- **Frontend cluster 118**: 6 miembros, cohesión 0.63 (profile)
+- **Backend cluster 101**: 5 miembros, cohesión 1.0 (project revisions)
+- **Backend cluster 74**: 5 miembros, cohesión 1.0 (PDF generation)
+
+### Complejidad
+- Solo 1 función con cyclomatic ≥ 10: `buildDescription` (activity-log interceptor) — complejidad 10, cognitiva 21
+- Solo 1 hot-path: `migrate` (migrate-v2) — transitive_loop_depth 2, linear_scan_in_loop 1
+
+### Capas detectadas
+- **API layer**: definiciones HTTP routes
+- **Internal**: src (fan-in=0, fan-out=0 — aislado)
+
+### Calidad del código
+- Sin funciones con uncertainty_score elevado (buena claridad)
+- Sin recursion sin guardar en loops
+- Sin allocaciones problemáticas en loops
+- Backend cohesión perfecta (1.0) en todos los clusters
+- Frontend variada: 0.63 a 1.0|AGENTS.md|architecture;review;quality;metrics|2026-07-12
+  f75c2815|knowledge|zod-v4-migration-status|## Zod v4 Migration Status - SGP Project
+
+### Current State
+- Both `backend/package.json` and `frontend/package.json` already declare `"zod": "^4.4.3"`
+- Installed version: 4.4.3 in both packages
+- The migration from v3 to v4 appears to have already been done at the package level
+
+### Backend Zod Usage (MINIMAL)
+- **Single file**: `backend/src/config/env.config.ts`
+- **Single schema**: `envValidationSchema` (17 env vars)
+- APIs used: `z.object`, `z.string`, `z.coerce.number`, `z.coerce.boolean`, `z.enum`, `.default`, `.min`, `.parse`, `z.infer`
+- **No advanced APIs**: No `.brand`, `.pipe`, `.transform`, `.superRefine`, `.catch`, `z.instanceof`, `parseAsync`, `safeParseAsync`
+- DTOs use `class-validator` (19 files), NOT Zod
+- Global ValidationPipe uses `@nestjs/common` ValidationPipe (class-validator based)
+
+### Frontend Zod Usage (MODERATE)
+- **12 files** import `z` from `'zod'`
+- **14 files** import `zodResolver` from `'@hookform/resolvers/zod'`
+- **9 standalone schema files** + **2 inline schemas** = 16 total schemas
+- APIs used: `z.object`, `z.string`, `z.number`, `z.array`, `z.boolean`, `z.enum`, `z.coerce.number`, `.optional()`, `.default()`, `.refine()`, `.email()`, `.min()`, `.max()`, `.int()`, `.uuid()`, `z.literal()`, `.or()`
+- **No advanced APIs**: No `.brand`, `.pipe`, `.transform`, `.superRefine`, `.catch`, `z.instanceof`
+- `@hookform/resolvers` v5.4.0 (supports Zod v4)
+- **1 test file**: `login.schema.test.ts` (5 tests)
+
+### Key Findings
+1. Zod v4 is already installed and configured
+2. Usage is basic - no breaking changes expected
+3. Backend validation is split: Zod for config, class-validator for DTOs
+4. Frontend validation is 100% Zod-based via React Hook Form
+5. No `parseAsync` usage anywhere (user mentioned checking it, but it's not used)
+6. `.brand`, `.pipe`, `z.instanceof` not used anywhere (user mentioned verifying them)
+
+### Recommendation
+- Run `docker compose up -d --build` and verify both services start
+- Run backend tests: `docker compose exec sgp_api_backend npm test`
+- Run frontend tests: `docker compose exec sgp_frontend_dev npm test`
+- Check for any deprecation warnings in logs
+- No code changes needed - the migration is already complete at the package level|backend/src/config/env.config.ts|zod;v4;migration;validation|2026-07-12
+
+### Current State
+- Both `backend/package.json` and `frontend/package.json` already declare `"zod": "^4.4.3"`
+- Installed version: 4.4.3 in both packages
+- The migration from v3 to v4 appears to have already been done at the package level
+
+### Backend Zod Usage (MINIMAL)
+- **Single file**: `backend/src/config/env.config.ts`
+- **Single schema**: `envValidationSchema` (17 env vars)
+- APIs used: `z.object`, `z.string`, `z.coerce.number`, `z.coerce.boolean`, `z.enum`, `.default`, `.min`, `.parse`, `z.infer`
+- **No advanced APIs**: No `.brand`, `.pipe`, `.transform`, `.superRefine`, `.catch`, `z.instanceof`, `parseAsync`, `safeParseAsync`
+- DTOs use `class-validator` (19 files), NOT Zod
+- Global ValidationPipe uses `@nestjs/common` ValidationPipe (class-validator based)
+
+### Frontend Zod Usage (MODERATE)
+- **12 files** import `z` from `'zod'`
+- **14 files** import `zodResolver` from `'@hookform/resolvers/zod'`
+- **9 standalone schema files** + **2 inline schemas** = 16 total schemas
+- APIs used: `z.object`, `z.string`, `z.number`, `z.array`, `z.boolean`, `z.enum`, `z.coerce.number`, `.optional()`, `.default()`, `.refine()`, `.email()`, `.min()`, `.max()`, `.int()`, `.uuid()`, `z.literal()`, `.or()`
+- **No advanced APIs**: No `.brand`, `.pipe`, `.transform`, `.superRefine`, `.catch`, `z.instanceof`
+- `@hookform/resolvers` v5.4.0 (supports Zod v4)
+- **1 test file**: `login.schema.test.ts` (5 tests)
+
+### Key Findings
+1. Zod v4 is already installed and configured
+2. Usage is basic - no breaking changes expected
+3. Backend validation is split: Zod for config, class-validator for DTOs
+4. Frontend validation is 100% Zod-based via React Hook Form
+5. No `parseAsync` usage anywhere (user mentioned checking it, but it's not used)
+6. `.brand`, `.pipe`, `z.instanceof` not used anywhere (user mentioned verifying them)
+
+### Files Consuming Validated Env (backend)
+- `app.module.ts` (ConfigModule.forRoot validate callback)
+- `main.ts` (env.PORT)
+- `database.module.ts`, `redis.module.ts`, `storage.module.ts`
+- `minio-storage.service.ts`, `auth.module.ts`, `jwt-token.adapter.ts`, `logout.use-case.ts`
+
+### Double Validation
+- Env validated twice: once at import time via `.parse(process.env)` and once via `ConfigModule.forRoot({ validate })`|backend/src/config/env.config.ts|zod;v4;migration;validation;architecture|2026-07-12
+
+[1|]{id|category|key|content|file|tags|date}:
+  e4c8be4a|knowledge|sgp-architecture-review|## Revisión Arquitectónica SGP — 2026-07-11
+
+### Métricas globales
+- **Nodos**: 2173 | **Aristas**: 4291
+- **Lenguajes**: TypeScript (268 files), YAML (2), CSS (2), SQL (1), HTML (1), JS (1)
+- **Módulos backend**: 11 (activity-log, auth, institutions, pnf, professors, projects, roles, security-questions, students, users, index)
+- **Features frontend**: 9 (activity-log, admin, auth, catalogs, help, not-found, profile, projects, security-questions)
+- **Rutas HTTP**: 24
+- **Entry points**: 20 (4 backend decorators + 16 frontend pages/services)
+
+### Hotspots (más fan-in)
+1. `usePageTitle` — fan-in 16 (usado en todas las páginas)
+2. `toDomain` (ProjectSequelizeAdapter) — fan-in 9
+3. `extractApiError` — fan-in 8 (error handling centralizado)
+4. `usePnf` — fan-in 7
+5. `Roles` (decorator) — fan-in 6
+6. `useInstitutions` — fan-in 6
+7. `isAdmin` — fan-in 4
+8. `stripFormatting` / `formatDni` — fan-in 4
+9. `LogActivity` — fan-in 4
+
+### Clusters (Leiden community detection)
+- **Frontend cluster 0**: 27 miembros, cohesión 0.75 (admin/auth/catalogs)
+- **Backend cluster 66**: 18 miembros, cohesión 1.0 (users/auth)
+- **Frontend cluster 17**: 17 miembros, cohesión 0.63 (projects/dashboard)
+- **Backend cluster 98**: 17 miembros, cohesión 1.0 (projects/milestones)
+- **Frontend cluster 16**: 12 miembros, cohesión 0.8 (layout/session)
+- **Frontend cluster 5**: 9 miembros, cohesión 1.0 (error handling)
+- **Backend cluster 330**: 8 miembros, cohesión 1.0 (pnf)
+- **Backend cluster 177**: 7 miembros, cohesión 1.0 (institutions)
+- **Frontend cluster 118**: 6 miembros, cohesión 0.63 (profile)
+- **Backend cluster 101**: 5 miembros, cohesión 1.0 (project revisions)
+- **Backend cluster 74**: 5 miembros, cohesión 1.0 (PDF generation)
+
+### Complejidad
+- Solo 1 función con cyclomatic ≥ 10: `buildDescription` (activity-log interceptor) — complejidad 10, cognitiva 21
+- Solo 1 hot-path: `migrate` (migrate-v2) — transitive_loop_depth 2, linear_scan_in_loop 1
+
+### Capas detectadas
+- **API layer**: definiciones HTTP routes
+- **Internal**: src (fan-in=0, fan-out=0 — aislado)
+
+### Calidad del código
+- Sin funciones con uncertainty_score elevado (buena claridad)
+- Sin recursion sin guardar en loops
+- Sin allocaciones problemáticas en loops
+- Backend cohesión perfecta (1.0) en todos los clusters
+- Frontend variada: 0.63 a 1.0|AGENTS.md|architecture;review;quality;metrics|2026-07-12
+[1|]{id|category|key|content|file|tags|date}:
+  ae6f5077|decision|sgp-metodologia-xp|El desarrollo del sistema SGP se realiza con la metodología XP (Extreme Programming). Es la metodología de INGENIERÍA del sistema (no confundir con las metodologías de los proyectos estudiantiles reportados en sus resúmenes, ej. RUP, Marco Lógico, que son contenido de los alumnos). Recordar siempre usar XP para planificar, iterar y construir el sistema.||metodologia;xp;extreme-programming;sgp|2026-07-16
+[1|]{id|category|key|content|file|tags|date}:
+  cdd3bbcb|pattern|sgp-loop-engineering|SGP implementa Loop Engineering como capa orquestadora externa sobre XP/TDD. Componentes: LOOP.md (memoria/backlog 28 stories), backend /loop module (read-only de LOOP.md), frontend loop-dashboard (/admin/loop), scripts/loop-check.sh (oráculo: tests+lint+dbml2sql, modo ciclo aísla del diff), scripts/loop-run.sh (maker->oráculo->checker->escalar), .agents/skills/sgp-loop + sub-agents sgp-maker/sgp-verifier, .github/workflows/loop.yml (dispatch, human gate no auto-merge). Skills de soporte instalados: ralph-loop-workflow, tdd-orchestrator, adversarial-review, supermemory, caveman/caveman-review/caveman-commit, docker-expert. El oráculo en modo ciclo da GREEN; el repo completo tiene deuda de lint/tests preexistente (se reestructurará). P3 resuelto: dbml2sql instalado + volumen docs/dbml montado en backend.|/home/egraterol/projects/sgp/LOOP.md|loop,sgp,arquitectura,orquestacion|2026-07-16

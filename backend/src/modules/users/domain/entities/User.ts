@@ -7,8 +7,9 @@ export class User {
     public readonly email: string,
     public readonly password: string,
     public readonly isActive: boolean = true,
-    public readonly careerId: string,
+    public readonly pnfId: string,
     public readonly institutionId: string,
     public readonly roleId: string,
+    public readonly phone?: string,
   ) {}
 }

@@ -43,4 +43,8 @@ export class InstitutionSequelizeAdapter implements IInstitutionRepository {
       contactInfo: institution.contactInfo,
     });
   }
+
+  async delete(id: string): Promise<void> {
+    await this.institutionModel.destroy({ where: { id } });
+  }
 }

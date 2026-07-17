@@ -3,11 +3,14 @@ import {
   Inject,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { IUserRepository } from '../../domain/ports/IUserRepository';
 import { IHashService } from '../../../auth/domain/ports/IHashService';
 import { IRoleRepository } from '../../../roles/domain/ports/IRoleRepository';
+import { IPnfRepository } from '../../../pnf/domain/ports/IPnfRepository';
+import { IInstitutionRepository } from '../../../institutions/domain/ports/IInstitutionRepository';
 import { User } from '../../domain/entities/User';
 
 @Injectable()
@@ -19,6 +22,10 @@ export class CreateUserUseCase {
     private readonly hashService: IHashService,
     @Inject('IRoleRepository')
     private readonly roleRepository: IRoleRepository,
+    @Inject('IPnfRepository')
+    private readonly pnfRepository: IPnfRepository,
+    @Inject('IInstitutionRepository')
+    private readonly institutionRepository: IInstitutionRepository,
   ) {}
 
   async execute(data: {
@@ -28,8 +35,9 @@ export class CreateUserUseCase {
     email: string;
     password: string;
     roleName: string;
-    careerId?: string;
+    pnfId?: string;
     institutionId?: string;
+    phone?: string;
   }) {
     const existingEmail = await this.userRepository.findByEmail(data.email);
     if (existingEmail) {
@@ -46,6 +54,26 @@ export class CreateUserUseCase {
       throw new NotFoundException(`Role "${data.roleName}" not found`);
     }
 
+    if (data.pnfId) {
+      const pnf = await this.pnfRepository.findById(data.pnfId);
+      if (!pnf) {
+        throw new BadRequestException(
+          `La PNF con ID "${data.pnfId}" no existe`,
+        );
+      }
+    }
+
+    if (data.institutionId) {
+      const institution = await this.institutionRepository.findById(
+        data.institutionId,
+      );
+      if (!institution) {
+        throw new BadRequestException(
+          `La institución con ID "${data.institutionId}" no existe`,
+        );
+      }
+    }
+
     const hashedPassword = await this.hashService.hash(data.password);
 
     const user = new User(
@@ -56,9 +84,10 @@ export class CreateUserUseCase {
       data.email,
       hashedPassword,
       true,
-      data.careerId ?? '',
+      data.pnfId ?? '',
       data.institutionId ?? '',
       role.id,
+      data.phone,
     );
 
     await this.userRepository.save(user);

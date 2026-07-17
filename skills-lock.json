@@ -6,6 +6,12 @@
       "sourceType": "autoskills-registry",
       "computedHash": "bffe3d08cfe92ebad63699f74ce29e35c19850ebfbf474c1463183cfe34d6a09"
     },
+    "adversarial-review": {
+      "source": "basicmachines-co/basic-memory",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/adversarial-review/SKILL.md",
+      "computedHash": "5c170ffd26b0dfdd8a5ab66bfbcd3b241f21ecf81043a816b1d475fd3f9729c8"
+    },
     "cavecrew": {
       "source": "JuliusBrussee/caveman",
       "sourceType": "github",
@@ -16,13 +22,13 @@
       "source": "JuliusBrussee/caveman",
       "sourceType": "github",
       "skillPath": "skills/caveman/SKILL.md",
-      "computedHash": "dfbf85749fd474feeb0bbe60c779795ecd5dbec0083299b56e68916bc3ddd8c9"
+      "computedHash": "d18cdf73a5f5c496d681a43a6846336b110223bdffa6817b8992529c57f1a815"
     },
     "caveman-commit": {
       "source": "JuliusBrussee/caveman",
       "sourceType": "github",
       "skillPath": "skills/caveman-commit/SKILL.md",
-      "computedHash": "f456ea0564875e46858890ac39ee701ecb9c601c72a2da1e6ce6bd5f9fc5d817"
+      "computedHash": "790a4eeace0be35c6691faf923518ba5bd50f1f1305d1101d09dd4971be94e00"
     },
     "caveman-compress": {
       "source": "JuliusBrussee/caveman",
@@ -54,6 +60,12 @@
       "skillPath": "skills/docker-expert/SKILL.md",
       "computedHash": "0974b5f64fcd284c1bd662810e2388f7beb9be6784c597de4d0ad4213ccbd6af"
     },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "781bd6d3f9b19f8c9af6b53d8d0e4876d0183841b565db34ca7092ffa412d111"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "autoskills-registry",
@@ -65,10 +77,28 @@
       "skillPath": "stdlib/devops/nginx-expert/SKILL.md",
       "computedHash": "713e364472c038e3d27dca897d494922c8a9a127b253be068a88d9243ed6cfe1"
     },
+    "ralph-loop-workflow": {
+      "source": "andrelandgraf/fullstackrecipes",
+      "sourceType": "github",
+      "skillPath": "skills/ralph-loop-workflow/SKILL.md",
+      "computedHash": "3a63550641b698a708cef86354c3a7b5c319895cfe1bc7aa1049dba12fc1e2c9"
+    },
     "seo": {
       "source": "addyosmani/web-quality-skills",
       "sourceType": "autoskills-registry",
       "computedHash": "c184da724d1c61ad077f27418ea8e7e88fd54bcdf98165e18be7e4681cbd5e20"
+    },
+    "supermemory": {
+      "source": "supermemoryai/skills",
+      "sourceType": "github",
+      "skillPath": "supermemory/SKILL.md",
+      "computedHash": "86b968194da4c2dc149df41674d805bdbf4abf009ff85a43752af35449a76fd6"
+    },
+    "tdd-orchestrator": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tdd-orchestrator/SKILL.md",
+      "computedHash": "d9d32fa1b5c2d6d0a66ef4bf689157ce4a9a475ddd137b0beceafff11d62e62e"
     }
   }
 }

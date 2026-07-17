@@ -13,8 +13,15 @@ import { env } from '@config/env.config';
       username: env.DB_USER,
       password: env.DB_PASSWORD,
       database: env.DB_NAME,
-      autoLoadModels: true, // 👈 Busca dinámicamente los modelos en los módulos
-      synchronize: true, // 👈 Sincroniza automáticamente en desarrollo
+      autoLoadModels: true,
+      synchronize: env.DB_SYNCHRONIZE,
+      dialectOptions: {
+        charset: 'utf8mb4',
+      },
+      define: {
+        charset: 'utf8mb4',
+        collate: 'utf8mb4_unicode_ci',
+      },
       logging: false,
     }),
   ],

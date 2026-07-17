@@ -9,3 +9,41 @@
  * @see https://heroui.com/docs/react/getting-started/theming
  */
 @import './theme.css' layer(theme);
+
+/* PhoneInput overrides */
+.phone-input-custom {
+  --PhoneInput-color--focus: var(--focus);
+  --PhoneInputCountryFlag-borderColor: var(--border);
+  display: flex;
+  align-items: center;
+  background: var(--field-background);
+  border: 1px solid var(--border);
+  border-radius: var(--field-radius);
+  padding: 0 0.75rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.phone-input-custom:focus-within {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 1px var(--focus);
+}
+
+.phone-input-custom .PhoneInputCountry {
+  margin-right: 0.5rem;
+  align-self: center;
+}
+
+.phone-input-custom .PhoneInputInput {
+  border: none;
+  background: transparent;
+  color: var(--field-foreground);
+  font-size: 0.875rem;
+  padding-block: 0.5rem;
+  outline: none;
+  min-width: 0;
+  flex: 1;
+}
+
+.phone-input-custom .PhoneInputInput::placeholder {
+  color: var(--field-placeholder);
+}

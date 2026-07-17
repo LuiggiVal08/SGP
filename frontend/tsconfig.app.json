@@ -24,6 +24,8 @@
         "moduleDetection": "force",
         "noEmit": true,
         "jsx": "react-jsx",
+        /* Type Checking */
+        "strict": true,
         /* Linting */
         "noUnusedLocals": true,
         "noUnusedParameters": true,

@@ -1,0 +1,27 @@
+{
+  "toon-memory": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "/home/egraterol/projects/sgp/.toon-memory/hooks/session-start-antigravity.sh"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/egraterol/projects/sgp/.toon-memory/hooks/capture-antigravity.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "/home/egraterol/projects/sgp/.toon-memory/hooks/capture-antigravity.sh"
+      }
+    ]
+  }
+}

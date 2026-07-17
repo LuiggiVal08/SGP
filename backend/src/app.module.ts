@@ -5,6 +5,7 @@ import { DatabaseModule } from '@share/infrastructure/modules/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { envValidationSchema } from '@config/env.config';
 import { RedisModule } from '@share/infrastructure/modules/redis.module';
+import { JwtConfigModule } from '@share/infrastructure/modules/jwt.module';
 import modules from './modules';
 
 @Module({
@@ -15,6 +16,7 @@ import modules from './modules';
     }),
     RedisModule, // Esto inyecta y exporta el servicio de caché basado en Redis
     DatabaseModule, // Esto inyecta y exporta la conexión de Sequelize
+    JwtConfigModule, // JwtService global para guards
     ...modules,
   ],
   controllers: [AppController],

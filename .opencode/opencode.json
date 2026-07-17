@@ -1,0 +1,22 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "toon-memory": {
+      "enabled": true,
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "toon-memory",
+        "mcp"
+      ]
+    },
+    "redis": {
+      "enabled": true,
+      "type": "local",
+      "command": [
+        "docker", "run", "-i", "--rm", "--network", "sgp_sgp_network", "-e", "REDIS_HOST=sgp_redis", "-e", "REDIS_PORT=6379", "mcp/redis"
+      ]
+    }
+  }
+}

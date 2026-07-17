@@ -1,3 +1,10 @@
-export { default as AdminCareersPage } from './views/AdminCareersPage';
+export { default as AdminPnfPage } from './views/AdminPnfPage';
 export { default as AdminInstitutionsPage } from './views/AdminInstitutionsPage';
 export { default as AdminUsersPage } from './views/AdminUsersPage';
+export { default as AdminUserRegisterPage } from './views/AdminUserRegisterPage';
+export { default as AdminPeriodsPage } from './views/AdminPeriodsPage';
+export { default as AdminTrajectoriesPage } from './views/AdminTrajectoriesPage';
+export { default as AdminSubjectsPage } from './views/AdminSubjectsPage';
+export { default as AdminTagsPage } from './views/AdminTagsPage';
+export { default as AdminCommunityPlacesPage } from './views/AdminCommunityPlacesPage';
+export { default as AdminCommunityTutorsPage } from './views/AdminCommunityTutorsPage';

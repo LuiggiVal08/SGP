@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "toon-memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "toon-memory",
+        "mcp"
+      ]
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "command": "/home/egraterol/projects/sgp/.toon-memory/hooks/session-start-gemini.sh"
+      }
+    ]
+  }
+}
