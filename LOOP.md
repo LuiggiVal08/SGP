@@ -117,9 +117,12 @@ _(sin ciclos ejecutados aún)_
   - delete-project: ConflictException si countFiles>0.
 - tests_before: n/a  tests_after: 44/44 suites (101 tests) jest backend GREEN;
   8/8 (33) vitest frontend GREEN; dbml2sql GREEN.
-- estado oracle: backend jest ✓ / frontend vitest ✓ / dbml2sql ✓.
-  PENDIENTE: frontend eslint (35 issues) + backend eslint (83 issues, mayoría deuda
-  preexistente tipo no-unsafe-*/no-unused-vars) + backend test:e2e config error.
+- estado oracle al cierre: backend jest ✓ (44/44 · 101) / frontend vitest ✓ (33) /
+  dbml2sql ✓ / backend e2e ✓ (4/4) / backend eslint 0 errors / frontend eslint 0 errors.
+- fix post-oracle: seed no dropea tablas del proyecto (evitaba ER_NO_SUCH_TABLE en
+  GET /projects); IInstitutionRepository.delete + ITokenService.generateRefresh/verifyRefresh
+  implementados; e2e jest-e2e.json rootDir '..', supertest import, testTimeout.
 - BD: DROP+CREATE sgp_dev; Sequelize sync recrea esquema de models alineados a DBML.
-- checker: sgp-loop / loop-check.sh
-- escalado: pendiente PR a ADMIN (nunca auto-merge)
+- checker: sgp-loop / loop-check.sh — ORACLE GREEN
+- escalado: PR #3 (develop→main) MERGED a main por ADMIN el 2026-07-17.
+  develop local alineado a origin/main (0 ahead/behind). Ciclo CERRADO.
