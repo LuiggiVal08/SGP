@@ -291,7 +291,7 @@ async function seed() {
     name: 'Ingeniería Informática',
     institutionId: uppt.id,
   });
-  const admin = await PnfModel.create({
+  const _admin = await PnfModel.create({
     id: 'a1000000-0000-4000-8000-000000000002',
     name: 'Administración',
     institutionId: uppt.id,
@@ -301,12 +301,12 @@ async function seed() {
     name: 'Contaduría',
     institutionId: uppt.id,
   });
-  const turismo = await PnfModel.create({
+  const _turismo = await PnfModel.create({
     id: 'a1000000-0000-4000-8000-000000000004',
     name: 'Turismo',
     institutionId: uppt.id,
   });
-  const psicologia = await PnfModel.create({
+  const _psicologia = await PnfModel.create({
     id: 'a1000000-0000-4000-8000-000000000005',
     name: 'Psicología',
     institutionId: uppt.id,

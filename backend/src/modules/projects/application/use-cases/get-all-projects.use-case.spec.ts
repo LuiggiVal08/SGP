@@ -54,9 +54,11 @@ describe('GetAllProjectsUseCase', () => {
     const cached = [{ id: 'cached-1', title: 'Cached' }];
     cacheService.get.mockResolvedValue(JSON.stringify(cached));
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const result = await useCase.execute();
 
     expect(result).toEqual(cached);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(projectRepository.findAll).not.toHaveBeenCalled();
   });
 
@@ -65,9 +67,11 @@ describe('GetAllProjectsUseCase', () => {
     cacheService.get.mockResolvedValue(null);
     projectRepository.findAll.mockResolvedValue(projects as never);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const result = await useCase.execute();
 
     expect(result).toEqual(projects);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(cacheService.set).toHaveBeenCalledWith(
       'projects:all',
       JSON.stringify(projects),

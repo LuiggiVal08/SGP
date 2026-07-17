@@ -44,7 +44,7 @@ export class CartaPdfService {
 
         doc.end();
       } catch (err) {
-        reject(err);
+        reject(err instanceof Error ? err : new Error(String(err)));
       }
     });
   }
@@ -78,7 +78,7 @@ export class CartaPdfService {
       .text(`Año: ${data.year}`, { align: 'center' });
   }
 
-  private addTitle(doc: PDFKit.PDFDocument, centerX: number) {
+  private addTitle(doc: PDFKit.PDFDocument, _centerX: number) {
     doc
       .fontSize(16)
       .font('Helvetica-Bold')

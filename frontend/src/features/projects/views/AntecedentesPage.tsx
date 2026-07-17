@@ -1,9 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Input, Select, ListBox, Spinner, Button, Card } from '@heroui/react';
 import { Search, FileText, Download, BookOpen } from 'lucide-react';
-import { projectService } from '@/features/projects/services/project.service';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 
 const METHODOLOGIES = [
@@ -146,11 +145,15 @@ export default function AntecedentesPage() {
         </Card.Root>
       ) : (
         <div className="space-y-3">
-          {projects.map((project: any) => {
+          {projects.map(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (project: any) => {
             const resumenFile = project.files?.find(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (f: any) => f.fileType === 'RESUMEN',
             );
             const authors = project.authors
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ?.map((a: any) => `${a.firstName} ${a.lastName}`)
               .join(', ');
 

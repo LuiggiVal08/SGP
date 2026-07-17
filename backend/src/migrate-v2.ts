@@ -6,10 +6,6 @@ import {
   Model,
   DataType,
   ForeignKey,
-  BelongsTo,
-  HasMany,
-  HasOne,
-  BelongsToMany,
 } from 'sequelize-typescript';
 import type { Optional } from 'sequelize';
 
@@ -244,6 +240,7 @@ async function migrate() {
   // 1. Rename TUTOR -> DOCENTE in roles table
   const [updated] = await RoleModel.update(
     { name: 'DOCENTE', description: 'Docente' },
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     { where: { name: 'TUTOR' } as any },
   );
   console.log(`✅ Roles renombrados: TUTOR → DOCENTE (${updated} filas)`);
@@ -254,6 +251,7 @@ async function migrate() {
 
   for (const project of projects) {
     const existing = await ProjectMilestoneModel.count({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       where: { projectId: project.id } as any,
     });
     if (existing > 0) continue;

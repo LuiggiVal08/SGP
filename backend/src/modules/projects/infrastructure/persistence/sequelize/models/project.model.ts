@@ -1,16 +1,8 @@
-import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  HasMany,
-  BelongsToMany,
-} from 'sequelize-typescript';
+import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
 import { Optional } from 'sequelize';
 import { ProjectFileModel } from './project-file.model';
 import { ProjectAuthorModel } from './project-author.model';
 import { ProjectAcademicTutorModel } from '@modules/project-academic-tutors/infrastructure/persistence/sequelize/models/project-academic-tutor.model';
-import { ProfessorModel } from '@modules/professors/infrastructure/persistence/sequelize/models/professor.model';
 
 interface ProjectAttributes {
   id: string;

@@ -100,11 +100,13 @@ export class ProjectController {
         meta: { total: 0, page: 1, limit: 10, totalPages: 0 },
       };
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.getAllProjectsUseCase.execute();
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.getProjectByIdUseCase.execute(id);
   }
 

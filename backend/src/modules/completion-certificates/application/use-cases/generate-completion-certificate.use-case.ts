@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { ICompletionCertificateRepository } from '../../domain/ports/ICompletionCertificateRepository';
 import { CompletionCertificate } from '../../domain/entities/CompletionCertificate';

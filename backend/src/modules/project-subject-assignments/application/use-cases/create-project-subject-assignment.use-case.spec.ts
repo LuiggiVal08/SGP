@@ -76,6 +76,7 @@ describe('CreateProjectSubjectAssignmentUseCase', () => {
 
     const result = await useCase.execute(input);
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(assignmentRepository.save).toHaveBeenCalledTimes(1);
     expect(result).toBeInstanceOf(ProjectSubjectAssignment);
     expect(result.subjectId).toBe('subject-1');
@@ -85,6 +86,7 @@ describe('CreateProjectSubjectAssignmentUseCase', () => {
     subjectRepository.findById.mockResolvedValue(null);
 
     await expect(useCase.execute(input)).rejects.toThrow(BadRequestException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(assignmentRepository.save).not.toHaveBeenCalled();
   });
 
@@ -111,6 +113,7 @@ describe('CreateProjectSubjectAssignmentUseCase', () => {
     );
 
     await expect(useCase.execute(input)).rejects.toThrow(BadRequestException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(assignmentRepository.save).not.toHaveBeenCalled();
   });
 });

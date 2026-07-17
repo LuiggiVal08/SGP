@@ -9,10 +9,12 @@ export class GetByAuthorUseCase {
   ) {}
 
   async execute(authorId: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const certificate = await this.certificateRepository.findByAuthor(authorId);
     if (!certificate) {
       throw new NotFoundException('Certificado no encontrado para el autor');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return certificate;
   }
 }

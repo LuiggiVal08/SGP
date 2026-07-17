@@ -8,7 +8,7 @@ export class GenerateCartaCulminacionUseCase {
     private readonly projectRepository: IProjectRepository,
   ) {}
 
-  async execute(_projectId: string) {
+  execute(_projectId: string) {
     throw new NotFoundException(
       'Carta culminacion — pending full rebuild (s-d-assign)',
     );

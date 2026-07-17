@@ -27,13 +27,13 @@ export default function AdminInstitutionsPage() {
   const [deleting, setDeleting] = useState<Institution | null>(null);
 
   const createForm = useForm<InstitutionFormData>({
-    resolver: zodResolver(institutionSchema) as any,
+    resolver: zodResolver(institutionSchema),
     mode: 'onChange',
     defaultValues: { name: '', acronym: '', email: '', contactInfo: '' },
   });
 
   const editForm = useForm<InstitutionFormData>({
-    resolver: zodResolver(institutionSchema) as any,
+    resolver: zodResolver(institutionSchema),
     mode: 'onChange',
   });
   const [search, setSearch] = useState('');

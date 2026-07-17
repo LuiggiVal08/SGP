@@ -1,5 +1,4 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 import { INotificationRepository } from '../../domain/ports/INotificationRepository';
 import { Notification } from '../../domain/entities/Notification';
 

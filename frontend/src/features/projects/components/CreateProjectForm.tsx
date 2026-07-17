@@ -24,7 +24,7 @@ import { usePnf } from '@/features/catalogs/hooks/usePnf';
 import { useInstitutions } from '@/features/catalogs/hooks/useInstitutions';
 import { useUsers } from '@/features/catalogs/hooks/useUsers';
 import { projectService } from '../services/project.service';
-import type { CreateProjectPayload } from '../types/project.types';
+import type { CommunityTutorData, CreateProjectPayload } from '../types/project.types';
 import { sileo } from 'sileo';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { isAdmin } from '@/shared/utils/role';
@@ -583,7 +583,7 @@ export function CreateProjectForm() {
                   id="ct-name"
                   placeholder="Ej: Juan Pérez"
                   value={ct?.fullName ?? ''}
-                  onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), fullName: e.target.value } as any)}
+                  onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), fullName: e.target.value } as CommunityTutorData)}
                 />
               </div>
 
@@ -596,7 +596,7 @@ export function CreateProjectForm() {
                     value={ct?.dni ?? ''}
                     onChange={(e) => {
                       const raw = e.target.value.replace(/\D/g, '');
-                      setValue('communityTutor', { ...(ct ?? {}), dni: formatDni(raw) } as any);
+                      setValue('communityTutor', { ...(ct ?? {}), dni: formatDni(raw) } as CommunityTutorData);
                     }}
                   />
                 </div>
@@ -604,7 +604,7 @@ export function CreateProjectForm() {
                   <FieldLabel label="Teléfono" htmlFor="ct-phone" className="text-sm" />
                   <PhoneInputField
                     value={ct?.phone ?? ''}
-                    onChange={(val) => setValue('communityTutor', { ...(ct ?? {}), phone: val ?? '' } as any)}
+                    onChange={(val) => setValue('communityTutor', { ...(ct ?? {}), phone: val ?? '' } as CommunityTutorData)}
                   />
                 </div>
               </div>
@@ -617,7 +617,7 @@ export function CreateProjectForm() {
                     type="email"
                     placeholder="Ej: juan@comunidad.org"
                     value={ct?.email ?? ''}
-                    onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), email: e.target.value } as any)}
+                    onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), email: e.target.value } as CommunityTutorData)}
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -626,7 +626,7 @@ export function CreateProjectForm() {
                     id="ct-org"
                     placeholder="Ej: Consejo Comunal"
                     value={ct?.organization ?? ''}
-                    onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), organization: e.target.value } as any)}
+                    onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), organization: e.target.value } as CommunityTutorData)}
                   />
                 </div>
               </div>
@@ -638,7 +638,7 @@ export function CreateProjectForm() {
                     id="ct-position"
                     placeholder="Ej: Presidente"
                     value={ct?.position ?? ''}
-                    onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), position: e.target.value } as any)}
+                    onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), position: e.target.value } as CommunityTutorData)}
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -647,7 +647,7 @@ export function CreateProjectForm() {
                     id="ct-notes"
                     placeholder="Ej: Contacto vía WhatsApp"
                     value={ct?.notes ?? ''}
-                    onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), notes: e.target.value } as any)}
+                    onChange={(e) => setValue('communityTutor', { ...(ct ?? {}), notes: e.target.value } as CommunityTutorData)}
                   />
                 </div>
               </div>

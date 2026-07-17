@@ -35,9 +35,11 @@ describe('GetAllInstitutionsUseCase', () => {
   it('should return all institutions from cache when no pagination', async () => {
     cacheService.get.mockResolvedValue(JSON.stringify(mockInstitutions));
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const result = await useCase.execute();
 
     expect(result).toEqual(mockInstitutions);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(institutionRepository.findAll).not.toHaveBeenCalled();
   });
 
@@ -45,9 +47,11 @@ describe('GetAllInstitutionsUseCase', () => {
     cacheService.get.mockResolvedValue(null);
     institutionRepository.findAll.mockResolvedValue(mockInstitutions);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const result = await useCase.execute();
 
     expect(result).toEqual(mockInstitutions);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(cacheService.set).toHaveBeenCalledWith(
       'catalogs:institutions',
       JSON.stringify(mockInstitutions),
@@ -59,9 +63,11 @@ describe('GetAllInstitutionsUseCase', () => {
     cacheService.get.mockResolvedValue(null);
     institutionRepository.findAll.mockResolvedValue(mockInstitutions);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const result = await useCase.execute();
 
     expect(result).toEqual(mockInstitutions);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(institutionRepository.findAll).toHaveBeenCalled();
   });
 });

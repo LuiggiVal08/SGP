@@ -1,6 +1,7 @@
 import { LoopService } from './loop.service';
 import { readFileSync, existsSync } from 'node:fs';
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 jest.mock('node:fs', () => ({
   ...jest.requireActual('node:fs'),
   existsSync: jest.fn(),

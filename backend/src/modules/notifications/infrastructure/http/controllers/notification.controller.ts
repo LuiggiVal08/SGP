@@ -74,7 +74,7 @@ export class NotificationController {
     required: false,
     description: 'Filtrar por READ/UNREAD',
   })
-  async getMine(
+  getMine(
     @Req() req: { user: JwtPayload },
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -87,6 +87,7 @@ export class NotificationController {
       search: search || undefined,
       status: status || undefined,
     };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.getUserNotificationsUseCase.execute(req.user.sub, dto);
   }
 

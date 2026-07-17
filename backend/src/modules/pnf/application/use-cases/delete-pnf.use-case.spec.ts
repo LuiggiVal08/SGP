@@ -46,7 +46,9 @@ describe('DeletePnfUseCase', () => {
 
     await useCase.execute('uuid-1');
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(pnfRepository.delete).toHaveBeenCalledWith('uuid-1');
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(cacheService.delete).toHaveBeenCalledWith('catalogs:pnf');
   });
 
@@ -54,6 +56,7 @@ describe('DeletePnfUseCase', () => {
     pnfRepository.findById.mockResolvedValue(null);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(NotFoundException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(pnfRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -63,6 +66,7 @@ describe('DeletePnfUseCase', () => {
     projectRepository.countByPnfId.mockResolvedValue(0);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(ConflictException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(pnfRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -72,6 +76,7 @@ describe('DeletePnfUseCase', () => {
     projectRepository.countByPnfId.mockResolvedValue(1);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(ConflictException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(pnfRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -81,6 +86,7 @@ describe('DeletePnfUseCase', () => {
     projectRepository.countByPnfId.mockResolvedValue(1);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(ConflictException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(pnfRepository.delete).not.toHaveBeenCalled();
   });
 });

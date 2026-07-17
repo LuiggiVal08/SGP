@@ -18,10 +18,13 @@ export class RolesGuard implements CanActivate {
     );
     if (!requiredRoles) return true;
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { user } = context.switchToHttp().getRequest();
     if (!user) throw new ForbiddenException('Access denied');
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (!requiredRoles.includes(user.role)) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (user.role === 'IRCOP' && requiredRoles.includes('ADMIN')) {
         return true;
       }

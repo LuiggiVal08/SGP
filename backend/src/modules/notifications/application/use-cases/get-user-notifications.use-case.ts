@@ -9,7 +9,8 @@ export class GetUserNotificationsUseCase {
     private readonly notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, dto: PaginationDto) {
+  execute(userId: string, dto: PaginationDto) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
     return this.notificationRepository.findByUser(userId, dto);
   }
 }

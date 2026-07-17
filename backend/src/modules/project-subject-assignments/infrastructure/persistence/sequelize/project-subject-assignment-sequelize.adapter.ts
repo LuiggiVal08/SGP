@@ -61,6 +61,7 @@ export class ProjectSubjectAssignmentSequelizeAdapter implements IProjectSubject
     periodId: string,
   ): Promise<ProjectSubjectAssignment | null> {
     const model = await this.assignmentModel.findOne({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       where: {
         subjectId,
         professorId,

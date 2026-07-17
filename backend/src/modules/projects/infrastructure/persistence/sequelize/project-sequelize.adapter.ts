@@ -10,7 +10,6 @@ import {
   MilestoneType,
   ProjectRevision,
   DefensaResultData,
-  CommunityTutorData,
   CartaCulminacionData,
 } from '../../../domain/entities/Project';
 import {
@@ -360,27 +359,24 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     return this.revisionToDomain(created);
   }
 
-  async findDefensaByProject(
-    _projectId: string,
-  ): Promise<DefensaResultData | null> {
-    return null;
+  findDefensaByProject(_projectId: string): Promise<DefensaResultData | null> {
+    return Promise.resolve(null);
   }
 
-  async saveDefensa(data: DefensaResultData): Promise<DefensaResultData> {
-    return data;
+  saveDefensa(data: DefensaResultData): Promise<DefensaResultData> {
+    return Promise.resolve(data);
   }
 
-  async findCartasByProject(
-    _projectId: string,
-  ): Promise<CartaCulminacionData[]> {
-    return [];
+  findCartasByProject(_projectId: string): Promise<CartaCulminacionData[]> {
+    return Promise.resolve([]);
   }
 
-  async createCarta(data: CartaCulminacionData): Promise<CartaCulminacionData> {
-    return data;
+  createCarta(data: CartaCulminacionData): Promise<CartaCulminacionData> {
+    return Promise.resolve(data);
   }
 
-  async deleteCartasByProject(_projectId: string): Promise<void> {
+  deleteCartasByProject(_projectId: string): Promise<void> {
     // stub
+    return Promise.resolve();
   }
 }

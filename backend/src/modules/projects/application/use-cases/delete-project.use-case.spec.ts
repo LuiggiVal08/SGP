@@ -57,7 +57,9 @@ describe('DeleteProjectUseCase', () => {
 
     await useCase.execute('uuid-1');
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(projectRepository.delete).toHaveBeenCalledWith('uuid-1');
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(cacheService.delete).toHaveBeenCalledWith('projects:all');
   });
 
@@ -65,6 +67,7 @@ describe('DeleteProjectUseCase', () => {
     projectRepository.findById.mockResolvedValue(null);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(NotFoundException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(projectRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -73,6 +76,7 @@ describe('DeleteProjectUseCase', () => {
     projectRepository.countFiles.mockResolvedValue(3);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(ConflictException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(projectRepository.delete).not.toHaveBeenCalled();
   });
 });

@@ -172,6 +172,7 @@ export class UserSequelizeAdapter implements IUserRepository {
       'SELECT COUNT(*) AS `count` FROM `users` u INNER JOIN `roles` r ON r.`id` = u.`roleId` WHERE r.`name` = ?',
       { replacements: [roleName], type: QueryTypes.SELECT },
     );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
     return (result as any).count;
   }
 

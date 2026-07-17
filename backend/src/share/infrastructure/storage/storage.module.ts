@@ -10,6 +10,7 @@ import { LocalStorageService } from './local-storage.service';
       provide: 'IFileStorageService',
       useFactory: () => {
         const logger = new Logger('StorageModule');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const driver = env.STORAGE_DRIVER;
         logger.log(`Using storage driver: ${driver}`);
 

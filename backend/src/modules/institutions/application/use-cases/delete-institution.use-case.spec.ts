@@ -48,7 +48,9 @@ describe('DeleteInstitutionUseCase', () => {
 
     await useCase.execute('uuid-1');
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(institutionRepository.delete).toHaveBeenCalledWith('uuid-1');
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(cacheService.delete).toHaveBeenCalledWith('catalogs:institutions');
   });
 
@@ -56,6 +58,7 @@ describe('DeleteInstitutionUseCase', () => {
     institutionRepository.findById.mockResolvedValue(null);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(NotFoundException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(institutionRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -64,6 +67,7 @@ describe('DeleteInstitutionUseCase', () => {
     userRepository.countByInstitutionId.mockResolvedValue(3);
 
     await expect(useCase.execute('uuid-1')).rejects.toThrow(ConflictException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(institutionRepository.delete).not.toHaveBeenCalled();
   });
 });

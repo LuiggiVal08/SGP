@@ -27,13 +27,13 @@ export default function AdminPeriodsPage() {
   const [deleting, setDeleting] = useState<Period | null>(null);
 
   const createForm = useForm<PeriodFormData>({
-    resolver: zodResolver(periodSchema) as any,
+    resolver: zodResolver(periodSchema),
     mode: 'onChange',
     defaultValues: { name: '', startDate: '', endDate: '', isActive: false },
   });
 
   const editForm = useForm<PeriodFormData>({
-    resolver: zodResolver(periodSchema) as any,
+    resolver: zodResolver(periodSchema),
     mode: 'onChange',
   });
 

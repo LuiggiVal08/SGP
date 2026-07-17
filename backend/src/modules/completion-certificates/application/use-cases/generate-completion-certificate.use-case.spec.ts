@@ -59,6 +59,7 @@ describe('GenerateCompletionCertificateUseCase', () => {
     expect(certificateRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         authorId: 'author-1',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         serialNumber: expect.stringMatching(/^CERT-/),
       }),
     );

@@ -29,13 +29,13 @@ export default function AdminCommunityPlacesPage() {
   const [deleting, setDeleting] = useState<CommunityPlace | null>(null);
 
   const createForm = useForm<CommunityPlaceFormData>({
-    resolver: zodResolver(communityPlaceSchema) as any,
+    resolver: zodResolver(communityPlaceSchema),
     mode: 'onChange',
     defaultValues: { institutionId: '', name: '', type: 'COMMUNITY', description: '', address: '', contactPhone: '', contactEmail: '' },
   });
 
   const editForm = useForm<CommunityPlaceFormData>({
-    resolver: zodResolver(communityPlaceSchema) as any,
+    resolver: zodResolver(communityPlaceSchema),
     mode: 'onChange',
   });
 

@@ -31,6 +31,7 @@ export class ProjectAcademicTutorSequelizeAdapter implements IProjectAcademicTut
     professorId: string,
   ): Promise<ProjectAcademicTutor | null> {
     const model = await this.tutorModel.findOne({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       where: {
         projectId,
         professorId,

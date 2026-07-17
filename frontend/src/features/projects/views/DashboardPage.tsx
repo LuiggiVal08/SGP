@@ -411,7 +411,7 @@ export default function DashboardPage() {
                         <p className="text-sm text-foreground truncate">{item.title}</p>
                         <p className="text-[10px] text-muted mt-0.5">{formatDate(item.updatedAt)}</p>
                       </div>
-                      <Chip color={cfg.color as any} variant="soft" size="sm">{cfg.label}</Chip>
+                      <Chip color={cfg.color as 'default' | 'success' | 'warning' | 'danger'} variant="soft" size="sm">{cfg.label}</Chip>
                     </div>
                   );
                 })}

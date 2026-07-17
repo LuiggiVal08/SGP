@@ -48,6 +48,7 @@ describe('GetProjectByIdUseCase', () => {
     const mock = { id: 'uuid-1', title: 'Test' };
     projectRepository.findById.mockResolvedValue(mock as never);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const result = await useCase.execute('uuid-1');
 
     expect(result).toBe(mock);

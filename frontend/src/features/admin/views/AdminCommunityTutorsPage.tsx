@@ -28,13 +28,13 @@ export default function AdminCommunityTutorsPage() {
   const [deleting, setDeleting] = useState<CommunityTutor | null>(null);
 
   const createForm = useForm<CommunityTutorFormData>({
-    resolver: zodResolver(communityTutorSchema) as any,
+    resolver: zodResolver(communityTutorSchema),
     mode: 'onChange',
     defaultValues: { locationId: '', fullName: '', dni: '', phone: '', email: '', position: '' },
   });
 
   const editForm = useForm<CommunityTutorFormData>({
-    resolver: zodResolver(communityTutorSchema) as any,
+    resolver: zodResolver(communityTutorSchema),
     mode: 'onChange',
   });
 

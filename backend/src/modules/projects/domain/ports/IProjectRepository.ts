@@ -5,7 +5,6 @@ import {
   MilestoneStatus,
   ProjectRevision,
   DefensaResultData,
-  CommunityTutorData,
   CartaCulminacionData,
 } from '../entities/Project';
 import { ProjectFile } from '../entities/ProjectFile';

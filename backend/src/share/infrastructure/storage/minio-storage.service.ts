@@ -19,15 +19,20 @@ export class MinioStorageService implements IFileStorageService, OnModuleInit {
   private readonly bucket: string;
 
   constructor() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const endpoint = env.MINIO_ENDPOINT;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const port = env.MINIO_PORT;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.bucket = env.MINIO_BUCKET;
 
     this.client = new S3Client({
       endpoint: `http://${endpoint}:${port}`,
       region: 'us-east-1',
       credentials: {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         accessKeyId: env.MINIO_ACCESS_KEY,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         secretAccessKey: env.MINIO_SECRET_KEY,
       },
       forcePathStyle: true,
