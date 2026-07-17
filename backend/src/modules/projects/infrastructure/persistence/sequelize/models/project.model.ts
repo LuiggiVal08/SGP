@@ -24,7 +24,10 @@ interface ProjectAttributes {
   cdSubmitted: boolean;
 }
 
-type ProjectCreationAttributes = Optional<ProjectAttributes, 'id' | 'status' | 'cdSubmitted'>;
+type ProjectCreationAttributes = Optional<
+  ProjectAttributes,
+  'id' | 'status' | 'cdSubmitted'
+>;
 
 @Table({ tableName: 'projects', timestamps: true })
 export class ProjectModel extends Model<
@@ -57,7 +60,13 @@ export class ProjectModel extends Model<
   declare communityTutorId: string;
 
   @Column({
-    type: DataType.ENUM('BORRADOR', 'EN_PROCESO', 'ENTREGADO', 'APROBADO', 'RECHAZADO'),
+    type: DataType.ENUM(
+      'BORRADOR',
+      'EN_PROCESO',
+      'ENTREGADO',
+      'APROBADO',
+      'RECHAZADO',
+    ),
     allowNull: false,
     defaultValue: 'BORRADOR',
   })

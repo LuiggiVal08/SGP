@@ -6,7 +6,11 @@ export type ProjectStatus =
   | 'RECHAZADO';
 
 export type MilestoneType = 'ENTREGA_TOMO' | 'REVISION' | 'OTRA';
-export type MilestoneStatus = 'PENDIENTE' | 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
+export type MilestoneStatus =
+  | 'PENDIENTE'
+  | 'EN_REVISION'
+  | 'APROBADO'
+  | 'RECHAZADO';
 
 export class Project {
   constructor(

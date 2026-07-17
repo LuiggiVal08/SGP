@@ -13,7 +13,10 @@ import {
   CommunityTutorData,
   CartaCulminacionData,
 } from '../../../domain/entities/Project';
-import { ProjectFile, DocumentType } from '../../../domain/entities/ProjectFile';
+import {
+  ProjectFile,
+  DocumentType,
+} from '../../../domain/entities/ProjectFile';
 import { ProjectModel } from './models/project.model';
 import { ProjectFileModel } from './models/project-file.model';
 import { ProjectAuthorModel } from './models/project-author.model';
@@ -55,9 +58,9 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     return new ProjectMilestone(
       model.id,
       model.projectId,
-      model.type as MilestoneType,
+      model.type,
       model.stage,
-      model.status as MilestoneStatus,
+      model.status,
       model.dueDate,
       model.submittedAt,
       model.reviewedAt,
@@ -72,8 +75,8 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
       model.milestoneId,
       model.revisedBy,
       model.comment,
-      model.statusBefore as MilestoneStatus,
-      model.statusAfter as MilestoneStatus,
+      model.statusBefore,
+      model.statusAfter,
     );
   }
 
@@ -106,8 +109,12 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     return projects.map((p) => this.toDomain(p));
   }
 
-  async findBySubjectAssignment(subjectAssignmentId: string): Promise<Project[]> {
-    const projects = await this.projectModel.findAll({ where: { subjectAssignmentId } });
+  async findBySubjectAssignment(
+    subjectAssignmentId: string,
+  ): Promise<Project[]> {
+    const projects = await this.projectModel.findAll({
+      where: { subjectAssignmentId },
+    });
     return projects.map((p) => this.toDomain(p));
   }
 
@@ -117,7 +124,9 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
   }
 
   async findByCommunityTutor(communityTutorId: string): Promise<Project[]> {
-    const projects = await this.projectModel.findAll({ where: { communityTutorId } });
+    const projects = await this.projectModel.findAll({
+      where: { communityTutorId },
+    });
     return projects.map((p) => this.toDomain(p));
   }
 
@@ -171,8 +180,18 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     await this.projectModel.destroy({ where: { id } });
   }
 
-  async update(id: string, data: Partial<Pick<Project, 'title' | 'description' | 'problemStatement' | 'status' | 'cdSubmitted'>>): Promise<Project> {
-    await this.projectModel.update(data as Record<string, unknown>, { where: { id } });
+  async update(
+    id: string,
+    data: Partial<
+      Pick<
+        Project,
+        'title' | 'description' | 'problemStatement' | 'status' | 'cdSubmitted'
+      >
+    >,
+  ): Promise<Project> {
+    await this.projectModel.update(data, {
+      where: { id },
+    });
     const model = await this.projectModel.findByPk(id);
     return this.toDomain(model!);
   }
@@ -258,14 +277,19 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     await this.projectFileModel.destroy({ where: { id: fileId } });
   }
 
-  async getMaxVersion(projectId: string, documentType: string): Promise<number> {
+  async getMaxVersion(
+    projectId: string,
+    documentType: string,
+  ): Promise<number> {
     const max = await this.projectFileModel.max('version', {
       where: { projectId, documentType },
     });
     return (max as number) || 0;
   }
 
-  async findMilestonesByProject(projectId: string): Promise<ProjectMilestone[]> {
+  async findMilestonesByProject(
+    projectId: string,
+  ): Promise<ProjectMilestone[]> {
     const models = await this.milestoneModel.findAll({
       where: { projectId },
       order: [['stage', 'ASC']],
@@ -273,7 +297,9 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     return models.map((m) => this.milestoneToDomain(m));
   }
 
-  async findMilestoneById(milestoneId: string): Promise<ProjectMilestone | null> {
+  async findMilestoneById(
+    milestoneId: string,
+  ): Promise<ProjectMilestone | null> {
     const model = await this.milestoneModel.findByPk(milestoneId);
     return model ? this.milestoneToDomain(model) : null;
   }
@@ -308,12 +334,16 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     if (status === 'EN_REVISION') {
       updateData.reviewedAt = now;
     }
-    await this.milestoneModel.update(updateData, { where: { id: milestoneId } });
+    await this.milestoneModel.update(updateData, {
+      where: { id: milestoneId },
+    });
     const model = await this.milestoneModel.findByPk(milestoneId);
     return this.milestoneToDomain(model!);
   }
 
-  async findRevisionsByMilestone(milestoneId: string): Promise<ProjectRevision[]> {
+  async findRevisionsByMilestone(
+    milestoneId: string,
+  ): Promise<ProjectRevision[]> {
     const models = await this.revisionModel.findAll({ where: { milestoneId } });
     return models.map((m) => this.revisionToDomain(m));
   }
@@ -330,7 +360,9 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     return this.revisionToDomain(created);
   }
 
-  async findDefensaByProject(_projectId: string): Promise<DefensaResultData | null> {
+  async findDefensaByProject(
+    _projectId: string,
+  ): Promise<DefensaResultData | null> {
     return null;
   }
 
@@ -338,7 +370,9 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     return data;
   }
 
-  async findCartasByProject(_projectId: string): Promise<CartaCulminacionData[]> {
+  async findCartasByProject(
+    _projectId: string,
+  ): Promise<CartaCulminacionData[]> {
     return [];
   }
 

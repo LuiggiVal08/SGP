@@ -7,13 +7,11 @@ import {
   BelongsTo,
 } from 'sequelize-typescript';
 import { Optional } from 'sequelize';
-import { ProjectModel } from '@modules/projects/infrastructure/persistence/sequelize/models/project.model';
-import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/models/user.model';
+import { ProjectAuthorModel } from '@modules/projects/infrastructure/persistence/sequelize/models/project-author.model';
 
 interface CompletionCertificateAttributes {
   id: string;
-  projectId: string;
-  userId: string;
+  authorId: string;
   pdfUrl: string;
   serialNumber: string;
   issuedAt: Date;
@@ -38,19 +36,12 @@ export class CompletionCertificateModel extends Model<
   })
   declare id: string;
 
-  @ForeignKey(() => ProjectModel)
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare projectId: string;
+  @ForeignKey(() => ProjectAuthorModel)
+  @Column({ type: DataType.UUID, allowNull: false, unique: true })
+  declare authorId: string;
 
-  @BelongsTo(() => ProjectModel)
-  declare project?: ProjectModel;
-
-  @ForeignKey(() => UserModel)
-  @Column({ type: DataType.UUID, allowNull: false })
-  declare userId: string;
-
-  @BelongsTo(() => UserModel)
-  declare user?: UserModel;
+  @BelongsTo(() => ProjectAuthorModel)
+  declare author?: ProjectAuthorModel;
 
   @Column({ type: DataType.STRING(500), allowNull: false })
   declare pdfUrl: string;

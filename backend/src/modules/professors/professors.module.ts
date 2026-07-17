@@ -7,13 +7,9 @@ import { GetProfessorProfileUseCase } from './application/use-cases/get-professo
 import { UpdateProfessorUseCase } from './application/use-cases/update-professor.use-case';
 import { DeleteProfessorUseCase } from './application/use-cases/delete-professor.use-case';
 import { ProfessorController } from './infrastructure/http/controllers/professor.controller';
-import { ProjectSubjectAssignmentsModule } from '@modules/project-subject-assignments/project-subject-assignments.module';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([ProfessorModel]),
-    ProjectSubjectAssignmentsModule,
-  ],
+  imports: [SequelizeModule.forFeature([ProfessorModel])],
   providers: [
     {
       provide: 'IProfessorRepository',

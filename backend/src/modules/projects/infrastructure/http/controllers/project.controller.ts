@@ -110,10 +110,7 @@ export class ProjectController {
 
   @Patch(':id')
   @Roles('ADMIN')
-  async update(
-    @Param('id') id: string,
-    @Body() dto: UpdateProjectDto,
-  ) {
+  async update(@Param('id') id: string, @Body() dto: UpdateProjectDto) {
     return this.updateProjectUseCase.execute({ id, ...dto });
   }
 
@@ -174,12 +171,11 @@ export class ProjectController {
   @Post(':id/authors')
   async addAuthor(
     @Param('id') id: string,
-    @Body() body: { studentId: string; authorOrder?: number },
+    @Body() body: { studentId: string },
   ) {
     return this.addProjectAuthorUseCase.execute({
       projectId: id,
       studentId: body.studentId,
-      authorOrder: body.authorOrder,
     });
   }
 

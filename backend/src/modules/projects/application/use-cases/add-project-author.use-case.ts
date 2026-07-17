@@ -20,11 +20,7 @@ export class AddProjectAuthorUseCase {
     private readonly authorModel: typeof ProjectAuthorModel,
   ) {}
 
-  async execute(input: {
-    projectId: string;
-    studentId: string;
-    authorOrder?: number;
-  }) {
+  async execute(input: { projectId: string; studentId: string }) {
     const project = await this.projectRepository.findById(input.projectId);
     if (!project) {
       throw new NotFoundException('Project not found');
@@ -57,14 +53,12 @@ export class AddProjectAuthorUseCase {
     const author = await this.authorModel.create({
       projectId: input.projectId,
       studentId: input.studentId,
-      authorOrder: input.authorOrder ?? count + 1,
     });
 
     return {
       id: author.id,
       projectId: author.projectId,
       studentId: author.studentId,
-      authorOrder: author.authorOrder,
     };
   }
 }

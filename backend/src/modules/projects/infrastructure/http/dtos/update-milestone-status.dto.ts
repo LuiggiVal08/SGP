@@ -1,7 +1,12 @@
 import { IsString, IsIn, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-const VALID_STATUSES = ['PENDIENTE', 'EN_REVISION', 'APROBADO', 'RECHAZADO'] as const;
+const VALID_STATUSES = [
+  'PENDIENTE',
+  'EN_REVISION',
+  'APROBADO',
+  'RECHAZADO',
+] as const;
 
 export class UpdateMilestoneStatusDto {
   @ApiProperty({

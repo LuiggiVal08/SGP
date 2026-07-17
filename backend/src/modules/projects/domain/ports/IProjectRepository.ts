@@ -1,4 +1,13 @@
-import { Project, ProjectStatus, ProjectMilestone, MilestoneStatus, ProjectRevision, DefensaResultData, CommunityTutorData, CartaCulminacionData } from '../entities/Project';
+import {
+  Project,
+  ProjectStatus,
+  ProjectMilestone,
+  MilestoneStatus,
+  ProjectRevision,
+  DefensaResultData,
+  CommunityTutorData,
+  CartaCulminacionData,
+} from '../entities/Project';
 import { ProjectFile } from '../entities/ProjectFile';
 
 export interface IProjectRepository {
@@ -10,9 +19,24 @@ export interface IProjectRepository {
   findByCommunityTutor(communityTutorId: string): Promise<Project[]>;
   save(project: Project, studentIds: string[]): Promise<Project>;
   delete(id: string): Promise<void>;
-  update(id: string, data: Partial<Pick<Project, 'title' | 'description' | 'problemStatement' | 'status' | 'cdSubmitted'>>): Promise<Project>;
+  update(
+    id: string,
+    data: Partial<
+      Pick<
+        Project,
+        'title' | 'description' | 'problemStatement' | 'status' | 'cdSubmitted'
+      >
+    >,
+  ): Promise<Project>;
 
-  findAllPaginated(params: { page: number; limit: number; search?: string }): Promise<{ data: Project[]; meta: { total: number; page: number; limit: number; totalPages: number } }>;
+  findAllPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+  }): Promise<{
+    data: Project[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }>;
   countFiles(projectId: string): Promise<number>;
   countByStatus(status: ProjectStatus): Promise<number>;
   countByYear(year: number): Promise<number>;
@@ -27,8 +51,17 @@ export interface IProjectRepository {
 
   findMilestonesByProject(projectId: string): Promise<ProjectMilestone[]>;
   findMilestoneById(milestoneId: string): Promise<ProjectMilestone | null>;
-  createMilestone(projectId: string, type: string, stage?: number, dueDate?: Date): Promise<ProjectMilestone>;
-  updateMilestoneStatus(milestoneId: string, status: MilestoneStatus, userId: string): Promise<ProjectMilestone>;
+  createMilestone(
+    projectId: string,
+    type: string,
+    stage?: number,
+    dueDate?: Date,
+  ): Promise<ProjectMilestone>;
+  updateMilestoneStatus(
+    milestoneId: string,
+    status: MilestoneStatus,
+    userId: string,
+  ): Promise<ProjectMilestone>;
   findRevisionsByMilestone(milestoneId: string): Promise<ProjectRevision[]>;
   createRevision(revision: ProjectRevision): Promise<ProjectRevision>;
 

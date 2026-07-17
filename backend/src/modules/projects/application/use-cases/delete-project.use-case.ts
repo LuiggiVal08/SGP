@@ -2,6 +2,7 @@ import {
   Injectable,
   Inject,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
 import { ICacheService } from '@share/domain/ports/ICacheService';
@@ -19,6 +20,13 @@ export class DeleteProjectUseCase {
     const project = await this.projectRepository.findById(id);
     if (!project) {
       throw new NotFoundException('Proyecto no encontrado');
+    }
+
+    const fileCount = await this.projectRepository.countFiles(id);
+    if (fileCount > 0) {
+      throw new ConflictException(
+        'No se puede eliminar un proyecto con archivos asociados',
+      );
     }
 
     await this.projectRepository.delete(id);

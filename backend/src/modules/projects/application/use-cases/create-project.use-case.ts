@@ -42,8 +42,9 @@ export class CreateProjectUseCase {
       throw new BadRequestException('Subject assignment not found');
     }
 
-    const communityTutor =
-      await this.communityTutorRepository.findById(input.communityTutorId);
+    const communityTutor = await this.communityTutorRepository.findById(
+      input.communityTutorId,
+    );
     if (!communityTutor) {
       throw new BadRequestException('Community tutor not found');
     }

@@ -13,7 +13,11 @@ import { UserModel } from '@modules/users/infrastructure/persistence/sequelize/m
 import { ProjectRevisionModel } from './project-revision.model';
 
 export type MilestoneType = 'ENTREGA_TOMO' | 'REVISION' | 'OTRA';
-export type MilestoneStatus = 'PENDIENTE' | 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
+export type MilestoneStatus =
+  | 'PENDIENTE'
+  | 'EN_REVISION'
+  | 'APROBADO'
+  | 'RECHAZADO';
 
 interface ProjectMilestoneAttributes {
   id: string;
@@ -30,7 +34,14 @@ interface ProjectMilestoneAttributes {
 
 type ProjectMilestoneCreationAttributes = Optional<
   ProjectMilestoneAttributes,
-  'id' | 'status' | 'stage' | 'dueDate' | 'submittedAt' | 'reviewedAt' | 'approvedBy' | 'approvedAt'
+  | 'id'
+  | 'status'
+  | 'stage'
+  | 'dueDate'
+  | 'submittedAt'
+  | 'reviewedAt'
+  | 'approvedBy'
+  | 'approvedAt'
 >;
 
 @Table({ tableName: 'project_milestones', timestamps: true })

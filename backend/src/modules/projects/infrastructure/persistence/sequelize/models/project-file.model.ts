@@ -22,7 +22,10 @@ interface ProjectFileAttributes {
   version: number;
 }
 
-type ProjectFileCreationAttributes = Optional<ProjectFileAttributes, 'id' | 'uploadedBy'>;
+type ProjectFileCreationAttributes = Optional<
+  ProjectFileAttributes,
+  'id' | 'uploadedBy'
+>;
 
 @Table({ tableName: 'project_files', timestamps: true })
 export class ProjectFileModel extends Model<

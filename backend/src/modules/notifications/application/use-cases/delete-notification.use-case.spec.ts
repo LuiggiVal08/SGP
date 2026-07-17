@@ -8,12 +8,13 @@ describe('DeleteNotificationUseCase', () => {
 
   beforeEach(() => {
     notificationRepository = {
-      save: jest.fn(),
+      create: jest.fn(),
       findById: jest.fn(),
-      findByUser: jest.fn(),
+      findByUserId: jest.fn(),
       markAsRead: jest.fn(),
       markAllAsRead: jest.fn(),
       delete: jest.fn(),
+      countUnread: jest.fn(),
     };
     useCase = new DeleteNotificationUseCase(notificationRepository);
   });
@@ -34,7 +35,8 @@ describe('DeleteNotificationUseCase', () => {
         'T',
         'M',
         'INFO',
-        false,
+        null,
+        null,
         null,
         new Date(),
       ),

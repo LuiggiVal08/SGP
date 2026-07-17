@@ -80,7 +80,7 @@ describe('CreateProjectUseCase', () => {
       subjectId: 's1',
       professorId: 'p1',
       periodId: 'per1',
-    } as never);
+    });
     communityTutorRepository.findById.mockResolvedValue({
       id: 'ct-uuid',
     } as never);

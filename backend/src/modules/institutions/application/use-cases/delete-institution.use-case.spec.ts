@@ -23,7 +23,6 @@ describe('DeleteInstitutionUseCase', () => {
     institutionRepository = {
       findById: jest.fn(),
       findAll: jest.fn(),
-      findAllPaginated: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
     };

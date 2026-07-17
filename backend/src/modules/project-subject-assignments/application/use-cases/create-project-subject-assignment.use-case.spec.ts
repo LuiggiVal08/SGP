@@ -37,7 +37,10 @@ describe('CreateProjectSubjectAssignmentUseCase', () => {
     professorRepository = {
       findById: jest.fn(),
       findByUserId: jest.fn(),
+      findProfileById: jest.fn(),
+      findAllPaginated: jest.fn(),
       save: jest.fn(),
+      delete: jest.fn(),
     };
     periodRepository = {
       findById: jest.fn(),

@@ -8,44 +8,74 @@ describe('CreateNotificationUseCase', () => {
 
   beforeEach(() => {
     notificationRepository = {
-      save: jest.fn(),
+      create: jest.fn(),
       findById: jest.fn(),
-      findByUser: jest.fn(),
+      findByUserId: jest.fn(),
       markAsRead: jest.fn(),
       markAllAsRead: jest.fn(),
       delete: jest.fn(),
+      countUnread: jest.fn(),
     };
     useCase = new CreateNotificationUseCase(notificationRepository);
   });
 
-  it('should create and persist a notification with generated id and defaults', async () => {
+  it('should create and persist a notification with entityType/entityId', async () => {
+    notificationRepository.create.mockResolvedValue(
+      new Notification(
+        'notif-1',
+        'user-1',
+        'Hola',
+        'Mensaje',
+        'INFO',
+        'PROJECT',
+        'rel-1',
+        null,
+        new Date(),
+      ),
+    );
+
     const result = await useCase.execute({
       userId: 'user-1',
       title: 'Hola',
       message: 'Mensaje',
       type: 'INFO',
-      relatedId: 'rel-1',
+      entityType: 'PROJECT',
+      entityId: 'rel-1',
     });
 
     expect(result).toBeInstanceOf(Notification);
-    expect(result.id).toBeDefined();
-    expect(result.read).toBe(false);
-    expect(result.relatedId).toBe('rel-1');
-    expect(result.createdAt).toBeInstanceOf(Date);
+    expect(result.entityId).toBe('rel-1');
+    expect(result.entityType).toBe('PROJECT');
+    expect(result.isRead).toBe(false);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(notificationRepository.save).toHaveBeenCalledTimes(1);
+    expect(notificationRepository.create).toHaveBeenCalledTimes(1);
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(notificationRepository.save).toHaveBeenCalledWith(
+    expect(notificationRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: 'user-1',
         title: 'Hola',
         type: 'INFO',
-        read: false,
+        entityType: 'PROJECT',
+        entityId: 'rel-1',
       }),
     );
   });
 
-  it('should default relatedId to null when not provided', async () => {
+  it('should default entityType/entityId to undefined when not provided', async () => {
+    notificationRepository.create.mockResolvedValue(
+      new Notification(
+        'notif-2',
+        'user-2',
+        'T',
+        'M',
+        'ALERT',
+        null,
+        null,
+        null,
+        new Date(),
+      ),
+    );
+
     const result = await useCase.execute({
       userId: 'user-2',
       title: 'T',
@@ -53,6 +83,7 @@ describe('CreateNotificationUseCase', () => {
       type: 'ALERT',
     });
 
-    expect(result.relatedId).toBeNull();
+    expect(result.entityType).toBeNull();
+    expect(result.entityId).toBeNull();
   });
 });

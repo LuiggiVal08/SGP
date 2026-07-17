@@ -19,28 +19,18 @@ export class CompletionCertificateService {
   ) {}
 
   async generateByAuthorId(authorId: string): Promise<CompletionCertificate> {
-    const authorInfo = await this.repository.findAuthorInfo(authorId);
-    if (!authorInfo) {
-      throw new NotFoundException(
-        'Author not found or not linked to any project',
-      );
-    }
-
-    const existing = await this.repository.findByUserId(authorId);
+    const existing = await this.repository.findByAuthorId(authorId);
     if (existing) {
-      throw new ConflictException('Certificate already exists for this user');
+      throw new ConflictException('Certificate already exists for this author');
     }
 
-    const serialNumber = this.generateSerialNumber(authorInfo.projectYear);
+    const serialNumber = this.generateSerialNumber();
     const pdfUrl = `/uploads/certificates/${serialNumber}.pdf`;
 
-    this.logger.log(
-      `Generating certificate for user ${authorId} — project "${authorInfo.projectTitle}"`,
-    );
+    this.logger.log(`Generating certificate for author ${authorId}`);
 
     return this.repository.create({
-      projectId: authorInfo.projectId,
-      userId: authorId,
+      authorId,
       pdfUrl,
       serialNumber,
     });
@@ -58,9 +48,9 @@ export class CompletionCertificateService {
     return cert;
   }
 
-  private generateSerialNumber(year: number): string {
+  private generateSerialNumber(): string {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `CERT-${year}-${timestamp}-${random}`;
+    return `CERT-${timestamp}-${random}`;
   }
 }

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
 import { ProjectAuthorModel } from '../../infrastructure/persistence/sequelize/models/project-author.model';

@@ -13,16 +13,10 @@ describe('GetAllInstitutionsUseCase', () => {
     new Institution('uuid-2', 'University B', 'UB', 'b@edu.com', ''),
   ];
 
-  const mockPaginated = {
-    data: [mockInstitutions[0]],
-    meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
-  };
-
   beforeEach(() => {
     institutionRepository = {
       findById: jest.fn(),
       findAll: jest.fn(),
-      findAllPaginated: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
     };
@@ -61,24 +55,11 @@ describe('GetAllInstitutionsUseCase', () => {
     );
   });
 
-  it('should return paginated results when pagination params are provided', async () => {
-    institutionRepository.findAllPaginated.mockResolvedValue(mockPaginated);
-
-    const result = await useCase.execute({ page: 1, limit: 10 });
-
-    expect(result).toEqual(mockPaginated);
-    expect(institutionRepository.findAllPaginated).toHaveBeenCalledWith({
-      page: 1,
-      limit: 10,
-    });
-    expect(cacheService.get).not.toHaveBeenCalled();
-  });
-
   it('should return all institutions when empty dto is passed', async () => {
     cacheService.get.mockResolvedValue(null);
     institutionRepository.findAll.mockResolvedValue(mockInstitutions);
 
-    const result = await useCase.execute({});
+    const result = await useCase.execute();
 
     expect(result).toEqual(mockInstitutions);
     expect(institutionRepository.findAll).toHaveBeenCalled();

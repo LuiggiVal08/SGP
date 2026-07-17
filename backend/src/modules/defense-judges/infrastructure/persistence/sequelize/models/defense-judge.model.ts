@@ -19,10 +19,7 @@ interface DefenseJudgeAttributes {
   communityTutorId: string | null;
 }
 
-type DefenseJudgeCreationAttributes = Optional<
-  DefenseJudgeAttributes,
-  'id'
->;
+type DefenseJudgeCreationAttributes = Optional<DefenseJudgeAttributes, 'id'>;
 
 @Table({ tableName: 'defense_judges', timestamps: true })
 export class DefenseJudgeModel extends Model<

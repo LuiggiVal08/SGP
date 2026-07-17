@@ -23,19 +23,19 @@ describe('AddProjectAuthorUseCase', () => {
       findByLocation: jest.fn(),
       findByCommunityTutor: jest.fn(),
       save: jest.fn(),
-      update: jest.fn(),
       delete: jest.fn(),
-      saveFiles: jest.fn(),
-      findFileById: jest.fn(),
-      findFilesByProjectId: jest.fn(),
-      deleteFile: jest.fn(),
-      getMaxVersion: jest.fn(),
+      update: jest.fn(),
       findAllPaginated: jest.fn(),
       countFiles: jest.fn(),
       countByStatus: jest.fn(),
       countByYear: jest.fn(),
       countThisYear: jest.fn(),
       findRecentActivity: jest.fn(),
+      saveFiles: jest.fn(),
+      findFileById: jest.fn(),
+      findFilesByProjectId: jest.fn(),
+      deleteFile: jest.fn(),
+      getMaxVersion: jest.fn(),
       findMilestonesByProject: jest.fn(),
       findMilestoneById: jest.fn(),
       createMilestone: jest.fn(),
@@ -52,6 +52,8 @@ describe('AddProjectAuthorUseCase', () => {
       findById: jest.fn(),
       findByUserId: jest.fn(),
       findByEnrollmentNumber: jest.fn(),
+      findProfileById: jest.fn(),
+      findAllPaginated: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
     };
@@ -69,20 +71,14 @@ describe('AddProjectAuthorUseCase', () => {
   });
 
   it('should add an author to a project', async () => {
-    projectRepository.findById.mockResolvedValue({
-      id: 'proj-1',
-      title: 'Test',
-    } as never);
-    studentRepository.findById.mockResolvedValue({
-      id: 'student-1',
-    } as never);
+    projectRepository.findById.mockResolvedValue({ id: 'proj-1' } as never);
+    studentRepository.findById.mockResolvedValue({ id: 'student-1' } as never);
     authorModel.findOne.mockResolvedValue(null);
     authorModel.count.mockResolvedValue(0);
     authorModel.create.mockResolvedValue({
       id: 'author-1',
       projectId: 'proj-1',
       studentId: 'student-1',
-      authorOrder: 1,
     });
 
     const result = await useCase.execute({
@@ -91,7 +87,7 @@ describe('AddProjectAuthorUseCase', () => {
     });
 
     expect(result.studentId).toBe('student-1');
-    expect(result.authorOrder).toBe(1);
+    expect(result.projectId).toBe('proj-1');
   });
 
   it('should reject when project not found', async () => {
@@ -103,9 +99,7 @@ describe('AddProjectAuthorUseCase', () => {
   });
 
   it('should reject when student not found', async () => {
-    projectRepository.findById.mockResolvedValue({
-      id: 'proj-1',
-    } as never);
+    projectRepository.findById.mockResolvedValue({ id: 'proj-1' } as never);
     studentRepository.findById.mockResolvedValue(null);
 
     await expect(
@@ -114,9 +108,7 @@ describe('AddProjectAuthorUseCase', () => {
   });
 
   it('should reject duplicate author', async () => {
-    projectRepository.findById.mockResolvedValue({
-      id: 'proj-1',
-    } as never);
+    projectRepository.findById.mockResolvedValue({ id: 'proj-1' } as never);
     studentRepository.findById.mockResolvedValue({
       id: 'student-1',
     } as never);
@@ -128,9 +120,7 @@ describe('AddProjectAuthorUseCase', () => {
   });
 
   it('should reject when max 3 authors reached', async () => {
-    projectRepository.findById.mockResolvedValue({
-      id: 'proj-1',
-    } as never);
+    projectRepository.findById.mockResolvedValue({ id: 'proj-1' } as never);
     studentRepository.findById.mockResolvedValue({
       id: 'student-4',
     } as never);

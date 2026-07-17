@@ -10,10 +10,7 @@ import { StudentController } from './infrastructure/http/controllers/student.con
 import { TrajectoriesModule } from '@modules/trajectories/trajectories.module';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([StudentModel]),
-    TrajectoriesModule,
-  ],
+  imports: [SequelizeModule.forFeature([StudentModel]), TrajectoriesModule],
   providers: [
     {
       provide: 'IStudentRepository',

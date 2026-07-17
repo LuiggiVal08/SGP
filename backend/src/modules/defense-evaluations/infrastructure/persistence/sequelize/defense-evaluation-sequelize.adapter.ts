@@ -13,7 +13,9 @@ export class DefenseEvaluationSequelizeAdapter implements IDefenseEvaluationRepo
     private readonly defenseEvaluationModel: typeof DefenseEvaluationModel,
   ) {}
 
-  private toDomain(model: DefenseEvaluationModel | null): DefenseEvaluation | null {
+  private toDomain(
+    model: DefenseEvaluationModel | null,
+  ): DefenseEvaluation | null {
     if (!model) return null;
     return new DefenseEvaluation(
       model.id,

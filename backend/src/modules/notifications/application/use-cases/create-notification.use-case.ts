@@ -15,19 +15,16 @@ export class CreateNotificationUseCase {
     title: string;
     message: string;
     type: string;
-    relatedId?: string | null;
+    entityType?: string;
+    entityId?: string;
   }) {
-    const notification = new Notification(
-      randomUUID(),
-      data.userId,
-      data.title,
-      data.message,
-      data.type,
-      false,
-      data.relatedId ?? null,
-      new Date(),
-    );
-    await this.notificationRepository.save(notification);
-    return notification;
+    return this.notificationRepository.create({
+      userId: data.userId,
+      title: data.title,
+      message: data.message,
+      type: data.type,
+      entityType: data.entityType,
+      entityId: data.entityId,
+    });
   }
 }

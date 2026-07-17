@@ -25,26 +25,34 @@ export class ListProjectAuthorsUseCase {
       include: [
         {
           model: StudentModel,
-          include: [{ model: UserModel, attributes: ['firstName', 'lastName', 'email'] }],
+          include: [
+            {
+              model: UserModel,
+              attributes: ['id', 'firstName', 'lastName', 'email'],
+            },
+          ],
         },
       ],
-      order: [['authorOrder', 'ASC']],
     });
 
     return authors.map((a) => ({
       id: a.id,
       projectId: a.projectId,
       studentId: a.studentId,
-      authorOrder: a.authorOrder,
       student: a.student
         ? {
             id: a.student.id,
             enrollmentNumber: a.student.enrollmentNumber,
-            firstName: a.student.user?.firstName,
-            lastName: a.student.user?.lastName,
-            email: a.student.user?.email,
+            user: a.student.user
+              ? {
+                  id: a.student.user.id,
+                  firstName: a.student.user.firstName,
+                  lastName: a.student.user.lastName,
+                  email: a.student.user.email,
+                }
+              : undefined,
           }
-        : null,
+        : undefined,
     }));
   }
 }
