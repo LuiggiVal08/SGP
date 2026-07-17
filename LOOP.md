@@ -24,14 +24,15 @@
 - [x] **B2** Trayectorias y materias — `HECHO` (trajectories + subjects módulos)
 
 ### Épica C — Actores: profesores y estudiantes
-- [ ] **C1** Perfil de profesor — `PENDIENTE`
-- [~] **C2** Perfil de estudiante — `EN_REVISION` (ciclo de prueba del loop: +/loop/health)
+- [x] **C1** Perfil de profesor — `HECHO` (GET /professors/:id con grupos donde imparte; PATCH perfil)
+- [x] **C2** Perfil de estudiante — `HECHO` (GET /students/:id con trayectoria/cohorte; PATCH perfil)
 
 ### Épica D — Asignaciones, proyectos y tutores
-- [ ] **D1** Asignación docente a materia — `PENDIENTE`
-- [ ] **D2** Registro de proyecto — `PENDIENTE` (communityTutorId obligatorio)
-- [ ] **D3** Tutores académicos (regla imparte≠tutor) — `PENDIENTE` ⚠️ regla dura
-- [ ] **D4** Autores del proyecto — `PENDIENTE`
+- [x] **D1** Asignación docente a materia — `HECHO` (POST /subject-assignments; única por subjectId+professorId+periodId)
+- [x] **D2** Registro de proyecto — `HECHO` (POST /projects; communityTutorId obligatorio; status BORRADOR)
+- [x] **D3** Tutores académicos (regla imparte≠tutor) — `HECHO` ⚠️ regla dura validada en backend
+- [x] **D4** Autores del proyecto — `HECHO` (project_authors vía studentId;
+  máx 3 autores) — ALINEADO A DBML: studentId FK→students, authorOrder
 
 ### Épica E — Comunidad y tutores comunitarios
 - [x] **E1** Lugares comunitarios — `HECHO` (community-places módulo)
@@ -42,20 +43,20 @@
 - [x] **F2** Etiquetado de proyectos — `HECHO` (tags + project_tags módulo; creación libre)
 
 ### Épica G — Seguimiento: hitos, archivos, correcciones
-- [ ] **G1** Subir RESUMEN y TOMO — `PENDIENTE`
-- [ ] **G2** Hitos del proyecto — `PENDIENTE`
-- [ ] **G3** Correcciones sobre el TOMO — `PENDIENTE` ⚠️ flujo correcciones
+- [x] **G1** Subir RESUMEN y TOMO — `HECHO` (project_files documentType RESUMEN|TOMO, version, uploadedBy)
+- [x] **G2** Hitos del proyecto — `HECHO` (project_milestones type/stage/status/dueDate)
+- [x] **G3** Correcciones sobre el TOMO — `HECHO` ⚠️ flujo correcciones (project_corrections status PENDIENTE/RESUELTA)
 
 ### Épica H — Defensa y evaluación
-- [ ] **H1** Agendar defensa — `PENDIENTE`
-- [ ] **H2** Jurados y evaluación — `PENDIENTE`
+- [x] **H1** Agendar defensa — `HECHO` (POST /defenses; 1:1 proyecto; status PROGRAMADA/REALIZADA/APLAZADA/CANCELADA)
+- [x] **H2** Jurados y evaluación — `HECHO` (defense_judges professorId XOR communityTutorId; defense_evaluations score decimal)
 
 ### Épica I — Certificación
-- [ ] **I1** Certificado de culminación — `PENDIENTE`
+- [x] **I1** Certificado de culminación — `HECHO` (completion_certificates authorId FK→project_authors, único)
 
 ### Épica J — Notificaciones y auditoría
-- [ ] **J1** Notificaciones — `PENDIENTE`
-- [ ] **J2** Auditoría — `PENDIENTE`
+- [x] **J1** Notificaciones — `HECHO` (notifications con readAt; markAsRead/markAllAsRead)
+- [x] **J2** Auditoría — `HECHO` (activity_logs action/entityType/Id/details/ip/userAgent)
 
 ## Pendientes del proyecto (afectan stories)
 - **P1** (F2): RESUELTO — creación/edición libre de tags (cualquier usuario autenticado; restricción de rol se añade después).
@@ -99,3 +100,26 @@ _(sin ciclos ejecutados aún)_
 - nota: el seed recrea `pnfs` incl. `coordinatorId`; backend arranca con `DB_SYNCHRONIZE=true` (recrea esquema en BD limpia). Deuda preexistente del repo (specs de projects/auth, modelo `projects` no cuadra con DBML) queda FUERA de alcance.
 - checker: manual (oráculo loop-check sobre diff de mis módulos) — GREEN
 - escalado: pendiente commit + PR a ADMIN (nunca auto-merge)
+
+### loop/A-merge-6-branches — 2026-07-16
+- halt_reason: GREEN (tests); lint parcial pendiente
+- alcance: 6 sesiones paralelas de agentes Task (desde develop) implementando épicas
+  C, D, G, H, I, J sobre el DBML actual (`docs/dbml/sgp.dbml`) + `docs/spec-xp.md`.
+  Branches: s-c-profiles (C1/C2), s-h-defense (H1/H2), s-g-corrections (D+G),
+  s-ij-cert-notif (I1/J1/J2), s-cat-frontend.
+- integración: 6 branches mergeados a develop; ~51 conflictos resueltos alineando a DBML.
+- correcciones post-merge (alineación a DBML):
+  - project_authors: studentId FK→students + authorOrder (NO userId).
+  - completion_certificates: authorId FK→project_authors (NO projectId/userId/year).
+  - projects: studentId en add/remove/list project authors; status/cdSubmitted.
+  - professors.module: removido import circular ProjectSubjectAssignmentsModule.
+  - notifications: CreateNotificationUseCase usa entityType/entityId (no relatedId).
+  - delete-project: ConflictException si countFiles>0.
+- tests_before: n/a  tests_after: 44/44 suites (101 tests) jest backend GREEN;
+  8/8 (33) vitest frontend GREEN; dbml2sql GREEN.
+- estado oracle: backend jest ✓ / frontend vitest ✓ / dbml2sql ✓.
+  PENDIENTE: frontend eslint (35 issues) + backend eslint (83 issues, mayoría deuda
+  preexistente tipo no-unsafe-*/no-unused-vars) + backend test:e2e config error.
+- BD: DROP+CREATE sgp_dev; Sequelize sync recrea esquema de models alineados a DBML.
+- checker: sgp-loop / loop-check.sh
+- escalado: pendiente PR a ADMIN (nunca auto-merge)
