@@ -6,41 +6,216 @@
   "defaultView": {
     "detailLevel": "All",
     "tablePositions": [
-      { "name": "roles", "schemaName": "public", "x": 40, "y": 40 },
-      { "name": "permissions", "schemaName": "public", "x": 40, "y": 310 },
-      { "name": "role_permissions", "schemaName": "public", "x": 420, "y": 40 },
-      { "name": "user_roles", "schemaName": "public", "x": 420, "y": 310 },
-      { "name": "institutions", "schemaName": "public", "x": 420, "y": 580 },
-      { "name": "periods", "schemaName": "public", "x": 800, "y": 580 },
-      { "name": "community_places", "schemaName": "public", "x": 1940, "y": 580 },
-      { "name": "community_tutors", "schemaName": "public", "x": 1940, "y": 850 },
-      { "name": "pnfs", "schemaName": "public", "x": 800, "y": 310 },
-      { "name": "trajectories", "schemaName": "public", "x": 1180, "y": 310 },
-      { "name": "subjects", "schemaName": "public", "x": 1180, "y": 580 },
-      { "name": "users", "schemaName": "public", "x": 800, "y": 850 },
-      { "name": "professors", "schemaName": "public", "x": 1180, "y": 850 },
-      { "name": "students", "schemaName": "public", "x": 1180, "y": 1120 },
-      { "name": "project_subject_assignments", "schemaName": "public", "x": 1560, "y": 580 },
-      { "name": "projects", "schemaName": "public", "x": 1560, "y": 850 },
-      { "name": "project_academic_tutors", "schemaName": "public", "x": 1940, "y": 1120 },
-      { "name": "project_authors", "schemaName": "public", "x": 1940, "y": 1390 },
-      { "name": "project_files", "schemaName": "public", "x": 2320, "y": 850 },
-      { "name": "project_milestones", "schemaName": "public", "x": 2320, "y": 1120 },
-      { "name": "project_revisions", "schemaName": "public", "x": 2320, "y": 1390 },
-      { "name": "project_corrections", "schemaName": "public", "x": 2320, "y": 1660 },
-      { "name": "project_tags", "schemaName": "public", "x": 2700, "y": 1660 },
-      { "name": "tags", "schemaName": "public", "x": 2700, "y": 1930 },
-      { "name": "defenses", "schemaName": "public", "x": 2700, "y": 850 },
-      { "name": "defense_judges", "schemaName": "public", "x": 2700, "y": 1120 },
-      { "name": "defense_evaluations", "schemaName": "public", "x": 3080, "y": 1120 },
-      { "name": "completion_certificates", "schemaName": "public", "x": 3080, "y": 850 },
-      { "name": "defense_schedule_changes", "schemaName": "public", "x": 3080, "y": 1390 },
-      { "name": "user_tokens", "schemaName": "public", "x": 1560, "y": 40 },
-      { "name": "user_sessions", "schemaName": "public", "x": 1560, "y": 310 },
-      { "name": "notifications", "schemaName": "public", "x": 3080, "y": 310 },
-      { "name": "activity_logs", "schemaName": "public", "x": 3080, "y": 580 },
-      { "name": "questions", "schemaName": "public", "x": 3460, "y": 40 },
-      { "name": "user_questions", "schemaName": "public", "x": 3460, "y": 310 }
+      {
+        "name": "permissions",
+        "schemaName": "public",
+        "x": 40,
+        "y": 40
+      },
+      {
+        "name": "roles",
+        "schemaName": "public",
+        "x": 40,
+        "y": 236
+      },
+      {
+        "name": "institutions",
+        "schemaName": "public",
+        "x": 40,
+        "y": 432
+      },
+      {
+        "name": "questions",
+        "schemaName": "public",
+        "x": 40,
+        "y": 668
+      },
+      {
+        "name": "tags",
+        "schemaName": "public",
+        "x": 40,
+        "y": 864
+      },
+      {
+        "name": "role_permissions",
+        "schemaName": "public",
+        "x": 420,
+        "y": 40
+      },
+      {
+        "name": "periods",
+        "schemaName": "public",
+        "x": 420,
+        "y": 176
+      },
+      {
+        "name": "community_places",
+        "schemaName": "public",
+        "x": 420,
+        "y": 492
+      },
+      {
+        "name": "users",
+        "schemaName": "public",
+        "x": 420,
+        "y": 788
+      },
+      {
+        "name": "professors",
+        "schemaName": "public",
+        "x": 800,
+        "y": 40
+      },
+      {
+        "name": "community_tutors",
+        "schemaName": "public",
+        "x": 800,
+        "y": 236
+      },
+      {
+        "name": "user_roles",
+        "schemaName": "public",
+        "x": 800,
+        "y": 512
+      },
+      {
+        "name": "user_questions",
+        "schemaName": "public",
+        "x": 800,
+        "y": 648
+      },
+      {
+        "name": "user_tokens",
+        "schemaName": "public",
+        "x": 800,
+        "y": 864
+      },
+      {
+        "name": "user_sessions",
+        "schemaName": "public",
+        "x": 800,
+        "y": 1100
+      },
+      {
+        "name": "notifications",
+        "schemaName": "public",
+        "x": 800,
+        "y": 1336
+      },
+      {
+        "name": "activity_logs",
+        "schemaName": "public",
+        "x": 800,
+        "y": 1612
+      },
+      {
+        "name": "pnfs",
+        "schemaName": "public",
+        "x": 1180,
+        "y": 40
+      },
+      {
+        "name": "trajectories",
+        "schemaName": "public",
+        "x": 1560,
+        "y": 40
+      },
+      {
+        "name": "subjects",
+        "schemaName": "public",
+        "x": 1940,
+        "y": 40
+      },
+      {
+        "name": "students",
+        "schemaName": "public",
+        "x": 1940,
+        "y": 236
+      },
+      {
+        "name": "project_subject_assignments",
+        "schemaName": "public",
+        "x": 2320,
+        "y": 40
+      },
+      {
+        "name": "projects",
+        "schemaName": "public",
+        "x": 2700,
+        "y": 40
+      },
+      {
+        "name": "project_academic_tutors",
+        "schemaName": "public",
+        "x": 3080,
+        "y": 40
+      },
+      {
+        "name": "project_authors",
+        "schemaName": "public",
+        "x": 3080,
+        "y": 296
+      },
+      {
+        "name": "defenses",
+        "schemaName": "public",
+        "x": 3080,
+        "y": 512
+      },
+      {
+        "name": "project_milestones",
+        "schemaName": "public",
+        "x": 3080,
+        "y": 788
+      },
+      {
+        "name": "project_tags",
+        "schemaName": "public",
+        "x": 3080,
+        "y": 1124
+      },
+      {
+        "name": "project_files",
+        "schemaName": "public",
+        "x": 3080,
+        "y": 1300
+      },
+      {
+        "name": "defense_judges",
+        "schemaName": "public",
+        "x": 3460,
+        "y": 40
+      },
+      {
+        "name": "completion_certificates",
+        "schemaName": "public",
+        "x": 3460,
+        "y": 316
+      },
+      {
+        "name": "defense_schedule_changes",
+        "schemaName": "public",
+        "x": 3460,
+        "y": 532
+      },
+      {
+        "name": "project_revisions",
+        "schemaName": "public",
+        "x": 3460,
+        "y": 768
+      },
+      {
+        "name": "project_corrections",
+        "schemaName": "public",
+        "x": 3460,
+        "y": 1004
+      },
+      {
+        "name": "defense_evaluations",
+        "schemaName": "public",
+        "x": 3840,
+        "y": 40
+      }
     ],
     "tableGroupCollapseStates": [],
     "stickyNoteLayouts": [],

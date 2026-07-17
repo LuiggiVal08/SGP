@@ -246,7 +246,7 @@ async function seed() {
 
   await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
   await sequelize.query(
-    `DROP TABLE IF EXISTS project_revisions, project_milestones, defensa_results, carta_culminacion, project_community_tutors, project_authors, project_files, projects, users, pnfs, institutions, roles, questions, user_questions`,
+    `DROP TABLE IF EXISTS users, pnfs, institutions, roles, questions, user_questions`,
   );
   await sequelize.sync();
   await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
