@@ -5,6 +5,7 @@ import { UserSequelizeAdapter } from './infrastructure/persistence/sequelize/use
 import { GetUsersUseCase } from './application/use-cases/get-users.use-case';
 import { GetMeUseCase } from './application/use-cases/get-me.use-case';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
+import { ImportUsersCsvUseCase } from './application/use-cases/import-users-csv.use-case';
 import { UpdateUserUseCase } from './application/use-cases/update-user.use-case';
 import { ToggleUserActiveUseCase } from './application/use-cases/toggle-user-active.use-case';
 import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case';
@@ -34,6 +35,7 @@ import { InstitutionsModule } from '@modules/institutions/institutions.module';
     GetUsersUseCase,
     GetMeUseCase,
     CreateUserUseCase,
+    ImportUsersCsvUseCase,
     UpdateUserUseCase,
     ToggleUserActiveUseCase,
     DeleteUserUseCase,
