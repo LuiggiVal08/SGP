@@ -9,6 +9,12 @@ import { BcryptHashAdapter } from './infrastructure/services/bcrypt-hash.adapter
 import { LoginUseCase } from './application/use-cases/login-use-case';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
 import { LogoutUseCase } from './application/use-cases/logout.use-case';
+import {
+  ListUserSessionsUseCase,
+  CloseUserSessionUseCase,
+  CloseAllUserSessionsUseCase,
+} from './application/use-cases/session-use-cases';
+import { VerifyEmailUseCase } from './application/use-cases/verify-email.use-case';
 import { UserSessionModel } from './infrastructure/persistence/sequelize/models/user-session.model';
 import { UserTokenModel } from './infrastructure/persistence/sequelize/models/user-token.model';
 import { UserSessionSequelizeAdapter } from './infrastructure/persistence/sequelize/user-session-sequelize.adapter';
@@ -52,6 +58,22 @@ import { AuthController } from './infrastructure/http/controllers/auth.controlle
     {
       provide: 'ILogoutUseCase',
       useClass: LogoutUseCase,
+    },
+    {
+      provide: 'IListUserSessionsUseCase',
+      useClass: ListUserSessionsUseCase,
+    },
+    {
+      provide: 'ICloseUserSessionUseCase',
+      useClass: CloseUserSessionUseCase,
+    },
+    {
+      provide: 'ICloseAllUserSessionsUseCase',
+      useClass: CloseAllUserSessionsUseCase,
+    },
+    {
+      provide: 'IVerifyEmailUseCase',
+      useClass: VerifyEmailUseCase,
     },
   ],
   controllers: [AuthController],
