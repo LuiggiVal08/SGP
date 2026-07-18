@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { projectService } from '../services/project.service';
 import { FileUploadSection } from '../components/FileUploadSection';
-import { Pencil, ArrowLeft, Trash2, GraduationCap, User, Users, Calendar, Building, Plus, FileText, Lock, BookOpen } from 'lucide-react';
+import { Pencil, ArrowLeft, Trash2, GraduationCap, User, Users, Calendar, Building, Plus, FileText, Lock, BookOpen, FileCheck2 } from 'lucide-react';
 import { ProjectFilesSection } from '../components/ProjectFilesSection';
 import { usePnf } from '@/features/catalogs/hooks/usePnf';
 import { useUsers } from '@/features/catalogs/hooks/useUsers';
@@ -448,6 +448,26 @@ export default function ProjectDetailPage() {
         <Card.Content className="p-6">
           <h3 className="text-base font-semibold text-foreground mb-4">Archivos Subidos</h3>
           <ProjectFilesSection projectId={project.id} />
+        </Card.Content>
+      </Card.Root>
+
+      <Card.Root variant="secondary" className="border border-border">
+        <Card.Content className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileCheck2 size={16} className="text-secondary" />
+              <h3 className="text-base font-semibold text-foreground">Correcciones del TOMO</h3>
+            </div>
+            <Link
+              to={`/proyectos/${project.id}/correcciones`}
+              className="text-sm text-primary hover:underline font-medium"
+            >
+              Ver y gestionar correcciones
+            </Link>
+          </div>
+          <p className="text-xs text-muted mt-2">
+            Registra y da seguimiento a las correcciones solicitadas sobre los archivos TOMO del proyecto.
+          </p>
         </Card.Content>
       </Card.Root>
 

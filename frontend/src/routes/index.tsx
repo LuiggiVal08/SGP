@@ -30,6 +30,8 @@ const RegisterProfessorPage = lazy(() => import('@/features/admin/views/Register
 const HelpPage = lazy(() => import('@/features/help/views/HelpPage'));
 const ActivityLogPage = lazy(() => import('@/features/activity-log/views/ActivityLogPage'));
 const LoopDashboardPage = lazy(() => import('@/features/loop-dashboard/views/LoopDashboardPage'));
+const DefensesPage = lazy(() => import('@/features/defenses/views/DefensesPage'));
+const ProjectCorrectionsRoute = lazy(() => import('@/features/corrections/views/ProjectCorrectionsRoute'));
 
 export const router = createBrowserRouter([
   {
@@ -166,6 +168,22 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
             {suspense(<LoopDashboardPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'defensas',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            {suspense(<DefensesPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'proyectos/:id/correcciones',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'DOCENTE', 'IRCOP']}>
+            {suspense(<ProjectCorrectionsRoute />)}
           </ProtectedRoute>
         ),
       },
