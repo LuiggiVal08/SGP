@@ -57,7 +57,7 @@ export default function RegisterProfessorPage() {
 
       <div className="relative mb-6">
         <div className="absolute -left-8 top-0 bottom-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
-        <h2 className="text-2xl font-semibold pl-3">Registrar Docente</h2>
+        <h2 className="font-display text-2xl font-bold tracking-tight pl-3">Registrar Docente</h2>
       </div>
 
       <Card.Root variant="secondary" className="border border-border">
@@ -96,7 +96,7 @@ export default function RegisterProfessorPage() {
               {errors.specialization && <p className="text-danger text-xs">{errors.specialization.message}</p>}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm">Institución</label>
+              <FieldLabel label="Institución" help="Institución a la que pertenece" htmlFor="institutionId" className="text-sm" />
               {loadingInstitutions ? (
                 <Skeleton className="h-10 w-full rounded-lg" />
               ) : (
@@ -130,7 +130,7 @@ export default function RegisterProfessorPage() {
               )}
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm">PNF</label>
+              <FieldLabel label="PNF" help="Programa Nacional de Formación asignado" htmlFor="pnfId" className="text-sm" />
               {loadingPnfs ? (
                 <Skeleton className="h-10 w-full rounded-lg" />
               ) : (
@@ -170,7 +170,7 @@ export default function RegisterProfessorPage() {
               />
             </div>
             <div className="pt-2">
-              <Button variant="primary" type="submit" isDisabled={!isValid || mutation.isPending}>
+              <Button variant="primary" type="submit" className="w-full" isDisabled={!isValid || mutation.isPending}>
                 {mutation.isPending ? <Spinner size="sm" /> : 'Registrar Docente'}
               </Button>
             </div>

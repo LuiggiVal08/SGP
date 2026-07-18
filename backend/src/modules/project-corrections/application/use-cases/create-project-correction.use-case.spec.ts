@@ -32,6 +32,7 @@ describe('CreateProjectCorrectionUseCase', () => {
       countByYear: jest.fn(),
       countThisYear: jest.fn(),
       findRecentActivity: jest.fn(),
+      findRecentActivityWithTimestamps: jest.fn(),
       saveFiles: jest.fn(),
       findFileById: jest.fn(),
       findFilesByProjectId: jest.fn(),
