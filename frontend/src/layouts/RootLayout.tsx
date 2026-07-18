@@ -41,6 +41,7 @@ import {
   MapPin,
   UserRound,
   Tag,
+  Gavel,
 } from 'lucide-react';
 import type { ThemeMode } from '@/shared/store/theme.store';
 
@@ -272,6 +273,12 @@ export function RootLayout() {
                               to="/admin/loop"
                               label="Loop Engineering"
                               icon={Repeat}
+                              onClick={overlayState.close}
+                            />
+                            <SidebarNavLink
+                              to="/defensas"
+                              label="Defensas"
+                              icon={Gavel}
                               onClick={overlayState.close}
                             />
                           </Section>
