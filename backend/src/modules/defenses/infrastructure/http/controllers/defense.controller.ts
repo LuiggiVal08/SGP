@@ -39,6 +39,7 @@ export class DefenseController {
     return this.scheduleDefenseUseCase.execute({
       projectId: dto.projectId,
       scheduledDate: new Date(dto.scheduledDate),
+      judges: dto.judges,
     });
   }
 
