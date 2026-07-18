@@ -202,7 +202,7 @@ export function CreateProjectForm() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <FieldLabel label="Título del Proyecto" help="Nombre descriptivo del proyecto" htmlFor="title" className="text-sm" />
+                <FieldLabel label="Título del Proyecto" help="Título descriptivo del proyecto. Mínimo 3 caracteres" htmlFor="title" className="text-sm" />
                 <Input
                   id="title"
                   placeholder="Ej: Sistema de Gestión..."
@@ -215,9 +215,7 @@ export function CreateProjectForm() {
 
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5">
-                  <label htmlFor="year" className="text-sm">
-                    Año
-                  </label>
+                  <FieldLabel label="Año" help="Año de realización del proyecto. Ej: 2024" htmlFor="year" className="text-sm" />
                   <Popover.Root>
                     <Popover.Trigger>
                       <button
@@ -249,7 +247,7 @@ export function CreateProjectForm() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <FieldLabel label="Institución" help="Institución del proyecto" htmlFor="institutionId" className="text-sm" />
+                <FieldLabel label="Institución" help="Institución donde se desarrolla el proyecto" htmlFor="institutionId" className="text-sm" />
                 {loadingInstitutions ? (
                   <Skeleton className="h-10 w-full rounded-lg" />
                 ) : (
@@ -286,7 +284,7 @@ export function CreateProjectForm() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <FieldLabel label="PNF" help="PNF a la que pertenece el proyecto" htmlFor="pnfId" className="text-sm" />
+                <FieldLabel label="PNF" help="Programa Nacional de Formación del proyecto" htmlFor="pnfId" className="text-sm" />
                 {!selectedInstitution ? (
                   <p className="text-xs text-muted py-2">Selecciona una institución primero</p>
                 ) : loadingPnfs ? (
@@ -331,7 +329,7 @@ export function CreateProjectForm() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <FieldLabel label="Metodología" help="Tipo de metodología del proyecto" htmlFor="methodology" className="text-sm" />
+                <FieldLabel label="Metodología" help="Metodología de desarrollo aplicada" htmlFor="methodology" className="text-sm" />
                 <Select
                   aria-label="Seleccionar metodología"
                   selectedKey={watch('methodology') || null}
@@ -387,9 +385,7 @@ export function CreateProjectForm() {
 
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5">
-                  <label htmlFor="authors" className="text-sm">
-                    Autores (máx. {maxAuthors})
-                  </label>
+                  <FieldLabel label={`Autores (máx. ${maxAuthors})`} help="Estudiantes autores del proyecto. Entre 2 y 5" htmlFor="authors" className="text-sm" />
                   <Popover.Root>
                     <Popover.Trigger>
                       <button
@@ -493,9 +489,7 @@ export function CreateProjectForm() {
 
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5">
-                  <label htmlFor="tutorId" className="text-sm">
-                    Tutor
-                  </label>
+                  <FieldLabel label="Tutor" help="Docente tutor que guía el proyecto" htmlFor="tutorId" className="text-sm" />
                   <Popover.Root>
                     <Popover.Trigger>
                       <button
@@ -578,7 +572,7 @@ export function CreateProjectForm() {
               </p>
 
               <div className="flex flex-col gap-1">
-                <FieldLabel label="Nombre completo" htmlFor="ct-name" className="text-sm" />
+                <FieldLabel label="Nombre completo" help="Nombre y apellido del tutor de la comunidad" htmlFor="ct-name" className="text-sm" />
                 <Input
                   id="ct-name"
                   placeholder="Ej: Juan Pérez"
@@ -589,7 +583,7 @@ export function CreateProjectForm() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <FieldLabel label="Cédula de identidad" htmlFor="ct-dni" className="text-sm" />
+                  <FieldLabel label="Cédula de identidad" help="Cédula del tutor. Ej: 12.345.678" htmlFor="ct-dni" className="text-sm" />
                   <Input
                     id="ct-dni"
                     placeholder="Ej: 28 532 259"
@@ -601,7 +595,7 @@ export function CreateProjectForm() {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <FieldLabel label="Teléfono" htmlFor="ct-phone" className="text-sm" />
+                  <FieldLabel label="Teléfono" help="Teléfono de contacto. Ej: 0412-1234567" htmlFor="ct-phone" className="text-sm" />
                   <PhoneInputField
                     value={ct?.phone ?? ''}
                     onChange={(val) => setValue('communityTutor', { ...(ct ?? {}), phone: val ?? '' } as CommunityTutorData)}
@@ -611,7 +605,7 @@ export function CreateProjectForm() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <FieldLabel label="Email" htmlFor="ct-email" className="text-sm" />
+                  <FieldLabel label="Email" help="Correo electrónico del tutor comunitario" htmlFor="ct-email" className="text-sm" />
                   <Input
                     id="ct-email"
                     type="email"
@@ -621,7 +615,7 @@ export function CreateProjectForm() {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <FieldLabel label="Organización" htmlFor="ct-org" className="text-sm" />
+                  <FieldLabel label="Organización" help="Consejo comunal u organización que representa" htmlFor="ct-org" className="text-sm" />
                   <Input
                     id="ct-org"
                     placeholder="Ej: Consejo Comunal"
@@ -633,7 +627,7 @@ export function CreateProjectForm() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <FieldLabel label="Cargo" htmlFor="ct-position" className="text-sm" />
+                  <FieldLabel label="Cargo" help="Rol dentro de la comunidad. Ej: Vocero" htmlFor="ct-position" className="text-sm" />
                   <Input
                     id="ct-position"
                     placeholder="Ej: Presidente"

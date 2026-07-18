@@ -15,10 +15,9 @@ export interface SetSecurityQuestionsPayload {
 }
 
 export interface ForgotPasswordInitResponse {
-  resetToken: string;
   questions: Array<{ id: string; questionText: string }>;
 }
 
 export interface ForgotPasswordVerifyResponse {
-  verificationToken: string;
+  resetToken: string;
 }

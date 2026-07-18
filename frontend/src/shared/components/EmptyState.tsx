@@ -2,23 +2,24 @@ import type { ReactNode } from 'react';
 
 interface EmptyStateProps {
   message?: string;
+  hint?: string;
   icon?: ReactNode;
 }
 
-export function EmptyState({ message = 'Sin datos', icon }: EmptyStateProps) {
+export function EmptyState({ message = 'Sin datos', hint, icon }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-muted">
-      {icon ?? (
-        <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-24 h-24 text-muted/60">
-          <rect x="20" y="40" width="80" height="60" rx="6" stroke="currentColor" strokeWidth="2" />
-          <path d="M20 45L40 30h40l20 15" stroke="currentColor" strokeWidth="2" />
-          <line x1="35" y1="65" x2="85" y2="65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <line x1="45" y1="77" x2="75" y2="77" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="95" cy="25" r="8" fill="currentColor" opacity="0.15" />
-          <circle cx="75" cy="20" r="4" fill="currentColor" opacity="0.1" />
-        </svg>
-      )}
-      <p className="mt-4 text-sm">{message}</p>
+    <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/5 text-primary/70 ring-1 ring-inset ring-primary/10">
+        {icon ?? (
+          <svg viewBox="0 0 120 120" fill="none" className="w-9 h-9 text-primary/60" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="40" width="80" height="60" rx="6" stroke="currentColor" strokeWidth="3" />
+            <path d="M20 45L40 30h40l20 15" stroke="currentColor" strokeWidth="3" />
+            <line x1="35" y1="65" x2="85" y2="65" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        )}
+      </div>
+      <p className="mt-4 text-sm font-medium text-foreground">{message}</p>
+      {hint && <p className="mt-1 max-w-xs text-xs text-muted">{hint}</p>}
     </div>
   );
 }

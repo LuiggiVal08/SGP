@@ -219,14 +219,14 @@ export function ProjectsTable({ authorId }: ProjectsTableProps) {
           <Skeleton className="h-10 w-3/4 rounded-lg" />
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-border/60 max-h-[70vh]">
           <Table>
             <Table.Content
               aria-label="Proyectos registrados"
               sortDescriptor={sortDescriptor}
               onSortChange={(desc) => setSortDescriptor(desc as { column: string; direction: 'ascending' | 'descending' })}
             >
-              <Table.Header>
+              <Table.Header className="sticky top-0 z-10 bg-surface-secondary/95 backdrop-blur-sm [&_th]:text-xs [&_th]:font-semibold [&_th]:text-muted [&_th]:uppercase [&_th]:tracking-wider">
                 <Table.Column id="title" allowsSorting isRowHeader>
                   <div className="flex items-center gap-1">
                     TÍTULO
@@ -253,7 +253,7 @@ export function ProjectsTable({ authorId }: ProjectsTableProps) {
                 )}
               >
                 {(p: Project) => (
-                  <Table.Row className="even:bg-surface-secondary/40 hover:bg-surface-secondary/70 transition-colors">
+                  <Table.Row className="even:bg-surface-secondary/30 hover:bg-primary/[0.06] transition-colors">
                     <Table.Cell>
                       <Link
                         to={`/projects/${p.id}`}

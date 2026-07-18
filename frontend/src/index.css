@@ -10,6 +10,15 @@
  */
 @import './theme.css' layer(theme);
 
+/* Headings use the distinctive display family (skill: frontend-design) */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
 /* PhoneInput overrides */
 .phone-input-custom {
   --PhoneInput-color--focus: var(--focus);

@@ -22,17 +22,17 @@ export const securityQuestionsService = {
     await axiosClient.post('/users/me/security-questions', payload, { signal });
   },
 
-  async forgotPasswordInit(payload: { email: string }, signal?: AbortSignal): Promise<ForgotPasswordInitResponse> {
+  async forgotPasswordInit(payload: { identifier: string }, signal?: AbortSignal): Promise<ForgotPasswordInitResponse> {
     const { data } = await axiosClient.post<ForgotPasswordInitResponse>('/auth/forgot-password/init', payload, { signal });
     return data;
   },
 
-  async forgotPasswordVerify(payload: { resetToken: string; answers: Array<{ questionId: string; answer: string }> }, signal?: AbortSignal): Promise<ForgotPasswordVerifyResponse> {
+  async forgotPasswordVerify(payload: { identifier: string; answers: Array<{ questionId: string; answer: string }> }, signal?: AbortSignal): Promise<ForgotPasswordVerifyResponse> {
     const { data } = await axiosClient.post<ForgotPasswordVerifyResponse>('/auth/forgot-password/verify', payload, { signal });
     return data;
   },
 
-  async forgotPasswordReset(payload: { verificationToken: string; newPassword: string }, signal?: AbortSignal): Promise<void> {
+  async forgotPasswordReset(payload: { resetToken: string; newPassword: string }, signal?: AbortSignal): Promise<void> {
     await axiosClient.post('/auth/forgot-password/reset', payload, { signal });
   },
 

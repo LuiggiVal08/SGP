@@ -7,6 +7,7 @@ import { securityQuestionsSchema, type SecurityQuestionsFormValues } from '../sc
 import { useAvailableQuestions, useMyQuestions, useSetMyQuestions } from '../hooks/useSecurityQuestions';
 import { sileo } from 'sileo';
 import { ShieldCheck } from 'lucide-react';
+import { FieldLabel } from '@/shared/components/FieldLabel';
 
 export function SecurityQuestionsForm() {
   const { data: availableQuestions, isLoading: loadingQuestions } = useAvailableQuestions();
@@ -130,9 +131,7 @@ export function SecurityQuestionsForm() {
                 return (
                   <div key={num} className="space-y-2">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs text-muted uppercase tracking-wider" htmlFor={`question-${num}`}>
-                        Pregunta {num}
-                      </label>
+                      <FieldLabel label={`Pregunta ${num}`} help="Elige una pregunta. Las 3 deben ser distintas" htmlFor={`question-${num}`} className="text-xs text-muted uppercase tracking-wider" />
                       <Select
                         aria-label={`Pregunta ${num}`}
                         selectedKey={watch(qKey) || null}
@@ -161,9 +160,7 @@ export function SecurityQuestionsForm() {
                       )}
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs text-muted uppercase tracking-wider" htmlFor={`answer-${num}`}>
-                        Respuesta {num}
-                      </label>
+                      <FieldLabel label={`Respuesta ${num}`} help="Respuesta que recordarás fácilmente. Mínimo 2 caracteres" htmlFor={`answer-${num}`} className="text-xs text-muted uppercase tracking-wider" />
                       <Input
                         id={`answer-${num}`}
                         type="text"
