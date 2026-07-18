@@ -1,13 +1,31 @@
 import { ScheduleDefenseUseCase } from './schedule-defenses.use-case';
 import { IDefenseRepository } from '../../domain/ports/IDefenseRepository';
 import { Defense } from '../../domain/entities/Defense';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('ScheduleDefenseUseCase', () => {
   let useCase: ScheduleDefenseUseCase;
   let defenseRepository: jest.Mocked<IDefenseRepository>;
 
   const scheduledDate = new Date('2026-09-01T10:00:00Z');
+
+  const requiredJudges = [
+    {
+      judgeType: 'SUBJECT_PROFESSOR' as const,
+      professorId: 'prof-1',
+      communityTutorId: null,
+    },
+    {
+      judgeType: 'ACADEMIC_TUTOR' as const,
+      professorId: 'prof-2',
+      communityTutorId: null,
+    },
+    {
+      judgeType: 'COMMUNITY_TUTOR' as const,
+      professorId: null,
+      communityTutorId: 'ct-1',
+    },
+  ];
 
   beforeEach(() => {
     defenseRepository = {
@@ -26,6 +44,7 @@ describe('ScheduleDefenseUseCase', () => {
     const result = await useCase.execute({
       projectId: 'proj-1',
       scheduledDate,
+      judges: requiredJudges,
     });
 
     expect(result).toBeInstanceOf(Defense);
@@ -48,8 +67,42 @@ describe('ScheduleDefenseUseCase', () => {
     );
 
     await expect(
-      useCase.execute({ projectId: 'proj-1', scheduledDate }),
+      useCase.execute({
+        projectId: 'proj-1',
+        scheduledDate,
+        judges: requiredJudges,
+      }),
     ).rejects.toThrow(NotFoundException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(defenseRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('should throw BadRequestException when required judges are missing', async () => {
+    defenseRepository.findByProject.mockResolvedValue(null);
+
+    await expect(
+      useCase.execute({
+        projectId: 'proj-1',
+        scheduledDate,
+        judges: [
+          {
+            judgeType: 'SUBJECT_PROFESSOR',
+            professorId: 'prof-1',
+            communityTutorId: null,
+          },
+        ],
+      }),
+    ).rejects.toThrow(BadRequestException);
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(defenseRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('should schedule successfully when judges array is empty but no judges required scenario is not allowed', async () => {
+    defenseRepository.findByProject.mockResolvedValue(null);
+
+    await expect(
+      useCase.execute({ projectId: 'proj-1', scheduledDate, judges: [] }),
+    ).rejects.toThrow(BadRequestException);
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(defenseRepository.save).not.toHaveBeenCalled();
   });
