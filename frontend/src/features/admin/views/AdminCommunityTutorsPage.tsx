@@ -6,6 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { catalogService } from '@/features/catalogs/services/catalog.service';
 import { Plus, Search, Pencil, Trash2, Users } from 'lucide-react';
 import { EmptyState } from '@/shared/components/EmptyState';
+import { FieldLabel } from '@/shared/components/FieldLabel';
 import { Pagination } from '@/shared/components/Pagination';
 import { sileo } from 'sileo';
 import { extractApiError } from '@/shared/utils/extractApiError';
@@ -154,9 +155,10 @@ export default function AdminCommunityTutorsPage() {
         </div>
       ) : (
         <>
+          <div className="overflow-x-auto rounded-xl border border-border/60 max-h-[70vh]">
           <Table>
             <Table.Content aria-label="Tutores Comunales">
-              <Table.Header>
+              <Table.Header className="sticky top-0 z-10 bg-surface-secondary/95 backdrop-blur-sm [&_th]:text-xs [&_th]:font-semibold [&_th]:text-muted [&_th]:uppercase [&_th]:tracking-wider">
                 <Table.Column id="fullName" isRowHeader>Nombre</Table.Column>
                 <Table.Column id="dni">DNI</Table.Column>
                 <Table.Column id="position">Cargo</Table.Column>
@@ -170,7 +172,7 @@ export default function AdminCommunityTutorsPage() {
                 )}
               >
                 {(ct: CommunityTutor) => (
-                  <Table.Row className="even:bg-surface-secondary/40 hover:bg-surface-secondary/80 hover:translate-x-0.5 transition-all duration-150">
+                  <Table.Row className="even:bg-surface-secondary/30 hover:bg-primary/[0.06] transition-colors">
                     <Table.Cell>{ct.fullName ?? '—'}</Table.Cell>
                     <Table.Cell className="text-muted text-sm">{ct.dni ?? '—'}</Table.Cell>
                     <Table.Cell className="text-muted text-sm">{ct.position ?? '—'}</Table.Cell>
@@ -208,6 +210,7 @@ export default function AdminCommunityTutorsPage() {
               </Table.Body>
             </Table.Content>
           </Table>
+          </div>
           <Pagination current={page} total={totalPages} onChange={setPage} />
         </>
       )}
@@ -215,17 +218,17 @@ export default function AdminCommunityTutorsPage() {
       <Modal.Root state={createModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-default text-foreground">
                   <Users className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Nuevo Tutor Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3">
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-location" className="text-sm">Espacio Comunal</label>
+              <Modal.Body className="flex flex-wrap gap-x-4 gap-y-3 p-5 flex-1 overflow-y-auto">
+                <div className="flex flex-col gap-1 basis-full">
+                  <FieldLabel label="Espacio Comunal" help="Espacio comunitario donde colabora el tutor" htmlFor="ct-location" className="text-sm" />
                   <Select
                     id="ct-location"
                     aria-label="Espacio Comunal"
@@ -254,8 +257,8 @@ export default function AdminCommunityTutorsPage() {
                     <p className="text-danger text-xs">{createForm.formState.errors.locationId.message}</p>
                   )}
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-name" className="text-sm">Nombre completo</label>
+                <div className="flex flex-col gap-1 basis-full">
+                  <FieldLabel label="Nombre completo" help="Nombre y apellido del tutor comunitario" htmlFor="ct-name" className="text-sm" />
                   <Input
                     id="ct-name"
                     {...createForm.register('fullName')}
@@ -263,24 +266,24 @@ export default function AdminCommunityTutorsPage() {
                     autoFocus
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-dni" className="text-sm">DNI</label>
+                <div className="flex flex-col gap-1 flex-1 basis-40">
+                  <FieldLabel label="DNI" help="Cédula de identidad. Ej: 12.345.678" htmlFor="ct-dni" className="text-sm" />
                   <Input
                     id="ct-dni"
                     {...createForm.register('dni')}
                     placeholder="Ej: 1234567"
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-phone" className="text-sm">Teléfono</label>
+                <div className="flex flex-col gap-1 flex-1 basis-40">
+                  <FieldLabel label="Teléfono" help="Teléfono de contacto. Ej: 0412-1234567" htmlFor="ct-phone" className="text-sm" />
                   <Input
                     id="ct-phone"
                     {...createForm.register('phone')}
                     placeholder="Ej: 021-123456"
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-email" className="text-sm">Email</label>
+                <div className="flex flex-col gap-1 basis-full">
+                  <FieldLabel label="Email" help="Correo de contacto del tutor. Ej: juan@comunal.py" htmlFor="ct-email" className="text-sm" />
                   <Input
                     id="ct-email"
                     {...createForm.register('email')}
@@ -290,8 +293,8 @@ export default function AdminCommunityTutorsPage() {
                     <p className="text-danger text-xs">{createForm.formState.errors.email.message}</p>
                   )}
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-position" className="text-sm">Cargo</label>
+                <div className="flex flex-col gap-1 basis-full">
+                  <FieldLabel label="Cargo" help="Cargo o rol en la comunidad. Ej: Vocero principal" htmlFor="ct-position" className="text-sm" />
                   <Input
                     id="ct-position"
                     {...createForm.register('position')}
@@ -299,7 +302,7 @@ export default function AdminCommunityTutorsPage() {
                   />
                 </div>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { createModal.close(); createForm.reset(); }}>Cancelar</Button>
                 <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate()}>
                   {createMutation.isPending ? <Spinner size="sm" /> : 'Crear'}
@@ -313,17 +316,17 @@ export default function AdminCommunityTutorsPage() {
       <Modal.Root state={editModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-default text-foreground">
                   <Users className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Editar Tutor Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3">
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-ct-location" className="text-sm">Espacio Comunal</label>
+              <Modal.Body className="flex flex-wrap gap-x-4 gap-y-3 p-5 flex-1 overflow-y-auto">
+                <div className="flex flex-col gap-1 basis-full">
+                  <FieldLabel label="Espacio Comunal" help="Espacio comunitario donde colabora el tutor" htmlFor="edit-ct-location" className="text-sm" />
                   <Select
                     id="edit-ct-location"
                     aria-label="Espacio Comunal"
@@ -352,30 +355,30 @@ export default function AdminCommunityTutorsPage() {
                     <p className="text-danger text-xs">{editForm.formState.errors.locationId.message}</p>
                   )}
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-ct-name" className="text-sm">Nombre completo</label>
+                <div className="flex flex-col gap-1 basis-full">
+                  <FieldLabel label="Nombre completo" help="Nombre y apellido del tutor comunitario" htmlFor="edit-ct-name" className="text-sm" />
                   <Input
                     id="edit-ct-name"
                     {...editForm.register('fullName')}
                     autoFocus
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-ct-dni" className="text-sm">DNI</label>
+                <div className="flex flex-col gap-1 flex-1 basis-40">
+                  <FieldLabel label="DNI" help="Cédula de identidad. Ej: 12.345.678" htmlFor="edit-ct-dni" className="text-sm" />
                   <Input
                     id="edit-ct-dni"
                     {...editForm.register('dni')}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-ct-phone" className="text-sm">Teléfono</label>
+                <div className="flex flex-col gap-1 flex-1 basis-40">
+                  <FieldLabel label="Teléfono" help="Teléfono de contacto. Ej: 0412-1234567" htmlFor="edit-ct-phone" className="text-sm" />
                   <Input
                     id="edit-ct-phone"
                     {...editForm.register('phone')}
                   />
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-ct-email" className="text-sm">Email</label>
+                <div className="flex flex-col gap-1 basis-full">
+                  <FieldLabel label="Email" help="Correo de contacto del tutor. Ej: juan@comunal.py" htmlFor="edit-ct-email" className="text-sm" />
                   <Input
                     id="edit-ct-email"
                     {...editForm.register('email')}
@@ -384,15 +387,15 @@ export default function AdminCommunityTutorsPage() {
                     <p className="text-danger text-xs">{editForm.formState.errors.email.message}</p>
                   )}
                 </div>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-ct-position" className="text-sm">Cargo</label>
+                <div className="flex flex-col gap-1 basis-full">
+                  <FieldLabel label="Cargo" help="Cargo o rol en la comunidad. Ej: Vocero principal" htmlFor="edit-ct-position" className="text-sm" />
                   <Input
                     id="edit-ct-position"
                     {...editForm.register('position')}
                   />
                 </div>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { editModal.close(); setEditing(null); editForm.reset(); }}>Cancelar</Button>
                 <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id })}>
                   {updateMutation.isPending ? <Spinner size="sm" /> : 'Guardar'}
@@ -406,20 +409,20 @@ export default function AdminCommunityTutorsPage() {
       <Modal.Root state={deleteModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-danger/10 text-danger">
                   <Trash2 className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Eliminar Tutor Comunal</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body>
+              <Modal.Body className="p-5 flex-1 overflow-y-auto">
                 <p className="text-sm text-muted">
                   ¿Está seguro de eliminar al tutor <strong>{deleting?.fullName ?? '—'}</strong>? Esta acción no se puede deshacer.
                 </p>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { deleteModal.close(); setDeleting(null); }} autoFocus>Cancelar</Button>
                 <Button className="w-full" variant="danger" isDisabled={deleteMutation.isPending} onPress={() => deleting && deleteMutation.mutate(deleting.id)}>
                   {deleteMutation.isPending ? <Spinner size="sm" /> : 'Eliminar'}

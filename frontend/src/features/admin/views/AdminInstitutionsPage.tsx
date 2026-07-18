@@ -6,6 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { catalogService } from '@/features/catalogs/services/catalog.service';
 import { Plus, Search, Pencil, Trash2, Building2 } from 'lucide-react';
 import { EmptyState } from '@/shared/components/EmptyState';
+import { FieldLabel } from '@/shared/components/FieldLabel';
 import { Pagination } from '@/shared/components/Pagination';
 import { sileo } from 'sileo';
 import { extractApiError } from '@/shared/utils/extractApiError';
@@ -139,9 +140,10 @@ export default function AdminInstitutionsPage() {
         </div>
       ) : (
         <>
+          <div className="overflow-x-auto rounded-xl border border-border/60 max-h-[70vh]">
           <Table>
             <Table.Content aria-label="Instituciones">
-              <Table.Header>
+              <Table.Header className="sticky top-0 z-10 bg-surface-secondary/95 backdrop-blur-sm [&_th]:text-xs [&_th]:font-semibold [&_th]:text-muted [&_th]:uppercase [&_th]:tracking-wider">
                 <Table.Column id="name" isRowHeader>Nombre</Table.Column>
                 <Table.Column id="acronym">Siglas</Table.Column>
                 <Table.Column id="email">Email</Table.Column>
@@ -155,7 +157,7 @@ export default function AdminInstitutionsPage() {
                 )}
               >
                 {(i: Institution) => (
-                  <Table.Row className="even:bg-surface-secondary/40 hover:bg-surface-secondary/80 hover:translate-x-0.5 transition-all duration-150">
+                  <Table.Row className="even:bg-surface-secondary/30 hover:bg-primary/[0.06] transition-colors">
                     <Table.Cell>{i.name}</Table.Cell>
                     <Table.Cell>{i.acronym}</Table.Cell>
                     <Table.Cell>{i.email}</Table.Cell>
@@ -193,6 +195,7 @@ export default function AdminInstitutionsPage() {
               </Table.Body>
             </Table.Content>
           </Table>
+          </div>
           <Pagination current={page} total={totalPages} onChange={setPage} />
         </>
       )}
@@ -200,17 +203,17 @@ export default function AdminInstitutionsPage() {
       <Modal.Root state={createModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-default text-foreground">
                   <Building2 className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Nueva Institución</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3">
+              <Modal.Body className="space-y-3 p-5 flex-1 overflow-y-auto">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="inst-name" className="text-sm">Nombre</label>
+                  <FieldLabel label="Nombre" help="Nombre completo de la institución" htmlFor="inst-name" className="text-sm" />
                   <Input
                     id="inst-name"
                     {...createForm.register('name')}
@@ -222,7 +225,7 @@ export default function AdminInstitutionsPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="inst-acronym" className="text-sm">Siglas</label>
+                  <FieldLabel label="Siglas" help="Siglas de la institución. Ej: UPTT" htmlFor="inst-acronym" className="text-sm" />
                   <Input
                     id="inst-acronym"
                     {...createForm.register('acronym')}
@@ -233,7 +236,7 @@ export default function AdminInstitutionsPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="inst-email" className="text-sm">Email</label>
+                  <FieldLabel label="Email" help="Correo de contacto institucional. Ej: contacto@uptt.edu.ve" htmlFor="inst-email" className="text-sm" />
                   <Input
                     id="inst-email"
                     {...createForm.register('email')}
@@ -244,7 +247,7 @@ export default function AdminInstitutionsPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="inst-contact" className="text-sm">Contacto</label>
+                  <FieldLabel label="Contacto" help="Teléfono, dirección u otra información de contacto" htmlFor="inst-contact" className="text-sm" />
                   <Input
                     id="inst-contact"
                     {...createForm.register('contactInfo')}
@@ -255,7 +258,7 @@ export default function AdminInstitutionsPage() {
                   )}
                 </div>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { createModal.close(); createForm.reset(); }}>Cancelar</Button>
                 <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate()}>
                   {createMutation.isPending ? <Spinner size="sm" /> : 'Crear'}
@@ -269,17 +272,17 @@ export default function AdminInstitutionsPage() {
       <Modal.Root state={editModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-default text-foreground">
                   <Building2 className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Editar Institución</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3">
+              <Modal.Body className="space-y-3 p-5 flex-1 overflow-y-auto">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-inst-name" className="text-sm">Nombre</label>
+                  <FieldLabel label="Nombre" help="Nombre completo de la institución" htmlFor="edit-inst-name" className="text-sm" />
                   <Input
                     id="edit-inst-name"
                     {...editForm.register('name')}
@@ -290,7 +293,7 @@ export default function AdminInstitutionsPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-inst-acronym" className="text-sm">Siglas</label>
+                  <FieldLabel label="Siglas" help="Siglas de la institución. Ej: UPTT" htmlFor="edit-inst-acronym" className="text-sm" />
                   <Input
                     id="edit-inst-acronym"
                     {...editForm.register('acronym')}
@@ -300,7 +303,7 @@ export default function AdminInstitutionsPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-inst-email" className="text-sm">Email</label>
+                  <FieldLabel label="Email" help="Correo de contacto institucional. Ej: contacto@uptt.edu.ve" htmlFor="edit-inst-email" className="text-sm" />
                   <Input
                     id="edit-inst-email"
                     {...editForm.register('email')}
@@ -310,7 +313,7 @@ export default function AdminInstitutionsPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-inst-contact" className="text-sm">Contacto</label>
+                  <FieldLabel label="Contacto" help="Teléfono, dirección u otra información de contacto" htmlFor="edit-inst-contact" className="text-sm" />
                   <Input
                     id="edit-inst-contact"
                     {...editForm.register('contactInfo')}
@@ -320,7 +323,7 @@ export default function AdminInstitutionsPage() {
                   )}
                 </div>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { editModal.close(); setEditing(null); editForm.reset(); }}>Cancelar</Button>
                 <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id })}>
                   {updateMutation.isPending ? <Spinner size="sm" /> : 'Guardar'}
@@ -334,20 +337,20 @@ export default function AdminInstitutionsPage() {
       <Modal.Root state={deleteModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-danger/10 text-danger">
                   <Trash2 className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Eliminar Institución</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body>
+              <Modal.Body className="p-5 flex-1 overflow-y-auto">
                 <p className="text-sm text-muted">
                   ¿Está seguro de eliminar <strong>{deleting?.name}</strong>? Esta acción no se puede deshacer.
                 </p>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { deleteModal.close(); setDeleting(null); }} autoFocus>Cancelar</Button>
                 <Button className="w-full" variant="danger" isDisabled={deleteMutation.isPending} onPress={() => deleting && deleteMutation.mutate(deleting.id)}>
                   {deleteMutation.isPending ? <Spinner size="sm" /> : 'Eliminar'}

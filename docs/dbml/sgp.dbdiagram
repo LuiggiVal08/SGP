@@ -7,219 +7,972 @@
     "detailLevel": "All",
     "tablePositions": [
       {
-        "name": "permissions",
-        "schemaName": "public",
-        "x": 40,
-        "y": 40
-      },
-      {
-        "name": "roles",
-        "schemaName": "public",
-        "x": 40,
-        "y": 236
-      },
-      {
         "name": "institutions",
         "schemaName": "public",
         "x": 40,
-        "y": 432
-      },
-      {
-        "name": "questions",
-        "schemaName": "public",
-        "x": 40,
-        "y": 668
+        "y": 40
       },
       {
         "name": "tags",
         "schemaName": "public",
         "x": 40,
-        "y": 864
+        "y": 286
       },
       {
-        "name": "role_permissions",
+        "name": "questions",
         "schemaName": "public",
-        "x": 420,
+        "x": 40,
+        "y": 512
+      },
+      {
+        "name": "permissions",
+        "schemaName": "public",
+        "x": 40,
+        "y": 718
+      },
+      {
+        "name": "roles",
+        "schemaName": "public",
+        "x": 40,
+        "y": 924
+      },
+      {
+        "name": "pnfs",
+        "schemaName": "public",
+        "x": 440,
         "y": 40
       },
       {
         "name": "periods",
         "schemaName": "public",
-        "x": 420,
-        "y": 176
+        "x": 440,
+        "y": 266
       },
       {
         "name": "community_places",
         "schemaName": "public",
-        "x": 420,
-        "y": 492
+        "x": 440,
+        "y": 592
+      },
+      {
+        "name": "project_tags",
+        "schemaName": "public",
+        "x": 440,
+        "y": 898
       },
       {
         "name": "users",
         "schemaName": "public",
-        "x": 420,
-        "y": 788
+        "x": 440,
+        "y": 1084
       },
       {
-        "name": "professors",
+        "name": "role_permissions",
         "schemaName": "public",
-        "x": 800,
+        "x": 440,
+        "y": 1410
+      },
+      {
+        "name": "students",
+        "schemaName": "public",
+        "x": 840,
         "y": 40
       },
       {
         "name": "community_tutors",
         "schemaName": "public",
-        "x": 800,
-        "y": 236
+        "x": 840,
+        "y": 286
       },
       {
-        "name": "user_roles",
+        "name": "professors",
         "schemaName": "public",
-        "x": 800,
-        "y": 512
+        "x": 840,
+        "y": 572
       },
       {
-        "name": "user_questions",
+        "name": "projects",
         "schemaName": "public",
-        "x": 800,
-        "y": 648
-      },
-      {
-        "name": "user_tokens",
-        "schemaName": "public",
-        "x": 800,
-        "y": 864
+        "x": 840,
+        "y": 778
       },
       {
         "name": "user_sessions",
         "schemaName": "public",
-        "x": 800,
-        "y": 1100
+        "x": 840,
+        "y": 1104
       },
       {
-        "name": "notifications",
+        "name": "project_files",
         "schemaName": "public",
-        "x": 800,
-        "y": 1336
+        "x": 840,
+        "y": 1350
+      },
+      {
+        "name": "project_milestones",
+        "schemaName": "public",
+        "x": 840,
+        "y": 1676
       },
       {
         "name": "activity_logs",
         "schemaName": "public",
-        "x": 800,
-        "y": 1612
+        "x": 840,
+        "y": 2022
       },
       {
-        "name": "pnfs",
+        "name": "project_corrections",
         "schemaName": "public",
-        "x": 1180,
+        "x": 840,
+        "y": 2328
+      },
+      {
+        "name": "user_tokens",
+        "schemaName": "public",
+        "x": 840,
+        "y": 2614
+      },
+      {
+        "name": "defense_schedule_changes",
+        "schemaName": "public",
+        "x": 840,
+        "y": 2860
+      },
+      {
+        "name": "notifications",
+        "schemaName": "public",
+        "x": 840,
+        "y": 3106
+      },
+      {
+        "name": "project_revisions",
+        "schemaName": "public",
+        "x": 840,
+        "y": 3392
+      },
+      {
+        "name": "user_questions",
+        "schemaName": "public",
+        "x": 840,
+        "y": 3638
+      },
+      {
+        "name": "user_roles",
+        "schemaName": "public",
+        "x": 840,
+        "y": 3864
+      },
+      {
+        "name": "project_subject_assignments",
+        "schemaName": "public",
+        "x": 1240,
         "y": 40
+      },
+      {
+        "name": "defense_judges",
+        "schemaName": "public",
+        "x": 1240,
+        "y": 286
+      },
+      {
+        "name": "project_academic_tutors",
+        "schemaName": "public",
+        "x": 1240,
+        "y": 572
       },
       {
         "name": "trajectories",
         "schemaName": "public",
-        "x": 1560,
+        "x": 1640,
         "y": 40
       },
       {
         "name": "subjects",
         "schemaName": "public",
-        "x": 1940,
-        "y": 40
-      },
-      {
-        "name": "students",
-        "schemaName": "public",
-        "x": 1940,
-        "y": 236
-      },
-      {
-        "name": "project_subject_assignments",
-        "schemaName": "public",
-        "x": 2320,
-        "y": 40
-      },
-      {
-        "name": "projects",
-        "schemaName": "public",
-        "x": 2700,
-        "y": 40
-      },
-      {
-        "name": "project_academic_tutors",
-        "schemaName": "public",
-        "x": 3080,
+        "x": 2040,
         "y": 40
       },
       {
         "name": "project_authors",
         "schemaName": "public",
-        "x": 3080,
-        "y": 296
+        "x": 3240,
+        "y": 40
       },
       {
         "name": "defenses",
         "schemaName": "public",
-        "x": 3080,
-        "y": 512
-      },
-      {
-        "name": "project_milestones",
-        "schemaName": "public",
-        "x": 3080,
-        "y": 788
-      },
-      {
-        "name": "project_tags",
-        "schemaName": "public",
-        "x": 3080,
-        "y": 1124
-      },
-      {
-        "name": "project_files",
-        "schemaName": "public",
-        "x": 3080,
-        "y": 1300
-      },
-      {
-        "name": "defense_judges",
-        "schemaName": "public",
-        "x": 3460,
-        "y": 40
+        "x": 3240,
+        "y": 266
       },
       {
         "name": "completion_certificates",
         "schemaName": "public",
-        "x": 3460,
-        "y": 316
-      },
-      {
-        "name": "defense_schedule_changes",
-        "schemaName": "public",
-        "x": 3460,
-        "y": 532
-      },
-      {
-        "name": "project_revisions",
-        "schemaName": "public",
-        "x": 3460,
-        "y": 768
-      },
-      {
-        "name": "project_corrections",
-        "schemaName": "public",
-        "x": 3460,
-        "y": 1004
+        "x": 3640,
+        "y": 40
       },
       {
         "name": "defense_evaluations",
         "schemaName": "public",
-        "x": 3840,
+        "x": 4040,
         "y": 40
       }
     ],
     "tableGroupCollapseStates": [],
     "stickyNoteLayouts": [],
-    "referencePaths": []
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "roles",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "roleId"
+        ],
+        "secondTableName": "role_permissions",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "permissions",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "permissionId"
+        ],
+        "secondTableName": "role_permissions",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "userId"
+        ],
+        "secondTableName": "user_roles",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "roles",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "roleId"
+        ],
+        "secondTableName": "user_roles",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "institutions",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "institutionId"
+        ],
+        "secondTableName": "periods",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "institutions",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "institutionId"
+        ],
+        "secondTableName": "pnfs",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "professors",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "coordinatorId"
+        ],
+        "secondTableName": "pnfs",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "pnfs",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "pnfId"
+        ],
+        "secondTableName": "trajectories",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "trajectories",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "trajectoryId"
+        ],
+        "secondTableName": "subjects",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "institutions",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "institutionId"
+        ],
+        "secondTableName": "users",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "userId"
+        ],
+        "secondTableName": "professors",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "userId"
+        ],
+        "secondTableName": "students",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "trajectories",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "trajectoryId"
+        ],
+        "secondTableName": "students",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "subjects",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subjectId"
+        ],
+        "secondTableName": "project_subject_assignments",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "professors",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "professorId"
+        ],
+        "secondTableName": "project_subject_assignments",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "periods",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "periodId"
+        ],
+        "secondTableName": "project_subject_assignments",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "project_subject_assignments",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "subjectAssignmentId"
+        ],
+        "secondTableName": "projects",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "community_places",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "locationId"
+        ],
+        "secondTableName": "projects",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "community_tutors",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "communityTutorId"
+        ],
+        "secondTableName": "projects",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "projects",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "projectId"
+        ],
+        "secondTableName": "project_academic_tutors",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "professors",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "professorId"
+        ],
+        "secondTableName": "project_academic_tutors",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "projects",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "projectId"
+        ],
+        "secondTableName": "project_authors",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "students",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "studentId"
+        ],
+        "secondTableName": "project_authors",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "institutions",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "institutionId"
+        ],
+        "secondTableName": "community_places",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "community_places",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "locationId"
+        ],
+        "secondTableName": "community_tutors",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "projects",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "projectId"
+        ],
+        "secondTableName": "project_files",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "uploadedBy"
+        ],
+        "secondTableName": "project_files",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "projects",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "projectId"
+        ],
+        "secondTableName": "project_milestones",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "approvedBy"
+        ],
+        "secondTableName": "project_milestones",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "revisedBy"
+        ],
+        "secondTableName": "project_revisions",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "project_milestones",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "milestoneId"
+        ],
+        "secondTableName": "project_revisions",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "project_files",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "fileId"
+        ],
+        "secondTableName": "project_corrections",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "commentedBy"
+        ],
+        "secondTableName": "project_corrections",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "projects",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "projectId"
+        ],
+        "secondTableName": "project_tags",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "tags",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "tagId"
+        ],
+        "secondTableName": "project_tags",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "projects",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "projectId"
+        ],
+        "secondTableName": "defenses",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "defenses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "defenseId"
+        ],
+        "secondTableName": "defense_judges",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "professors",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "professorId"
+        ],
+        "secondTableName": "defense_judges",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "community_tutors",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "communityTutorId"
+        ],
+        "secondTableName": "defense_judges",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "defense_judges",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "judgeId"
+        ],
+        "secondTableName": "defense_evaluations",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "project_authors",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "authorId"
+        ],
+        "secondTableName": "completion_certificates",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "userId"
+        ],
+        "secondTableName": "user_questions",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "questions",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "questionId"
+        ],
+        "secondTableName": "user_questions",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "userId"
+        ],
+        "secondTableName": "user_tokens",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "userId"
+        ],
+        "secondTableName": "user_sessions",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "userId"
+        ],
+        "secondTableName": "notifications",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "userId"
+        ],
+        "secondTableName": "activity_logs",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "defenses",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "defenseId"
+        ],
+        "secondTableName": "defense_schedule_changes",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": [
+          {
+            "x": 2337.5902149633157,
+            "y": 314
+          },
+          {
+            "x": 2337.5902149633157,
+            "y": 1627
+          },
+          {
+            "x": 2161.44873046875,
+            "y": 1627
+          },
+          {
+            "x": 2161.44873046875,
+            "y": 2940
+          }
+        ]
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "changedBy"
+        ],
+        "secondTableName": "defense_schedule_changes",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      }
+    ]
   },
   "views": {}
 }
