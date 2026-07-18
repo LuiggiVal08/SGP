@@ -21,7 +21,10 @@ import { extname, join } from 'path';
 import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import { Request } from 'express';
-import { JwtAuthGuard, RequestWithUser } from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
+import {
+  JwtAuthGuard,
+  RequestWithUser,
+} from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '@modules/auth/infrastructure/http/guards/roles.decorator';
 import { CreateProjectUseCase } from '../../../application/use-cases/create-project.use-case';
