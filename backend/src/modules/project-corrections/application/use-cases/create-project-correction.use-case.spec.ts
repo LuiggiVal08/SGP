@@ -20,6 +20,7 @@ describe('CreateProjectCorrectionUseCase', () => {
       findById: jest.fn(),
       findAll: jest.fn(),
       findByStatus: jest.fn(),
+      findByIds: jest.fn(),
       findBySubjectAssignment: jest.fn(),
       findByLocation: jest.fn(),
       findByCommunityTutor: jest.fn(),

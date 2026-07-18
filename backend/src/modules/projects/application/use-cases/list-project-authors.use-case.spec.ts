@@ -12,6 +12,7 @@ describe('ListProjectAuthorsUseCase', () => {
     projectRepository = {
       findById: jest.fn(),
       findAll: jest.fn(),
+      findByIds: jest.fn(),
       findByStatus: jest.fn(),
       findBySubjectAssignment: jest.fn(),
       findByLocation: jest.fn(),
