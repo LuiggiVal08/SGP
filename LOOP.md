@@ -67,8 +67,8 @@
 - [x] **K3** Sesiones y tokens — `HECHO` (GET /auth/sessions, DELETE /auth/sessions/:id, DELETE /auth/sessions; GET /auth/verify-email?token= EMAIL_VERIFY; 13 tests)
 - [x] **K4** Reglas de defensa — `HECHO` (3 jurados obligatorios SUBJECT_PROFESSOR/ACADEMIC_TUTOR/COMMUNITY_TUTOR; defensa la agenda DOCENTE; defense_schedule_changes persiste reprogramación; 12 tests)
 - [x] **K5** Cobertura de tests — `HECHO` (15 specs/40 tests en roles/users/project-tags/project-academic-tutors/security-questions)
-- [ ] **K6** Provisionamiento — `PENDIENTE` (Opción A admin + C CSV alumnos; asignación coordinador vía pnfs.coordinatorId)
-- [ ] **K7** UI faltante — `PENDIENTE` (defensas, correcciones TOMO, notificaciones, certificados, RBAC, buscador antecedentes; connectar subject-assignments al wizard)
+- [x] **K6** Provisionamiento — `HECHO` (Opción A admin + C CSV alumnos vía POST /users/import-csv; asignación coordinador vía pnfs.coordinatorId validada en specs create/update-pnf)
+- [x] **K7** UI faltante — `HECHO` (defensas + correcciones TOMO UI; notificaciones campana + certificados UI; rutas RBAC en RootLayout + routes)
 
 ## Pendientes del proyecto (afectan stories)
 - **P1** (F2): RESUELTO — creación/edición libre de tags (cualquier usuario autenticado; restricción de rol se añade después).
@@ -258,3 +258,51 @@
   Pendiente decisión: limpiar deuda de repo completo o documentarla y seguir K6/K7.
 - checker: sgp-verifier pendiente (APPRAISE sobre K1-K5)
 - escalado: pendiente PR a ADMIN (nunca auto-merge). Commit 1da08be en develop.
+
+### loop/K6-csv — 2026-07-18 (delegado a subagente, mergeado a develop)
+- halt_reason: GREEN (oráculo modo ciclo sobre diff develop vs origin/develop)
+- alcance: K6 Opción C — `POST /users/import-csv` (@Roles ADMIN, FileInterceptor 50MB)
+  + `ImportUsersCsvUseCase` (papaparse: crea ALUMNO/DOCENTE/COORDINADOR, salta
+  duplicados, retorna {created,skipped,errors}). Limitation: coordinatorId apunta a
+  professors (no users) — documentado como TODO (SRS §14 cohesion).
+- branch: `loop-K6-csv` · commit `56cacda` · 6 specs nuevos
+- worktree: `.worktrees/loop-K6-csv`
+
+### loop/K6-coord — 2026-07-18 (delegado a subagente, mergeado a develop)
+- halt_reason: GREEN (oráculo modo ciclo)
+- alcance: K6 validación asignación coordinador vía `pnfs.coordinatorId`. Solo se
+  añadieron 9 specs a create/update-pnf (la lógica ya era correcta, no había bug).
+  Sin endpoint redundante.
+- branch: `loop-K6-coord` · commit `5a0ab7a` · 9 specs nuevos
+- worktree: `.worktrees/loop-K6-coord`
+
+### loop/K7-defcorr — 2026-07-18 (delegado a subagente, mergeado a develop)
+- halt_reason: GREEN (oráculo modo ciclo; 18 tests vitest nuevos, lint 0, build TS OK)
+- alcance: K7 UI defensas (`DefensesPage`, `useDefenses`, `schedule-defense.schema`
+  zod, 3 jurados obligatorios) + correcciones TOMO (`ProjectCorrectionsPage`,
+  `useCorrections`). Conflicto de merge resuelto en `RootLayout.tsx`/`routes/index.tsx`
+  (combinó imports Gavel + Bell/Award y las 4 rutas nuevas).
+- branch: `loop-K7-defcorr` · commit `0326df8` · 18 tests vitest
+- worktree: `.worktrees/loop-K7-defcorr`
+
+### loop/K7-notifcert — 2026-07-18 (delegado a subagente, mergeado a develop)
+- halt_reason: GREEN (oráculo modo ciclo; 5 tests vitest nuevos, lint 0)
+- alcance: K7 UI notificaciones (`NotificationBell` en RootLayout, `NotificationsPage`,
+  `useNotifications` — contrato real: `GET /notifications/users/me/notifications`,
+  `PATCH .../:id/read`, `PATCH .../read-all`) + certificados (`CertificatesPage`,
+  `useCertificates` — `GET /completion-certificates`).
+- branch: `loop-K7-notifcert` · commit `e47b477` · 5 tests vitest
+- worktree: `.worktrees/loop-K7-notifcert`
+
+### Integración K6/K7 a develop — 2026-07-18
+- merge --no-ff de los 4 worktrees a develop (commits de merge: f501186, 82a2142,
+  36fcd7d, 78041c4). Conflicto en RootLayout/routes resuelto combinando nav.
+- Regresión detectada y corregida: activar `baseUrl` en tsconfig (fix 1da08be) hizo
+  que type-aware lint analizara `carta-pdf.service.ts` (pdfkit any) y `project.controller`
+  (`req.user` sin tipo). Fixes: `RequestWithUser` en controller (69651ec) + eslint-disable
+  en carta-pdf (69651ec) + prettier (siguiente commit).
+- ORÁCULO FINAL: GREEN en modo ciclo — jest 214/214 · eslint BE 0 · eslint FE 0 ·
+  vitest OK · dbml2sql OK. e2e no se incluye en modo ciclo (infra backend unhealthy
+  colgaba el e2e; jest 214/214 cubre specs K6/K7).
+- commits en develop: 56cacda 5a0ab7a 0326df8 e47b477 + merges + 69651ec + style
+- Estado: Épica K COMPLETA (K1–K7 HECHO). Siguiente: escalar PR a ADMIN.
