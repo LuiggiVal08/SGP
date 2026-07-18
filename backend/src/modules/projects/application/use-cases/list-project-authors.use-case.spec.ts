@@ -30,6 +30,7 @@ describe('ListProjectAuthorsUseCase', () => {
       countByYear: jest.fn(),
       countThisYear: jest.fn(),
       findRecentActivity: jest.fn(),
+      findRecentActivityWithTimestamps: jest.fn(),
       findMilestonesByProject: jest.fn(),
       findMilestoneById: jest.fn(),
       createMilestone: jest.fn(),

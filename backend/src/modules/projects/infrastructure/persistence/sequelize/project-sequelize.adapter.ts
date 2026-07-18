@@ -108,6 +108,12 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     return projects.map((p) => this.toDomain(p));
   }
 
+  async findByIds(ids: string[]): Promise<Project[]> {
+    if (ids.length === 0) return [];
+    const projects = await this.projectModel.findAll({ where: { id: ids } });
+    return projects.map((p) => this.toDomain(p));
+  }
+
   async findBySubjectAssignment(
     subjectAssignmentId: string,
   ): Promise<Project[]> {
@@ -199,14 +205,24 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
     page: number;
     limit: number;
     search?: string;
+    scopeIds?: string[] | null;
   }): Promise<{
     data: Project[];
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
-    const { page, limit, search } = params;
+    const { page, limit, search, scopeIds } = params;
     const where: Record<string, unknown> = {};
     if (search) {
       where.title = { [Op.like]: `%${search}%` };
+    }
+    if (scopeIds && scopeIds.length > 0) {
+      where.id = { [Op.in]: scopeIds };
+    } else if (scopeIds && scopeIds.length === 0) {
+      // Sin permiso de visibilidad: devolver paginacion vacia.
+      return {
+        data: [],
+        meta: { total: 0, page, limit, totalPages: 0 },
+      };
     }
     const { rows, count } = await this.projectModel.findAndCountAll({
       where,
@@ -241,6 +257,21 @@ export class ProjectSequelizeAdapter implements IProjectRepository {
       limit: 10,
     });
     return projects.map((p) => this.toDomain(p));
+  }
+
+  async findRecentActivityWithTimestamps(): Promise<
+    { id: string; title: string; status: ProjectStatus; updatedAt: Date }[]
+  > {
+    const projects = await this.projectModel.findAll({
+      order: [['updatedAt', 'DESC']],
+      limit: 10,
+    });
+    return projects.map((p) => ({
+      id: p.id,
+      title: p.title,
+      status: p.status as ProjectStatus,
+      updatedAt: p.updatedAt,
+    }));
   }
 
   async saveFiles(files: ProjectFile[]): Promise<ProjectFile[]> {

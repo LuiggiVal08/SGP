@@ -10,6 +10,7 @@ import { CreateProjectUseCase } from './application/use-cases/create-project.use
 import { UpdateProjectUseCase } from './application/use-cases/update-project.use-case';
 import { UploadProjectFilesUseCase } from './application/use-cases/upload-project-files.use-case';
 import { GetAllProjectsUseCase } from './application/use-cases/get-all-projects.use-case';
+import { GetDashboardStatsUseCase } from './application/use-cases/get-dashboard-stats.use-case';
 import { GetProjectByIdUseCase } from './application/use-cases/get-project-by-id.use-case';
 import { DeleteProjectUseCase } from './application/use-cases/delete-project.use-case';
 import { GetProjectFilesUseCase } from './application/use-cases/get-project-files.use-case';
@@ -23,7 +24,10 @@ import { AddProjectAuthorUseCase } from './application/use-cases/add-project-aut
 import { ListProjectAuthorsUseCase } from './application/use-cases/list-project-authors.use-case';
 import { RemoveProjectAuthorUseCase } from './application/use-cases/remove-project-author.use-case';
 import { ProjectController } from './infrastructure/http/controllers/project.controller';
+import { ProjectScopeService } from './application/services/project-scope.service';
 import { StudentsModule } from '@modules/students/students.module';
+import { ProfessorsModule } from '@modules/professors/professors.module';
+import { InstitutionsModule } from '@modules/institutions/institutions.module';
 import { ProjectSubjectAssignmentsModule } from '@modules/project-subject-assignments/project-subject-assignments.module';
 import { CommunityTutorsModule } from '@modules/community-tutors/community-tutors.module';
 import { ProjectSubjectAssignmentModel } from '@modules/project-subject-assignments/infrastructure/persistence/sequelize/models/project-subject-assignment.model';
@@ -47,6 +51,8 @@ import { ProjectAcademicTutorModel } from '@modules/project-academic-tutors/infr
       ProjectAcademicTutorModel,
     ]),
     StudentsModule,
+    ProfessorsModule,
+    InstitutionsModule,
     ProjectSubjectAssignmentsModule,
     CommunityTutorsModule,
   ],
@@ -55,10 +61,12 @@ import { ProjectAcademicTutorModel } from '@modules/project-academic-tutors/infr
       provide: 'IProjectRepository',
       useClass: ProjectSequelizeAdapter,
     },
+    ProjectScopeService,
     CreateProjectUseCase,
     UpdateProjectUseCase,
     UploadProjectFilesUseCase,
     GetAllProjectsUseCase,
+    GetDashboardStatsUseCase,
     GetProjectByIdUseCase,
     DeleteProjectUseCase,
     GetProjectFilesUseCase,
