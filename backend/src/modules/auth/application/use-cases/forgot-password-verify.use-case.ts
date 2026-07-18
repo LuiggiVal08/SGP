@@ -1,7 +1,9 @@
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { randomBytes } from 'node:crypto';
 import { IUserQuestionRepository } from '../../../security-questions/domain/ports/IUserQuestionRepository';
 import { IHashService } from '../../domain/ports/IHashService';
+import { IUserTokenRepository } from '../../domain/ports/IUserTokenRepository';
+import { IUserRepository } from '../../../users/domain/ports/IUserRepository';
 
 interface AnswerInput {
   questionId: string;
@@ -9,44 +11,41 @@ interface AnswerInput {
 }
 
 export interface ForgotPasswordVerifyInput {
-  resetToken: string;
+  identifier: string;
   answers: AnswerInput[];
 }
 
 export interface ForgotPasswordVerifyOutput {
-  verificationToken: string;
+  resetToken: string;
 }
+
+const PASSWORD_RESET_TTL_MINUTES = 15;
 
 @Injectable()
 export class ForgotPasswordVerifyUseCase {
   constructor(
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository,
     @Inject('IUserQuestionRepository')
     private readonly userQuestionRepository: IUserQuestionRepository,
     @Inject('IHashService')
     private readonly hashService: IHashService,
-    private readonly jwtService: JwtService,
+    @Inject('IUserTokenRepository')
+    private readonly userTokenRepository: IUserTokenRepository,
   ) {}
 
   async execute(
     input: ForgotPasswordVerifyInput,
   ): Promise<ForgotPasswordVerifyOutput> {
-    let payload: { sub: string; purpose: string };
-    try {
-      payload = this.jwtService.verify<{ sub: string; purpose: string }>(
-        input.resetToken,
-      );
-    } catch {
-      throw new UnauthorizedException(
-        'Token inválido o expirado. Inicie el proceso nuevamente.',
-      );
-    }
-
-    if (payload.purpose !== 'password-reset-init') {
-      throw new UnauthorizedException('Token inválido');
+    const user =
+      (await this.userRepository.findByEmail(input.identifier)) ??
+      (await this.userRepository.findByDni(input.identifier));
+    if (!user) {
+      throw new UnauthorizedException('Credenciales inválidas');
     }
 
     const userQuestions = await this.userQuestionRepository.findByUserId(
-      payload.sub,
+      user.id,
     );
     const questionHashMap = new Map(
       userQuestions.map((uq) => [uq.questionId, uq.answerHash]),
@@ -70,11 +69,18 @@ export class ForgotPasswordVerifyUseCase {
       }
     }
 
-    const verificationToken = this.jwtService.sign(
-      { sub: payload.sub, purpose: 'password-reset-verify' },
-      { expiresIn: '5m' },
+    const token = randomBytes(32).toString('hex');
+    const expiration = new Date(
+      Date.now() + PASSWORD_RESET_TTL_MINUTES * 60 * 1000,
     );
 
-    return { verificationToken };
+    await this.userTokenRepository.create({
+      userId: user.id,
+      token,
+      type: 'PASSWORD_RESET',
+      expiration,
+    });
+
+    return { resetToken: token };
   }
 }

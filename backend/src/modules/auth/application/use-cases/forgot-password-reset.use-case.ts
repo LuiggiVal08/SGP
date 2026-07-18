@@ -1,10 +1,15 @@
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  Injectable,
+  Inject,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { IUserRepository } from '../../../users/domain/ports/IUserRepository';
 import { IHashService } from '../../domain/ports/IHashService';
+import { IUserTokenRepository } from '../../domain/ports/IUserTokenRepository';
 
 export interface ForgotPasswordResetInput {
-  verificationToken: string;
+  resetToken: string;
   newPassword: string;
 }
 
@@ -15,28 +20,33 @@ export class ForgotPasswordResetUseCase {
     private readonly userRepository: IUserRepository,
     @Inject('IHashService')
     private readonly hashService: IHashService,
-    private readonly jwtService: JwtService,
+    @Inject('IUserTokenRepository')
+    private readonly userTokenRepository: IUserTokenRepository,
   ) {}
 
   async execute(input: ForgotPasswordResetInput): Promise<void> {
-    let payload: { sub: string; purpose: string };
-    try {
-      payload = this.jwtService.verify<{ sub: string; purpose: string }>(
-        input.verificationToken,
-      );
-    } catch {
-      throw new UnauthorizedException(
-        'Token inválido o expirado. Inicie el proceso nuevamente.',
-      );
+    const record = await this.userTokenRepository.findByToken(input.resetToken);
+    if (!record) {
+      throw new UnauthorizedException('Token de restablecimiento inválido');
     }
 
-    if (payload.purpose !== 'password-reset-verify') {
+    if (record.type !== 'PASSWORD_RESET') {
       throw new UnauthorizedException('Token inválido');
     }
 
+    if (record.used) {
+      throw new BadRequestException('Este token ya fue utilizado');
+    }
+
+    if (record.expiration && record.expiration.getTime() < Date.now()) {
+      throw new BadRequestException('El token ha expirado');
+    }
+
     const newPasswordHash = await this.hashService.hash(input.newPassword);
-    await this.userRepository.update(payload.sub, {
+    await this.userRepository.update(record.userId, {
       password: newPasswordHash,
     });
+
+    await this.userTokenRepository.markUsed(record.id);
   }
 }

@@ -1,15 +1,13 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { IUserRepository } from '../../../users/domain/ports/IUserRepository';
 import { IUserQuestionRepository } from '../../../security-questions/domain/ports/IUserQuestionRepository';
 import { IQuestionRepository } from '../../../security-questions/domain/ports/IQuestionRepository';
 
 export interface ForgotPasswordInitInput {
-  email: string;
+  identifier: string;
 }
 
 export interface ForgotPasswordInitOutput {
-  resetToken: string;
   questions: Array<{ id: string; questionText: string }>;
 }
 
@@ -22,15 +20,16 @@ export class ForgotPasswordInitUseCase {
     private readonly userQuestionRepository: IUserQuestionRepository,
     @Inject('IQuestionRepository')
     private readonly questionRepository: IQuestionRepository,
-    private readonly jwtService: JwtService,
   ) {}
 
   async execute(
     input: ForgotPasswordInitInput,
   ): Promise<ForgotPasswordInitOutput> {
-    const user = await this.userRepository.findByEmail(input.email);
+    const user = await this.resolveUser(input.identifier);
     if (!user) {
-      throw new NotFoundException('No se encontró una cuenta con ese email');
+      throw new NotFoundException(
+        'No se encontró una cuenta con ese identificador',
+      );
     }
 
     const userQuestions = await this.userQuestionRepository.findByUserId(
@@ -50,11 +49,13 @@ export class ForgotPasswordInitUseCase {
       .filter((q): q is NonNullable<typeof q> => q != null)
       .map((q) => ({ id: q.id, questionText: q.questionText }));
 
-    const resetToken = this.jwtService.sign(
-      { sub: user.id, purpose: 'password-reset-init' },
-      { expiresIn: '5m' },
-    );
+    return { questions };
+  }
 
-    return { resetToken, questions };
+  private async resolveUser(identifier: string) {
+    return (
+      (await this.userRepository.findByEmail(identifier)) ??
+      (await this.userRepository.findByDni(identifier))
+    );
   }
 }

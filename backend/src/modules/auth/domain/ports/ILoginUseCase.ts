@@ -1,10 +1,14 @@
 export interface LoginInput {
-  email: string;
+  email?: string;
+  identifier?: string;
   password: string;
+  device?: string | null;
+  ip?: string | null;
 }
 
 export interface LoginOutput {
   accessToken: string;
+  refreshToken: string;
   user: {
     id: string;
     firstName: string;
