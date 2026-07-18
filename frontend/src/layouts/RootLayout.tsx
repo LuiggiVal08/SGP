@@ -42,7 +42,10 @@ import {
   UserRound,
   Tag,
   Gavel,
+  Bell,
+  Award,
 } from 'lucide-react';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import type { ThemeMode } from '@/shared/store/theme.store';
 
 const roleLabels: Record<string, string> = {
@@ -238,6 +241,12 @@ export function RootLayout() {
                           icon={Search}
                           onClick={overlayState.close}
                         />
+                        <SidebarNavLink
+                          to="/notificaciones"
+                          label="Notificaciones"
+                          icon={Bell}
+                          onClick={overlayState.close}
+                        />
                       </Section>
                       {isAdmin(user?.role) && (
                         <>
@@ -267,6 +276,12 @@ export function RootLayout() {
                               to="/admin/activity-log"
                               label="Actividad"
                               icon={History}
+                              onClick={overlayState.close}
+                            />
+                            <SidebarNavLink
+                              to="/certificados"
+                              label="Certificados"
+                              icon={Award}
                               onClick={overlayState.close}
                             />
                             <SidebarNavLink
@@ -373,6 +388,7 @@ export function RootLayout() {
           </div>
 
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <Dropdown.Root>
               <Tooltip>
                 <Tooltip.Trigger>
