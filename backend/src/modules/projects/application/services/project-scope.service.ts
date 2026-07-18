@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { IStudentRepository } from '@modules/students/domain/ports/IStudentRepository';
 import { IProfessorRepository } from '@modules/professors/domain/ports/IProfessorRepository';
@@ -44,7 +44,9 @@ export class ProjectScopeService {
     }
 
     if (role === 'DOCENTE') {
-      const professor = await this.professorRepository.findByUserId(user.userId);
+      const professor = await this.professorRepository.findByUserId(
+        user.userId,
+      );
       if (!professor) return [];
       const [tutorRows, assignmentRows] = await Promise.all([
         ProjectAcademicTutorModel.findAll({
@@ -70,7 +72,9 @@ export class ProjectScopeService {
     }
 
     if (role === 'COORDINADOR') {
-      const professor = await this.professorRepository.findByUserId(user.userId);
+      const professor = await this.professorRepository.findByUserId(
+        user.userId,
+      );
       if (!professor) return [];
       const institution = await this.institutionRepository.findByCoordinatorId(
         professor.id,

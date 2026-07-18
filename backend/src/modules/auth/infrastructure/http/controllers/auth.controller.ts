@@ -26,7 +26,7 @@ import {
 import { VerifyEmailUseCase } from '../../../application/use-cases/verify-email.use-case';
 import { LoginDto } from '../dtos/login.dto';
 import { RefreshDto } from '../dtos/refresh.dto';
-import { JwtAuthGuard } from '../../infrastructure/http/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
 
 interface RequestWithUser extends Request {
   user: { sub: string; email: string; role: string };

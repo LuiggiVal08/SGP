@@ -1,7 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
 import { ICacheService } from '@share/domain/ports/ICacheService';
-import { ProjectScopeService, ScopeUser } from '../services/project-scope.service';
+import {
+  ProjectScopeService,
+  ScopeUser,
+} from '../services/project-scope.service';
 
 @Injectable()
 export class GetAllProjectsUseCase {
@@ -14,9 +17,8 @@ export class GetAllProjectsUseCase {
   ) {}
 
   async execute(user: ScopeUser): Promise<any> {
-    const allowedIds = await this.projectScopeService.resolveAllowedProjectIds(
-      user,
-    );
+    const allowedIds =
+      await this.projectScopeService.resolveAllowedProjectIds(user);
     if (allowedIds === null) {
       const cached = await this.cacheService.get('projects:all');
       if (cached) return JSON.parse(cached);

@@ -8,6 +8,7 @@ interface InstitutionAttributes {
   acronym: string;
   email: string;
   contactInfo: string;
+  coordinatorId: string | null;
 }
 
 type InstitutionCreationAttributes = Optional<InstitutionAttributes, 'id'>;
@@ -35,6 +36,9 @@ export class InstitutionModel extends Model<
 
   @Column({ type: DataType.STRING(255), allowNull: true })
   declare contactInfo: string;
+
+  @Column({ type: DataType.UUID, allowNull: true })
+  declare coordinatorId: string | null;
 
   @HasMany(() => UserModel)
   declare users?: UserModel[];

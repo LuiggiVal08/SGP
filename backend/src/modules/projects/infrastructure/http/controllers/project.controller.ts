@@ -127,6 +127,7 @@ export class ProjectController {
   @Get(':id')
   async findOne(@Req() req: Request, @Param('id') id: string) {
     const user = req.user as { sub: string; role: string };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const project = await this.getProjectByIdUseCase.execute(id);
     if (!project) throw new NotFoundException('Project not found');
     const scopeIds = await this.projectScopeService.resolveAllowedProjectIds({

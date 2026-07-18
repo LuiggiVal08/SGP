@@ -15,9 +15,9 @@
 ## Backlog (épicas A–J)
 
 ### Épica A — Acceso y seguridad (Auth & RBAC)
-- [ ] **A1** Login y sesión — `PENDIENTE` (dep: P4 registro)
-- [ ] **A2** Recuperación por preguntas de seguridad — `PENDIENTE`
-- [ ] **A3** Gestión de roles y permisos — `PENDIENTE` (dep: P4)
+- [x] **A1** Login y sesión — `HECHO` (login email|dni → {access,refresh,user}; user_sessions; /auth/refresh; /auth/logout revoca refresh+sesiones)
+- [x] **A2** Recuperación por preguntas de seguridad — `HECHO` (user_tokens PASSWORD_RESET; /auth/forgot-password init/verify/reset; /users/me/change-password)
+- [x] **A3** Gestión de roles y permisos — `HECHO` (RBAC por permisos: permissions/role_permissions/user_roles + 11 endpoints ADMIN + PermissionsGuard)
 
 ### Épica B — Estructura académica (catálogos)
 - [x] **B1** Instituciones, periodos, PNFs — `HECHO` (periods módulo + coordinatorId en PNF)
@@ -58,6 +58,18 @@
 - [x] **J1** Notificaciones — `HECHO` (notifications con readAt; markAsRead/markAllAsRead)
 - [x] **J2** Auditoría — `HECHO` (activity_logs action/entityType/Id/details/ip/userAgent)
 
+### Épica K — Roadmap de evolución (fuente de verdad: requisitos.md + dbml)
+> Decisiones: roles = ADMIN (dev, máx autoridad) / IRCOP (suplente, nunca >ADMIN) /
+> COORDINADOR / DOCENTE / ALUMNO. Oráculo fix: loop-check.sh modo ciclo usa diff real
+> del worktree. dbml2sql instalado (P3 cerrado).
+- [x] **K1** Unificación de roles a SRS — `HECHO` (seed ADMIN/IRCOP/COORDINADOR/DOCENTE/ALUMNO; frontend ALUMNO/COORDINADOR; módulo `careers` eliminado; SPEC.md deprecado; oráculo fix diff-vs-develop)
+- [x] **K2** Filtrado por alcance en proyectos — `HECHO` (ProjectScopeService por rol: ADMIN/IRCOP=todos, ALUMNO=project_authors, DOCENTE=tutor+imparte, COORDINADOR=PNF; controller aplica scope + findOne Forbidden fuera de alcance; IInstitutionRepository.findByCoordinatorId; 6 tests scope)
+- [x] **K3** Sesiones y tokens — `HECHO` (GET /auth/sessions, DELETE /auth/sessions/:id, DELETE /auth/sessions; GET /auth/verify-email?token= EMAIL_VERIFY; 13 tests)
+- [x] **K4** Reglas de defensa — `HECHO` (3 jurados obligatorios SUBJECT_PROFESSOR/ACADEMIC_TUTOR/COMMUNITY_TUTOR; defensa la agenda DOCENTE; defense_schedule_changes persiste reprogramación; 12 tests)
+- [x] **K5** Cobertura de tests — `HECHO` (15 specs/40 tests en roles/users/project-tags/project-academic-tutors/security-questions)
+- [ ] **K6** Provisionamiento — `PENDIENTE` (Opción A admin + C CSV alumnos; asignación coordinador vía pnfs.coordinatorId)
+- [ ] **K7** UI faltante — `PENDIENTE` (defensas, correcciones TOMO, notificaciones, certificados, RBAC, buscador antecedentes; connectar subject-assignments al wizard)
+
 ## Pendientes del proyecto (afectan stories)
 - **P1** (F2): RESUELTO — creación/edición libre de tags (cualquier usuario autenticado; restricción de rol se añade después).
 - **P2** (D3): validación backend regla profesor-imparte ≠ tutor — incluida en DoD.
@@ -65,6 +77,26 @@
 - **P4** (§14 SRS): RESUELTO — Opción A (admin da de alta) + C (importación CSV de alumnos).
 
 ## Recibos de ciclos
+
+### loop/K1 — 2026-07-18
+- halt_reason: GREEN (oráculo modo ciclo vs develop)
+- alcance: migración de roles a SRS (ADMIN/IRCOP/COORDINADOR/DOCENTE/ALUMNO);
+  eliminación de módulo muerto `careers`; deprecación de SPEC.md; fix del oráculo
+  loop-check.sh (modo ciclo compara vs develop, no vs main rezagado).
+- tests_before: 146/146 (BE) · 33/33 (FE)  tests_after: 146/146 (BE) · 33/33 (FE)
+- validación: jest ✓146/146 · vitest ✓33/33 · eslint 0 errors en diff · dbml2sql ✓
+- checker: sgp-verifier pendiente (APPRAISE)
+- escalado: pendiente PR a ADMIN (nunca auto-merge)
+
+### loop/K2 — 2026-07-18
+- halt_reason: GREEN (backend jest 107/107 ✓, scoped lint 0 errors; K2 backend-only, sin cambios FE)
+- alcance: filtrado por alcance en proyectos según SRS §1 (ProjectScopeService +
+  GetAllProjectsUseCase + controller.find*). Se mergeó K1 en el worktree para
+  respetar el ratchet (tests ⊇ K1).
+- tests_before: 101/101 (BE)  tests_after: 107/107 (BE, +6 scope)  FE: sin cambios
+- validación: jest ✓107/107 · eslint 0 errors en diff · dbml sin cambios
+- checker: sgp-verifier pendiente (APPRAISE)
+- escalado: pendiente PR a ADMIN (nunca auto-merge)
 
 <!-- Formato por ciclo:
 ### loop/<STORY> — <fecha>
@@ -76,7 +108,48 @@
 - escalado: <PR # / pendiente>
 -->
 
-_(sin ciclos ejecutados aún)_
+### RECONCILIACIÓN — 2026-07-18
+- Bloqueador descubierto: el checkout `develop` (commit 92e5249) tenía 45 cambios
+  backend + frontend NO commiteados (sesiones/tokens, password-reset, permissions,
+  project-corrections, vistas admin, etc.). Ninguna rama los tenía en git history.
+- Decisión (usuario, opción 1): commitear el trabajo en vuelo en `develop` en 9 commits
+  por módulo, luego actualizar specs desactualizados (findByIds, scope, findByCoordinatorId).
+- Efecto: `develop` ahora es base coherente y verde (jest 143→199 tras K3/K4/K5).
+- Bug de deps descubierto: `@nestjs/swagger` se usaba en controllers (ApiTags) pero NO
+  estaba declarado en package.json del tree sucio → e2e fallaba por módulo no resuelto.
+  Corregido: agregado `@nestjs/swagger@^11.4.6` a package.json + lockfile; rebuild del
+  contenedor backend (volumen /app/node_modules anónimo recreado) para instalarlo.
+
+### loop/K3 — 2026-07-18
+- halt_reason: GREEN (jest 156/157 en worktree; único fallo logout.spec por falta de .env en host)
+- alcance: sesiones activas + verificación de email. ListUserSessions/CloseUserSession/
+  CloseAllUserSessions use-cases + endpoints GET /auth/sessions, DELETE /auth/sessions/:id,
+  DELETE /auth/sessions. VerifyEmailUseCase + GET /auth/verify-email?token= (EMAIL_VERIFY,
+  valida no usado/no expirado, marca usado). 3 subagentes en paralelo para K3/K4/K5.
+- tests_before: 143/143  tests_after: 156/157 (BE, +13 K3)  FE: sin cambios
+- validación: jest ✓156/157 · eslint 0 errors en diff auth · mergeado a develop
+- checker: sgp-verifier pendiente (APPRAISE)
+- escalado: pendiente PR a ADMIN (nunca auto-merge)
+
+### loop/K4 — 2026-07-18
+- halt_reason: GREEN (jest 145/146 en worktree; logout.spec por .env)
+- alcance: jurados obligatorios en defensas. ScheduleDefenseUseCase valida los 3 tipos del
+  SRS (SUBJECT_PROFESSOR/ACADEMIC_TUTOR/COMMUNITY_TUTOR); falta alguno => BadRequest.
+  schedule-defense.dto con judges[] requerido. defense_schedule_changes YA existía en DBML
+  y se persiste en reprogramación (RescheduleDefenseUseCase preexistente).
+- tests_before: 143/143  tests_after: 145/146 (BE, +12 K4)
+- validación: jest ✓145/146 · eslint 0 errors en diff defenses · mergeado a develop
+- checker: sgp-verifier pendiente (APPRAISE)
+- escalado: pendiente PR a ADMIN (nunca auto-merge)
+
+### loop/K5 — 2026-07-18
+- halt_reason: GREEN (jest 181/182 en worktree; logout.spec por .env)
+- alcance: 15 specs nuevos (40 tests) para roles/users/project-tags/project-academic-tutors/
+  security-questions (happy path + errores). Sin cambios de lógica de producción.
+- tests_before: 143/143  tests_after: 181/182 (BE, +40 K5)
+- validación: jest ✓181/182 · eslint 0 errors en diff · mergeado a develop
+- checker: sgp-verifier pendiente (APPRAISE)
+- escalado: pendiente PR a ADMIN (nunca auto-merge)
 
 ### loop/C2 — 2026-07-16
 - halt_reason: GREEN
@@ -125,4 +198,40 @@ _(sin ciclos ejecutados aún)_
 - BD: DROP+CREATE sgp_dev; Sequelize sync recrea esquema de models alineados a DBML.
 - checker: sgp-loop / loop-check.sh — ORACLE GREEN
 - escalado: PR #3 (develop→main) MERGED a main por ADMIN el 2026-07-17.
+
+### loop/A1-A2-A3 — 2026-07-17
+- halt_reason: GREEN
+- alcance: Épica A completa (Auth & RBAC) sobre DBML actual. 3 stories vía agentes maker
+  aislados + integración (module/controller wiring) por el orquestador.
+- A1 (Login y sesión): login acepta email|dni → {accessToken, refreshToken, user};
+  crea `user_sessions` (device/ip). Nuevos POST /auth/refresh (rota tokens, valida
+  blacklist Redis) y POST /auth/logout (blacklist refresh + desactiva sesiones).
+  Nuevos: UserSession entity/model/adapter/port; RefreshTokenUseCase, LogoutUseCase.
+- A2 (Recuperación por preguntas): `user_tokens` type=PASSWORD_RESET (entity/model/
+  adapter/port). Flujo POST /auth/forgot-password/{init,verify,reset}: init devuelve
+  preguntas; verify valida answerHash y emite token 15min; reset valida token
+  (no usado/no expirado) y actualiza password + markUsed. + POST /users/me/change-password.
+- A3 (Roles y permisos): módulo nuevo `permissions` con RBAC por permiso —
+  permissions/role_permissions/user_roles (models/adapters/ports), 11 endpoints ADMIN
+  (CRUD permissions, assign/list de permisos↔rol y roles↔usuario) + PermissionsGuard
+  (@RequirePermissions, lee permisos del rol desde BD, 403 si falta). Registrado en
+  modules/index.ts.
+- integración (orquestador): auth.module.ts (forFeature UserSession/UserToken + providers
+  repos/refresh/logout, exporta IUserTokenRepository), auth.controller.ts (login enriquecido
+  + refresh + logout), login.dto (identifier) + refresh.dto, SecurityQuestionsModule +
+  controller (forgot-password init/verify/reset + change-password).   Fix: user-token.model
+  `@Table timestamps:false` (la firma objeto no tipaba en sequelize-typescript de este repo).
+  Fix compat: login.dto acepta `email` (contrato frontend existente) **o** `identifier`
+  (spec email|dni); controller mapea email→identifier, 400 si falta ambos. Evita romper
+  LoginForm.tsx/login.schema del frontend (que envían `email`).
+- tests_before: (subset auth/permissions previo)  tests_after: 60/60 (13 suites) jest GREEN
+  para auth|forgot-password|change-password|permission|user-role|role-permission|logout|login|refresh.
+- validación live (nginx): login email 200 (role ADMIN), logout 200, refresh-tras-logout 401
+  (revocado), bad-password 401, forgot-init 404 (admin sin preguntas), GET /permissions 200
+  (ADMIN) / 401 (sin token). App bootea sin errores DI; 11 rutas RBAC + 7 rutas auth mapeadas.
+  eslint 0 errors en archivos tocados.
+- nota: los 503 intermitentes en smoke = rate-limit zone "login" de nginx (ráfagas de curl),
+  no error de backend. Healthcheck "unhealthy" es cosmético (imagen sin curl), preexistente.
+- checker: pendiente adversarial-review (maker≠checker) antes de PR.
+- escalado: pendiente commit + PR a ADMIN (nunca auto-merge).
   develop local alineado a origin/main (0 ahead/behind). Ciclo CERRADO.

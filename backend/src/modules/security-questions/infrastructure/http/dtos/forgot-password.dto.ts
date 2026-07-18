@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsEmail,
   IsArray,
   MinLength,
   ValidateNested,
