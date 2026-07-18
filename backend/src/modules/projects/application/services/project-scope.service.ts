@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { IStudentRepository } from '@modules/students/domain/ports/IStudentRepository';
 import { IProfessorRepository } from '@modules/professors/domain/ports/IProfessorRepository';
@@ -17,8 +17,11 @@ export interface ScopeUser {
 @Injectable()
 export class ProjectScopeService {
   constructor(
+    @Inject('IStudentRepository')
     private readonly studentRepository: IStudentRepository,
+    @Inject('IProfessorRepository')
     private readonly professorRepository: IProfessorRepository,
+    @Inject('IInstitutionRepository')
     private readonly institutionRepository: IInstitutionRepository,
   ) {}
 
