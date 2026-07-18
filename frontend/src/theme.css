@@ -49,9 +49,13 @@
   --radius: 0.5rem;
   --field-radius: 0.75rem;
 
-  /* Font Family */
-  /* Make sure to load Inter font in your app */
-  --font-sans: var(--font-inter);
+  /* Typography — Sora (display/UI) + IBM Plex Sans (body). Distinctive, non-generic. */
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Sora', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+
+  /* Signature accent gradient stops (academic-tech indigo → cyan) */
+  --gradient-brand: linear-gradient(135deg, oklch(57.14% 0.1637 263.10), oklch(64% 0.16 200));
+  --gradient-surface: linear-gradient(135deg, oklch(100% 0 0), oklch(98% 0.01 263.10));
 }
 
 .light [data-theme='card'],
@@ -157,3 +161,70 @@
 .animate-fade-in-2 { animation-delay: 0.1s; }
 .animate-fade-in-3 { animation-delay: 0.15s; }
 .animate-fade-in-4 { animation-delay: 0.2s; }
+
+/* Floating decorative shapes (match login background) */
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(40px, -30px); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, 40px); }
+}
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-20px, 20px); }
+}
+@keyframes float4 {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50% { transform: translate(30px, 20px) rotate(-12deg); }
+}
+.animate-float-1 { animation: float1 10s ease-in-out infinite; }
+.animate-float-2 { animation: float2 12s ease-in-out infinite; }
+.animate-float-3 { animation: float3 8s ease-in-out infinite; }
+.animate-float-4 { animation: float4 14s ease-in-out infinite; }
+
+/* ---------------------------------------------------------------------------
+ * Global elevation scale (design tokens, skill: designing-beautiful-websites)
+ * 1: cards/buttons — 2: popovers/menus — 3: sticky header — 4: modals
+ * ------------------------------------------------------------------------- */
+:root,
+.light,
+[data-theme='light'],
+[data-theme='default'] {
+  --shadow-1: 0 1px 2px oklch(0% 0 0 / 0.06);
+  --shadow-2: 0 4px 6px -1px oklch(0% 0 0 / 0.08), 0 2px 4px -2px oklch(0% 0 0 / 0.05);
+  --shadow-3: 0 10px 15px -3px oklch(0% 0 0 / 0.08), 0 4px 6px -4px oklch(0% 0 0 / 0.04);
+  --shadow-4: 0 20px 25px -5px oklch(0% 0 0 / 0.08), 0 8px 10px -6px oklch(0% 0 0 / 0.04);
+}
+
+.dark,
+[data-theme='dark'] {
+  --shadow-1: 0 1px 2px oklch(0% 0 0 / 0.3);
+  --shadow-2: 0 4px 6px -1px oklch(0% 0 0 / 0.4), 0 2px 4px -2px oklch(0% 0 0 / 0.3);
+  --shadow-3: 0 10px 15px -3px oklch(0% 0 0 / 0.4), 0 4px 6px -4px oklch(0% 0 0 / 0.3);
+  --shadow-4: 0 20px 25px -5px oklch(0% 0 0 / 0.4), 0 8px 10px -6px oklch(0% 0 0 / 0.3);
+}
+
+/* Signature focus ring — visible, accessible, on-brand (skill: accessibility) */
+:where(a, button, input, select, textarea, [tabindex], [role='button']):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 0.4rem;
+}
+
+/* Respect reduced-motion: disable decorative + chart animations (skill: data-visualization) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-blob,
+  .animate-blob2 {
+    animation: none !important;
+  }
+}

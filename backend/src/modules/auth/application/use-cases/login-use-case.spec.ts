@@ -3,8 +3,10 @@ import { IUserRepository } from '../../../users/domain/ports/IUserRepository';
 import { IHashService } from '../../domain/ports/IHashService';
 import { ITokenService } from '../../domain/ports/ITokenService';
 import { IRoleRepository } from '../../../roles/domain/ports/IRoleRepository';
+import { IUserSessionRepository } from '../../domain/ports/IUserSessionRepository';
 import { User } from '../../../users/domain/entities/User';
 import { Role } from '../../../roles/domain/entities/Role';
+import { UserSession } from '../../domain/entities/UserSession';
 import { UnauthorizedException } from '@nestjs/common';
 
 describe('LoginUseCase', () => {
@@ -13,6 +15,7 @@ describe('LoginUseCase', () => {
   let hashService: jest.Mocked<IHashService>;
   let tokenService: jest.Mocked<ITokenService>;
   let roleRepository: jest.Mocked<IRoleRepository>;
+  let userSessionRepository: jest.Mocked<IUserSessionRepository>;
 
   const mockUser = new User(
     'uuid-1',
@@ -28,6 +31,12 @@ describe('LoginUseCase', () => {
   );
 
   const mockRole = new Role('role-uuid', 'STUDENT', 'Student role');
+  const mockSession = new UserSession(
+    'session-uuid',
+    'uuid-1',
+    new Date(),
+    true,
+  );
 
   beforeEach(() => {
     userRepository = {
@@ -57,12 +66,18 @@ describe('LoginUseCase', () => {
       findAll: jest.fn(),
       save: jest.fn(),
     };
+    userSessionRepository = {
+      create: jest.fn().mockResolvedValue(mockSession),
+      deactivate: jest.fn(),
+      findActiveByUserId: jest.fn(),
+    };
 
     useCase = new LoginUseCase(
       userRepository,
       hashService,
       tokenService,
       roleRepository,
+      userSessionRepository,
     );
   });
 
@@ -100,5 +115,68 @@ describe('LoginUseCase', () => {
     await expect(
       useCase.execute({ email: 'john@test.com', password: 'wrong' }),
     ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('should look up by dni when identifier has no @', async () => {
+    userRepository.findByDni.mockResolvedValue(mockUser);
+    hashService.compare.mockResolvedValue(true);
+    roleRepository.findById.mockResolvedValue(mockRole);
+    tokenService.generate.mockReturnValue('jwt-token');
+    tokenService.generateRefresh.mockReturnValue('refresh-token');
+
+    const result = await useCase.execute({
+      identifier: '12345678',
+      password: 'password123',
+    });
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(userRepository.findByDni).toHaveBeenCalledWith('12345678');
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(userRepository.findByEmail).not.toHaveBeenCalled();
+    expect(result.user.id).toBe('uuid-1');
+  });
+
+  it('should return an accessToken and refreshToken pair', async () => {
+    userRepository.findByEmail.mockResolvedValue(mockUser);
+    hashService.compare.mockResolvedValue(true);
+    roleRepository.findById.mockResolvedValue(mockRole);
+    tokenService.generate.mockReturnValue('jwt-token');
+    tokenService.generateRefresh.mockReturnValue('refresh-token');
+
+    const result = await useCase.execute({
+      email: 'john@test.com',
+      password: 'password123',
+    });
+
+    expect(result.accessToken).toBe('jwt-token');
+    expect(result.refreshToken).toBe('refresh-token');
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(tokenService.generateRefresh).toHaveBeenCalledWith({
+      sub: 'uuid-1',
+      email: 'john@test.com',
+      role: 'STUDENT',
+    });
+  });
+
+  it('should create a user session on successful login', async () => {
+    userRepository.findByEmail.mockResolvedValue(mockUser);
+    hashService.compare.mockResolvedValue(true);
+    roleRepository.findById.mockResolvedValue(mockRole);
+    tokenService.generate.mockReturnValue('jwt-token');
+    tokenService.generateRefresh.mockReturnValue('refresh-token');
+
+    await useCase.execute({
+      email: 'john@test.com',
+      password: 'password123',
+      device: 'chrome',
+      ip: '127.0.0.1',
+    });
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(userSessionRepository.create).toHaveBeenCalledWith({
+      userId: 'uuid-1',
+      device: 'chrome',
+      ip: '127.0.0.1',
+    });
   });
 });

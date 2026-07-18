@@ -41,7 +41,8 @@ export interface LoopSnapshot {
 
 @Injectable()
 export class LoopService {
-  private readonly root = join(process.cwd(), '..', '..');
+  private readonly root =
+    process.env.LOOP_ROOT ?? join(process.cwd(), '..', '..');
   private readonly loopMd = join(this.root, 'LOOP.md');
   private readonly stateJson = join(this.root, '.loop_state.json');
 

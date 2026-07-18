@@ -10,6 +10,7 @@ describe('GetProjectByIdUseCase', () => {
     projectRepository = {
       findById: jest.fn(),
       findAll: jest.fn(),
+      findByIds: jest.fn(),
       findByStatus: jest.fn(),
       findBySubjectAssignment: jest.fn(),
       findByLocation: jest.fn(),
@@ -28,6 +29,7 @@ describe('GetProjectByIdUseCase', () => {
       countByYear: jest.fn(),
       countThisYear: jest.fn(),
       findRecentActivity: jest.fn(),
+      findRecentActivityWithTimestamps: jest.fn(),
       findMilestonesByProject: jest.fn(),
       findMilestoneById: jest.fn(),
       createMilestone: jest.fn(),

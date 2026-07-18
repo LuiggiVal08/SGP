@@ -1,8 +1,9 @@
-import { Card, Button, Alert, Skeleton, Chip } from '@heroui/react';
+import { Button, Alert, Chip } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { projectService } from '../services/project.service';
 import { ProjectsTable } from '../components/ProjectsTable';
+import { Card, StatCard } from '@/shared/components/ui';
 import {
   PieChart,
   Pie,
@@ -59,14 +60,16 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   );
 };
 
-function formatNumber(n: number): string {
-  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+function formatNumber(n: number | string): string {
+  const num = typeof n === 'string' ? Number(n) : n;
+  if (!Number.isFinite(num)) return String(n);
+  return num >= 1000 ? `${(num / 1000).toFixed(1)}k` : String(num);
 }
 
 const statusColors: Record<string, string> = {
-  COMPLETED: '#22c55e',
-  PENDING_VALIDATION: '#f59e0b',
-  REJECTED: '#ef4444',
+  COMPLETED: 'var(--color-success)',
+  PENDING_VALIDATION: 'var(--color-warning)',
+  REJECTED: 'var(--color-danger)',
 };
 
 const statusLabels: Record<string, string> = {
@@ -81,46 +84,31 @@ const statCards = [
     key: 'total' as const,
     label: 'Total Proyectos',
     icon: FolderKanban,
-    iconBg: 'bg-primary/10 text-primary',
-    barGradient: 'from-primary/40 to-primary/10',
-    border: 'border-primary/20',
-    hoverGlow: 'group-hover:shadow-primary/5',
+    accent: 'primary' as const,
   },
   {
     key: 'COMPLETED' as const,
     label: 'Completados',
     icon: CheckCircle2,
-    iconBg: 'bg-success/10 text-success',
-    barGradient: 'from-success/40 to-success/10',
-    border: 'border-success/20',
-    hoverGlow: 'group-hover:shadow-success/5',
+    accent: 'success' as const,
   },
   {
     key: 'PENDING_VALIDATION' as const,
     label: 'Pendientes',
     icon: Clock,
-    iconBg: 'bg-warning/10 text-warning',
-    barGradient: 'from-warning/40 to-warning/10',
-    border: 'border-warning/20',
-    hoverGlow: 'group-hover:shadow-warning/5',
+    accent: 'warning' as const,
   },
   {
     key: 'REJECTED' as const,
     label: 'Rechazados',
     icon: XCircle,
-    iconBg: 'bg-danger/10 text-danger',
-    barGradient: 'from-danger/40 to-danger/10',
-    border: 'border-danger/20',
-    hoverGlow: 'group-hover:shadow-danger/5',
+    accent: 'danger' as const,
   },
   {
     key: 'thisYear' as const,
     label: 'Este Año',
     icon: Calendar,
-    iconBg: 'bg-accent/10 text-accent',
-    barGradient: 'from-accent/40 to-accent/10',
-    border: 'border-accent/20',
-    hoverGlow: 'group-hover:shadow-accent/5',
+    accent: 'accent' as const,
   },
 ];
 
@@ -188,9 +176,9 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="relative">
-          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
-          <h1 className="text-2xl font-semibold tracking-tight pl-3">
-            <span className="text-muted font-normal">{greeting}, </span>
+          <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-accent" />
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground pl-3">
+            <span className="text-muted font-medium">{greeting}, </span>
             {user?.firstName ?? 'Usuario'}
           </h1>
           <p className="text-sm text-muted mt-0.5 pl-3">Resumen general del sistema</p>
@@ -229,56 +217,37 @@ export default function DashboardPage() {
 
       {statsLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Card.Root key={i} variant="secondary" className="border border-border bg-surface/70">
-              <Card.Content className="p-4 space-y-3">
-                <Skeleton className="h-9 w-9 rounded-xl" />
-                <Skeleton className="h-8 w-20 rounded-lg" />
-                <Skeleton className="h-3 w-24 rounded" />
-              </Card.Content>
-            </Card.Root>
+          {statCards.map(({ key, label, icon }) => (
+            <StatCard key={key} label={label} value={0} icon={icon} loading />
           ))}
         </div>
       ) : statsError ? (
-        <Card.Root variant="secondary" className="border border-danger/20 bg-danger/5">
+        <Card variant="plain" className="border border-danger/20 bg-danger/5">
           <Card.Content className="p-4 text-center">
             <p className="text-sm text-danger">Error al cargar estadísticas</p>
           </Card.Content>
-        </Card.Root>
+        </Card>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
-          {statCards.map(({ key, label, icon: Icon, iconBg, barGradient, border, hoverGlow }) => (
-            <Card.Root
+          {statCards.map(({ key, label, icon, accent }) => (
+            <StatCard
               key={key}
-              variant="secondary"
-              className={`group relative border ${border} bg-surface/70 backdrop-blur-xl shadow-sm hover:-translate-y-1 hover:shadow-lg ${hoverGlow} transition-all duration-200 overflow-hidden`}
-            >
-              <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${barGradient} group-hover:h-[3px] transition-all duration-200`} />
-              <Card.Content className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className={`p-2.5 rounded-xl ${iconBg} ring-1 ring-inset ring-current/10 transition-transform group-hover:scale-110 duration-200`}>
-                    <Icon size={18} />
-                  </div>
-                </div>
-                <p className="text-2xl font-bold tracking-tight text-foreground">
-                  {formatNumber(counts[key])}
-                </p>
-                <p className="text-xs text-muted font-medium mt-0.5">{label}</p>
-              </Card.Content>
-            </Card.Root>
+              label={label}
+              value={counts[key]}
+              icon={icon}
+              accent={accent}
+              formatValue={formatNumber}
+            />
           ))}
         </div>
       )}
 
       {stats && stats.total > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card.Root variant="secondary" className="group relative border border-border bg-surface/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
-            <Card.Header className="px-5 pt-5 pb-0">
-              <Card.Title className="text-sm font-semibold text-foreground">
-                Proyectos por Estado
-              </Card.Title>
-              <Card.Description className="text-xs text-muted mt-0.5">
+          <Card className="transition-all duration-200 hover:shadow-md">
+            <Card.Header>
+              <Card.Title>Proyectos por Estado</Card.Title>
+              <Card.Description>
                 Distribución de proyectos según su estado actual
               </Card.Description>
             </Card.Header>
@@ -286,6 +255,7 @@ export default function DashboardPage() {
               {pieData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
+                    <title>Distribución de proyectos por estado</title>
                     <Pie
                       data={pieData}
                       cx="50%"
@@ -295,6 +265,10 @@ export default function DashboardPage() {
                       paddingAngle={3}
                       dataKey="value"
                       stroke="none"
+                      isAnimationActive
+                      animationBegin={150}
+                      animationDuration={600}
+                      animationEasing="ease-out"
                     >
                       {pieData.map((entry) => (
                         <Cell key={entry.name} fill={entry.color} />
@@ -312,15 +286,12 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted text-center py-10">Sin datos</p>
               )}
             </Card.Content>
-          </Card.Root>
+          </Card>
 
-          <Card.Root variant="secondary" className="group relative border border-border bg-surface/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
-            <Card.Header className="px-5 pt-5 pb-0">
-              <Card.Title className="text-sm font-semibold text-foreground">
-                Proyectos por Año
-              </Card.Title>
-              <Card.Description className="text-xs text-muted mt-0.5">
+          <Card className="transition-all duration-200 hover:shadow-md">
+            <Card.Header>
+              <Card.Title>Proyectos por Año</Card.Title>
+              <Card.Description>
                 Cantidad de proyectos registrados por año
               </Card.Description>
             </Card.Header>
@@ -328,6 +299,7 @@ export default function DashboardPage() {
               {yearData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={yearData} margin={{ top: 15, right: 15, left: -10, bottom: 5 }}>
+                    <title>Cantidad de proyectos registrados por año</title>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
                     <XAxis
                       dataKey="year"
@@ -344,7 +316,15 @@ export default function DashboardPage() {
                       tickLine={false}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--color-surface-secondary)' }} />
-                    <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={50}>
+                    <Bar
+                      dataKey="count"
+                      radius={[6, 6, 0, 0]}
+                      maxBarSize={50}
+                      isAnimationActive
+                      animationBegin={200}
+                      animationDuration={500}
+                      animationEasing="ease-out"
+                    >
                       {yearData.map((_, idx) => (
                         <Cell
                           key={idx}
@@ -358,45 +338,53 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted text-center py-10">Sin datos</p>
               )}
             </Card.Content>
-          </Card.Root>
+          </Card>
         </div>
       )}
 
       {stats && topTutors.length > 0 && (
-        <Card.Root variant="secondary" className="group relative border border-border bg-surface/50 backdrop-blur-xl shadow-sm overflow-hidden">
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
-          <Card.Header className="px-5 pt-5 pb-0">
-            <Card.Title className="text-sm font-semibold text-foreground flex items-center gap-2">
+        <Card>
+          <Card.Header>
+            <Card.Title className="flex items-center gap-2">
               <Users size={16} className="text-primary" />
               Top Tutores por Proyectos
             </Card.Title>
-            <Card.Description className="text-xs text-muted mt-0.5">
+            <Card.Description>
               Tutores con mayor cantidad de proyectos asignados
             </Card.Description>
           </Card.Header>
           <Card.Content className="p-4">
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={tutorChartData} layout="vertical" margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                <title>Tutores con mayor cantidad de proyectos asignados</title>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} stroke="var(--color-muted)" tickLine={false} />
                 <YAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} stroke="var(--color-muted)" tickLine={false} axisLine={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--color-surface-secondary)' }} />
-                <Bar dataKey="proyectos" fill="var(--color-primary)" radius={[0, 6, 6, 0]} maxBarSize={30} />
+                <Bar
+                  dataKey="proyectos"
+                  fill="var(--color-primary)"
+                  radius={[0, 6, 6, 0]}
+                  maxBarSize={30}
+                  isAnimationActive
+                  animationBegin={250}
+                  animationDuration={500}
+                  animationEasing="ease-out"
+                />
               </BarChart>
             </ResponsiveContainer>
           </Card.Content>
-        </Card.Root>
+        </Card>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card.Root variant="secondary" className="lg:col-span-1 relative border border-border bg-surface/50 backdrop-blur-xl shadow-sm overflow-hidden">
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
-          <Card.Header className="px-5 pt-5 pb-2">
-            <Card.Title className="text-sm font-semibold text-foreground flex items-center gap-2">
+        <Card className="lg:col-span-1">
+          <Card.Header>
+            <Card.Title className="flex items-center gap-2">
               <Activity size={16} className="text-primary" />
               Actividad Reciente
             </Card.Title>
-            <Card.Description className="text-xs text-muted mt-0.5">
+            <Card.Description>
               Últimos cambios en proyectos
             </Card.Description>
           </Card.Header>
@@ -420,22 +408,19 @@ export default function DashboardPage() {
               <p className="text-sm text-muted text-center py-6">Sin actividad reciente</p>
             )}
           </Card.Content>
-        </Card.Root>
+        </Card>
 
-        <Card.Root variant="secondary" className="lg:col-span-2 relative border border-border bg-surface/50 backdrop-blur-xl shadow-sm overflow-hidden">
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
-          <Card.Header className="px-5 pt-5 pb-2">
-            <Card.Title className="text-sm font-semibold text-foreground">
-              Proyectos Recientes
-            </Card.Title>
-            <Card.Description className="text-xs text-muted mt-0.5">
+        <Card className="lg:col-span-2">
+          <Card.Header>
+            <Card.Title>Proyectos Recientes</Card.Title>
+            <Card.Description>
               Listado de proyectos registrados en el sistema
             </Card.Description>
           </Card.Header>
           <Card.Content className="px-0 pb-0">
             <ProjectsTable />
           </Card.Content>
-        </Card.Root>
+        </Card>
       </div>
     </div>
   );

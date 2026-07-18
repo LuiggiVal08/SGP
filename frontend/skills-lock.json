@@ -6,10 +6,28 @@
       "sourceType": "autoskills-registry",
       "computedHash": "bffe3d08cfe92ebad63699f74ce29e35c19850ebfbf474c1463183cfe34d6a09"
     },
+    "canvas": {
+      "source": "markdown-viewer/skills",
+      "sourceType": "github",
+      "skillPath": "canvas/SKILL.md",
+      "computedHash": "f5ca58253932e70c56eab3eed82623a49ce9757fb0ef962cad6ce5595725b0d6"
+    },
     "composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "autoskills-registry",
       "computedHash": "c124390cc3441844903ada94cb5820b23d922f2d0ad34e01e029e410197c8a32"
+    },
+    "data-visualization": {
+      "source": "dylantarre/animation-principles",
+      "sourceType": "github",
+      "skillPath": "skills/01-by-domain/data-visualization/SKILL.md",
+      "computedHash": "025f32d2828f7c9f7eea64d44a5f581cf38049a60f3bdb9d3cc5cd0a773f57ae"
+    },
+    "designing-beautiful-websites": {
+      "source": "tristanmanchester/agent-skills",
+      "sourceType": "github",
+      "skillPath": "designing-beautiful-websites/SKILL.md",
+      "computedHash": "c67a4b7ed14f77e4e65a3546acd8360e376b6f6f539c32157593085e58e1988b"
     },
     "frontend-design": {
       "source": "anthropics/skills",

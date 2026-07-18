@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Chip, Skeleton } from '@heroui/react';
+import { Card, Chip, Skeleton } from '@heroui/react';
 import { Repeat, ReceiptText, ListChecks } from 'lucide-react';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { loopService } from '../services/loop.service';
@@ -106,32 +106,44 @@ export default function LoopDashboardPage() {
               Sin ciclos ejecutados aún.
             </Card>
           ) : (
-            <Table aria-label="Recibos de ciclos" className="mt-2">
-              <TableHeader>
-                <TableColumn>STORY</TableColumn>
-                <TableColumn>HALT</TableColumn>
-                <TableColumn>TESTS</TableColumn>
-                <TableColumn>COMMIT</TableColumn>
-                <TableColumn>ESCALADO</TableColumn>
-              </TableHeader>
-              <TableBody>
-                {data.receipts.map((r: LoopReceipt, i: number) => (
-                  <TableRow key={i}>
-                    <TableCell>
-                      <Chip size="sm" variant="soft" color="accent">
-                        {r.story}
-                      </Chip>
-                    </TableCell>
-                    <TableCell>{r.haltReason || '—'}</TableCell>
-                    <TableCell>
-                      {r.testsBefore} → {r.testsAfter}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">{r.commit || '—'}</TableCell>
-                    <TableCell>{r.escalado || '—'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="mt-2 overflow-x-auto rounded-lg border border-border/60">
+              <table
+                aria-label="Recibos de ciclos"
+                className="w-full text-sm border-collapse"
+              >
+                <thead>
+                  <tr className="border-b border-border/60 bg-surface-secondary text-left text-[11px] uppercase tracking-wider text-muted">
+                    <th className="px-3 py-2 font-medium">Story</th>
+                    <th className="px-3 py-2 font-medium">Halt</th>
+                    <th className="px-3 py-2 font-medium">Tests</th>
+                    <th className="px-3 py-2 font-medium">Commit</th>
+                    <th className="px-3 py-2 font-medium">Escalado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.receipts.map((r: LoopReceipt, i: number) => (
+                    <tr
+                      key={i}
+                      className="border-b border-border/40 last:border-0 hover:bg-surface-secondary/50"
+                    >
+                      <td className="px-3 py-2">
+                        <Chip size="sm" variant="soft" color="accent">
+                          {r.story}
+                        </Chip>
+                      </td>
+                      <td className="px-3 py-2">{r.haltReason || '—'}</td>
+                      <td className="px-3 py-2">
+                        {r.testsBefore} → {r.testsAfter}
+                      </td>
+                      <td className="px-3 py-2 font-mono text-xs">
+                        {r.commit || '—'}
+                      </td>
+                      <td className="px-3 py-2">{r.escalado || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

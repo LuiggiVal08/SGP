@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Skeleton } from '@heroui/react';
+import { Button, Skeleton, Modal, Spinner, useOverlayState } from '@heroui/react';
 import { projectService } from '../services/project.service';
 import { FileText, Trash2 } from 'lucide-react';
 import { FilePreviewModal } from './FilePreviewModal';
@@ -30,6 +31,8 @@ function formatDate(iso?: string): string {
 
 export function ProjectFilesSection({ projectId }: Props) {
   const queryClient = useQueryClient();
+  const deleteModal = useOverlayState();
+  const [fileToDelete, setFileToDelete] = useState<ProjectFile | null>(null);
   const { data: files = [], isLoading } = useQuery({
     queryKey: ['project-files', projectId],
     queryFn: ({ signal }) => projectService.getFiles(projectId, signal),
@@ -40,6 +43,8 @@ export function ProjectFilesSection({ projectId }: Props) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project-files', projectId] });
       sileo.success({ title: 'Archivo eliminado exitosamente', description: 'El archivo ya no está disponible.' });
+      deleteModal.close();
+      setFileToDelete(null);
     },
     onError: (err: unknown) => {
       sileo.error({ title: extractApiError(err, 'Error al eliminar el archivo'), description: 'Ocurrió un problema al eliminar el archivo.' });
@@ -88,8 +93,7 @@ export function ProjectFilesSection({ projectId }: Props) {
             <Button
               variant="ghost"
               size="sm"
-              isDisabled={deleteMutation.isPending}
-              onPress={() => deleteMutation.mutate(file.id)}
+              onPress={() => { setFileToDelete(file); deleteModal.open(); }}
               className="text-muted hover:text-danger hover:bg-danger/10 min-w-0 px-2"
               aria-label="Eliminar archivo"
             >
@@ -98,6 +102,33 @@ export function ProjectFilesSection({ projectId }: Props) {
           </div>
         </div>
       ))}
+
+      <Modal.Root state={deleteModal}>
+        <Modal.Backdrop>
+          <Modal.Container size="sm">
+            <Modal.Dialog className="sm:max-w-[420px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
+                <Modal.Icon className="bg-danger/10 text-danger">
+                  <Trash2 className="size-5" />
+                </Modal.Icon>
+                <Modal.Heading>Eliminar Archivo</Modal.Heading>
+                <Modal.CloseTrigger />
+              </Modal.Header>
+              <Modal.Body className="p-5 flex-1 overflow-y-auto">
+                <p className="text-sm text-muted">
+                  ¿Está seguro de eliminar <strong>{fileToDelete?.fileName}</strong>? Esta acción no se puede deshacer.
+                </p>
+              </Modal.Body>
+              <Modal.Footer className="shrink-0">
+                <Button className="w-full" variant="secondary" onPress={() => { deleteModal.close(); setFileToDelete(null); }} autoFocus>Cancelar</Button>
+                <Button className="w-full" variant="danger" isDisabled={deleteMutation.isPending} onPress={() => fileToDelete && deleteMutation.mutate(fileToDelete.id)}>
+                  {deleteMutation.isPending ? <Spinner size="sm" /> : 'Eliminar'}
+                </Button>
+              </Modal.Footer>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal.Root>
     </div>
   );
 }

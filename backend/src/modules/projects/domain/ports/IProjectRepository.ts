@@ -12,6 +12,7 @@ import { ProjectFile } from '../entities/ProjectFile';
 export interface IProjectRepository {
   findById(id: string): Promise<Project | null>;
   findAll(): Promise<Project[]>;
+  findByIds(ids: string[]): Promise<Project[]>;
   findByStatus(status: ProjectStatus): Promise<Project[]>;
   findBySubjectAssignment(subjectAssignmentId: string): Promise<Project[]>;
   findByLocation(locationId: string): Promise<Project[]>;
@@ -32,6 +33,7 @@ export interface IProjectRepository {
     page: number;
     limit: number;
     search?: string;
+    scopeIds?: string[] | null;
   }): Promise<{
     data: Project[];
     meta: { total: number; page: number; limit: number; totalPages: number };
@@ -41,6 +43,9 @@ export interface IProjectRepository {
   countByYear(year: number): Promise<number>;
   countThisYear(): Promise<number>;
   findRecentActivity(): Promise<Project[]>;
+  findRecentActivityWithTimestamps(): Promise<
+    { id: string; title: string; status: ProjectStatus; updatedAt: Date }[]
+  >;
 
   saveFiles(files: ProjectFile[]): Promise<ProjectFile[]>;
   findFileById(id: string): Promise<ProjectFile | null>;

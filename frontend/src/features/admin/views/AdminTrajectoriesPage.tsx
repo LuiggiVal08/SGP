@@ -6,6 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { catalogService } from '@/features/catalogs/services/catalog.service';
 import { Plus, Search, Pencil, Trash2, GitBranch } from 'lucide-react';
 import { EmptyState } from '@/shared/components/EmptyState';
+import { FieldLabel } from '@/shared/components/FieldLabel';
 import { Pagination } from '@/shared/components/Pagination';
 import { sileo } from 'sileo';
 import { extractApiError } from '@/shared/utils/extractApiError';
@@ -147,9 +148,10 @@ export default function AdminTrajectoriesPage() {
         </div>
       ) : (
         <>
+          <div className="overflow-x-auto rounded-xl border border-border/60 max-h-[70vh]">
           <Table>
             <Table.Content aria-label="Trayectos">
-              <Table.Header>
+              <Table.Header className="sticky top-0 z-10 bg-surface-secondary/95 backdrop-blur-sm [&_th]:text-xs [&_th]:font-semibold [&_th]:text-muted [&_th]:uppercase [&_th]:tracking-wider">
                 <Table.Column id="name" isRowHeader>Nombre</Table.Column>
                 <Table.Column id="pnf">PNF</Table.Column>
                 <Table.Column id="orderNumber">Orden</Table.Column>
@@ -162,7 +164,7 @@ export default function AdminTrajectoriesPage() {
                 )}
               >
                 {(t: Trajectory) => (
-                  <Table.Row className="even:bg-surface-secondary/40 hover:bg-surface-secondary/80 hover:translate-x-0.5 transition-all duration-150">
+                  <Table.Row className="even:bg-surface-secondary/30 hover:bg-primary/[0.06] transition-colors">
                     <Table.Cell>{t.name}</Table.Cell>
                     <Table.Cell className="text-muted text-sm">{pnfMap[t.pnfId] ?? '—'}</Table.Cell>
                     <Table.Cell className="text-muted text-sm">{t.orderNumber}</Table.Cell>
@@ -199,6 +201,7 @@ export default function AdminTrajectoriesPage() {
               </Table.Body>
             </Table.Content>
           </Table>
+          </div>
           <Pagination current={page} total={totalPages} onChange={setPage} />
         </>
       )}
@@ -206,17 +209,17 @@ export default function AdminTrajectoriesPage() {
       <Modal.Root state={createModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-default text-foreground">
                   <GitBranch className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Nuevo Trayecto</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3">
+              <Modal.Body className="space-y-3 p-5 flex-1 overflow-y-auto">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="traj-name" className="text-sm">Nombre</label>
+                  <FieldLabel label="Nombre" help="Nombre del trayecto. Ej: Trayecto I" htmlFor="traj-name" className="text-sm" />
                   <Input
                     id="traj-name"
                     {...createForm.register('name')}
@@ -228,7 +231,7 @@ export default function AdminTrajectoriesPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="traj-pnf" className="text-sm">PNF</label>
+                  <FieldLabel label="PNF" help="PNF al que pertenece este trayecto" htmlFor="traj-pnf" className="text-sm" />
                   <Select
                     id="traj-pnf"
                     aria-label="PNF"
@@ -258,7 +261,7 @@ export default function AdminTrajectoriesPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="traj-order" className="text-sm">Orden</label>
+                  <FieldLabel label="Orden" help="Orden del trayecto en la malla (1, 2, 3...)" htmlFor="traj-order" className="text-sm" />
                   <Input
                     id="traj-order"
                     type="number"
@@ -270,7 +273,7 @@ export default function AdminTrajectoriesPage() {
                   )}
                 </div>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { createModal.close(); createForm.reset(); }}>Cancelar</Button>
                 <Button className="w-full" variant="primary" isDisabled={!createForm.formState.isValid || createMutation.isPending} onPress={() => createMutation.mutate()}>
                   {createMutation.isPending ? <Spinner size="sm" /> : 'Crear'}
@@ -284,17 +287,17 @@ export default function AdminTrajectoriesPage() {
       <Modal.Root state={editModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-default text-foreground">
                   <GitBranch className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Editar Trayecto</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body className="space-y-3 p-3">
+              <Modal.Body className="space-y-3 p-5 flex-1 overflow-y-auto">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-traj-name" className="text-sm">Nombre</label>
+                  <FieldLabel label="Nombre" help="Nombre del trayecto. Ej: Trayecto I" htmlFor="edit-traj-name" className="text-sm" />
                   <Input
                     id="edit-traj-name"
                     {...editForm.register('name')}
@@ -305,7 +308,7 @@ export default function AdminTrajectoriesPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-traj-pnf" className="text-sm">PNF</label>
+                  <FieldLabel label="PNF" help="PNF al que pertenece este trayecto" htmlFor="edit-traj-pnf" className="text-sm" />
                   <Select
                     id="edit-traj-pnf"
                     aria-label="PNF"
@@ -335,7 +338,7 @@ export default function AdminTrajectoriesPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-traj-order" className="text-sm">Orden</label>
+                  <FieldLabel label="Orden" help="Orden del trayecto en la malla (1, 2, 3...)" htmlFor="edit-traj-order" className="text-sm" />
                   <Input
                     id="edit-traj-order"
                     type="number"
@@ -347,7 +350,7 @@ export default function AdminTrajectoriesPage() {
                   )}
                 </div>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { editModal.close(); setEditing(null); editForm.reset(); }}>Cancelar</Button>
                 <Button className="w-full" variant="primary" isDisabled={!editForm.formState.isValid || updateMutation.isPending} onPress={() => editing && updateMutation.mutate({ id: editing.id })}>
                   {updateMutation.isPending ? <Spinner size="sm" /> : 'Guardar'}
@@ -361,20 +364,20 @@ export default function AdminTrajectoriesPage() {
       <Modal.Root state={deleteModal}>
         <Modal.Backdrop>
           <Modal.Container size="sm">
-            <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-              <Modal.Header>
+            <Modal.Dialog className="sm:max-w-[440px] max-h-[85vh] flex flex-col overflow-hidden">
+              <Modal.Header className="shrink-0">
                 <Modal.Icon className="bg-danger/10 text-danger">
                   <Trash2 className="size-5" />
                 </Modal.Icon>
                 <Modal.Heading>Eliminar Trayecto</Modal.Heading>
                 <Modal.CloseTrigger />
               </Modal.Header>
-              <Modal.Body>
+              <Modal.Body className="p-5 flex-1 overflow-y-auto">
                 <p className="text-sm text-muted">
                   ¿Está seguro de eliminar <strong>{deleting?.name}</strong>? Esta acción no se puede deshacer.
                 </p>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={() => { deleteModal.close(); setDeleting(null); }} autoFocus>Cancelar</Button>
                 <Button className="w-full" variant="danger" isDisabled={deleteMutation.isPending} onPress={() => deleting && deleteMutation.mutate(deleting.id)}>
                   {deleteMutation.isPending ? <Spinner size="sm" /> : 'Eliminar'}

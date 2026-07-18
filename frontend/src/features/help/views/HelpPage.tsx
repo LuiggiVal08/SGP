@@ -182,7 +182,7 @@ export default function HelpPage() {
           <h1 className="text-4xl font-bold text-foreground">Ayuda</h1>
           <div className="h-1 w-24 mt-2 bg-gradient-to-r from-primary via-accent to-primary/10 rounded-full" />
           <p className="text-muted mt-3 max-w-lg">
-            Bienvenido a Code-Craft SGP — Sistema de Gestión de Proyectos.
+            Bienvenido a OdalX-Enterprise SGP — Sistema de Gestión de Proyectos.
           </p>
         </div>
       </motion.header>

@@ -36,7 +36,7 @@ export const securityQuestionsSchema = z
 export type SecurityQuestionsFormValues = z.infer<typeof securityQuestionsSchema>;
 
 export const forgotPasswordEmailSchema = z.object({
-  email: z.string().email('Email inválido'),
+  identifier: z.string().min(1, 'Ingrese su email o DNI'),
 });
 
 export type ForgotPasswordEmailValues = z.infer<typeof forgotPasswordEmailSchema>;

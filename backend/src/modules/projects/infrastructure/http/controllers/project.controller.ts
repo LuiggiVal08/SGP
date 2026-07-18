@@ -6,18 +6,25 @@ import {
   Delete,
   Body,
   Param,
+  Query,
+  Req,
   UploadedFile,
   UseInterceptors,
   UseGuards,
   BadRequestException,
-  Query,
+  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
-import { JwtAuthGuard } from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
+import { Request } from 'express';
+import {
+  JwtAuthGuard,
+  RequestWithUser,
+} from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '@modules/auth/infrastructure/http/guards/roles.decorator';
 import { CreateProjectUseCase } from '../../../application/use-cases/create-project.use-case';
@@ -25,6 +32,8 @@ import { UpdateProjectUseCase } from '../../../application/use-cases/update-proj
 import { GetProjectByIdUseCase } from '../../../application/use-cases/get-project-by-id.use-case';
 import { UploadProjectFilesUseCase } from '../../../application/use-cases/upload-project-files.use-case';
 import { GetAllProjectsUseCase } from '../../../application/use-cases/get-all-projects.use-case';
+import { ProjectScopeService } from '../../../application/services/project-scope.service';
+import { GetDashboardStatsUseCase } from '../../../application/use-cases/get-dashboard-stats.use-case';
 import { GetProjectFilesUseCase } from '../../../application/use-cases/get-project-files.use-case';
 import { DeleteProjectFileUseCase } from '../../../application/use-cases/delete-project-file.use-case';
 import { DeleteProjectUseCase } from '../../../application/use-cases/delete-project.use-case';
@@ -62,6 +71,7 @@ export class ProjectController {
     private readonly getProjectByIdUseCase: GetProjectByIdUseCase,
     private readonly uploadProjectFilesUseCase: UploadProjectFilesUseCase,
     private readonly getAllProjectsUseCase: GetAllProjectsUseCase,
+    private readonly getDashboardStatsUseCase: GetDashboardStatsUseCase,
     private readonly getProjectFilesUseCase: GetProjectFilesUseCase,
     private readonly deleteProjectFileUseCase: DeleteProjectFileUseCase,
     private readonly deleteProjectUseCase: DeleteProjectUseCase,
@@ -71,6 +81,7 @@ export class ProjectController {
     private readonly addProjectAuthorUseCase: AddProjectAuthorUseCase,
     private readonly listProjectAuthorsUseCase: ListProjectAuthorsUseCase,
     private readonly removeProjectAuthorUseCase: RemoveProjectAuthorUseCase,
+    private readonly projectScopeService: ProjectScopeService,
   ) {}
 
   @Post()
@@ -90,24 +101,47 @@ export class ProjectController {
 
   @Get()
   async findAll(
+    @Req() req: RequestWithUser,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
   ) {
+    const user = req.user as { sub: string; role: string };
     if (page || limit || search) {
-      return {
-        data: [],
-        meta: { total: 0, page: 1, limit: 10, totalPages: 0 },
-      };
+      return this.getAllProjectsUseCase.executePaginated({
+        page: page ? parseInt(page, 10) : 1,
+        limit: limit ? parseInt(limit, 10) : 10,
+        search,
+        user: { userId: user.sub, role: user.role },
+      });
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return this.getAllProjectsUseCase.execute();
+    return this.getAllProjectsUseCase.execute({
+      userId: user.sub,
+      role: user.role,
+    });
+  }
+
+  @Get('stats')
+  async getStats() {
+    return this.getDashboardStatsUseCase.execute();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Req() req: RequestWithUser, @Param('id') id: string) {
+    const user = req.user as { sub: string; role: string };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const project = await this.getProjectByIdUseCase.execute(id);
+    if (!project) throw new NotFoundException('Project not found');
+    const scopeIds = await this.projectScopeService.resolveAllowedProjectIds({
+      userId: user.sub,
+      role: user.role,
+    });
+    if (scopeIds !== null && !scopeIds.includes(id)) {
+      throw new ForbiddenException('No tiene acceso a este proyecto');
+    }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return this.getProjectByIdUseCase.execute(id);
+    return project;
   }
 
   @Patch(':id')

@@ -1,16 +1,19 @@
 import { GetAllProjectsUseCase } from './get-all-projects.use-case';
 import { IProjectRepository } from '../../domain/ports/IProjectRepository';
 import { ICacheService } from '@share/domain/ports/ICacheService';
+import { ProjectScopeService } from '../services/project-scope.service';
 
 describe('GetAllProjectsUseCase', () => {
   let useCase: GetAllProjectsUseCase;
   let projectRepository: jest.Mocked<IProjectRepository>;
   let cacheService: jest.Mocked<ICacheService>;
+  let projectScopeService: { resolveAllowedProjectIds: jest.Mock };
 
   beforeEach(() => {
     projectRepository = {
       findById: jest.fn(),
       findAll: jest.fn(),
+      findByIds: jest.fn(),
       findByStatus: jest.fn(),
       findBySubjectAssignment: jest.fn(),
       findByLocation: jest.fn(),
@@ -29,6 +32,7 @@ describe('GetAllProjectsUseCase', () => {
       countByYear: jest.fn(),
       countThisYear: jest.fn(),
       findRecentActivity: jest.fn(),
+      findRecentActivityWithTimestamps: jest.fn(),
       findMilestonesByProject: jest.fn(),
       findMilestoneById: jest.fn(),
       createMilestone: jest.fn(),
@@ -46,8 +50,15 @@ describe('GetAllProjectsUseCase', () => {
       set: jest.fn(),
       delete: jest.fn(),
     };
+    projectScopeService = {
+      resolveAllowedProjectIds: jest.fn().mockResolvedValue(null),
+    };
 
-    useCase = new GetAllProjectsUseCase(projectRepository, cacheService);
+    useCase = new GetAllProjectsUseCase(
+      projectRepository,
+      cacheService,
+      projectScopeService as unknown as ProjectScopeService,
+    );
   });
 
   it('should return cached projects when available', async () => {
@@ -55,7 +66,7 @@ describe('GetAllProjectsUseCase', () => {
     cacheService.get.mockResolvedValue(JSON.stringify(cached));
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const result = await useCase.execute();
+    const result = await useCase.execute({ userId: 'u', role: 'ADMIN' });
 
     expect(result).toEqual(cached);
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -68,7 +79,7 @@ describe('GetAllProjectsUseCase', () => {
     projectRepository.findAll.mockResolvedValue(projects as never);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const result = await useCase.execute();
+    const result = await useCase.execute({ userId: 'u', role: 'ADMIN' });
 
     expect(result).toEqual(projects);
     // eslint-disable-next-line @typescript-eslint/unbound-method

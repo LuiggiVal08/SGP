@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { projectService } from '../services/project.service';
 import { FileUploadSection } from '../components/FileUploadSection';
-import { Pencil, ArrowLeft, Trash2, GraduationCap, User, Users, Calendar, Building, Plus, FileText, Lock, BookOpen } from 'lucide-react';
+import { Pencil, ArrowLeft, Trash2, GraduationCap, User, Users, Calendar, Building, Plus, FileText, Lock, BookOpen, FileCheck2 } from 'lucide-react';
 import { ProjectFilesSection } from '../components/ProjectFilesSection';
 import { usePnf } from '@/features/catalogs/hooks/usePnf';
 import { useUsers } from '@/features/catalogs/hooks/useUsers';
@@ -22,6 +22,7 @@ import { sileo } from 'sileo';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { statusConfig } from '@/shared/constants/statusConfig';
 import { extractApiError } from '@/shared/utils/extractApiError';
+import { FieldLabel } from '@/shared/components/FieldLabel';
 
 const editSchema = z.object({
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres'),
@@ -79,8 +80,8 @@ export default function ProjectDetailPage() {
       year: project.year,
       pnfId: project.pnfId,
       tutorId: project.tutorId,
-      authorIds: [],
-      isExceptional: false,
+      authorIds: project.authors?.map((a) => a.id) ?? [],
+      isExceptional: (project.authors?.length ?? 0) > 3,
       methodology: project.methodology ?? undefined,
     });
     editModal.open();
@@ -451,6 +452,26 @@ export default function ProjectDetailPage() {
       </Card.Root>
 
       <Card.Root variant="secondary" className="border border-border">
+        <Card.Content className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileCheck2 size={16} className="text-secondary" />
+              <h3 className="text-base font-semibold text-foreground">Correcciones del TOMO</h3>
+            </div>
+            <Link
+              to={`/proyectos/${project.id}/correcciones`}
+              className="text-sm text-primary hover:underline font-medium"
+            >
+              Ver y gestionar correcciones
+            </Link>
+          </div>
+          <p className="text-xs text-muted mt-2">
+            Registra y da seguimiento a las correcciones solicitadas sobre los archivos TOMO del proyecto.
+          </p>
+        </Card.Content>
+      </Card.Root>
+
+      <Card.Root variant="secondary" className="border border-border">
         <Card.Content className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -515,8 +536,8 @@ export default function ProjectDetailPage() {
     <Modal.Root state={editModal}>
       <Modal.Backdrop>
         <Modal.Container size="lg">
-          <Modal.Dialog className="sm:max-w-[540px] max-h-[85vh] overflow-hidden">
-            <Modal.Header>
+          <Modal.Dialog className="sm:max-w-[620px] max-h-[85vh] flex flex-col overflow-hidden">
+            <Modal.Header className="shrink-0">
               <Modal.Icon className="bg-primary/10 text-primary">
                 <Pencil className="size-5" />
               </Modal.Icon>
@@ -524,15 +545,15 @@ export default function ProjectDetailPage() {
               <Modal.CloseTrigger />
             </Modal.Header>
             <form onSubmit={editHandleSubmit(onEdit)} className="flex flex-col min-h-0 flex-1 overflow-hidden">
-              <Modal.Body className="space-y-4 p-3">
+              <Modal.Body className="space-y-4 p-5 flex-1 overflow-y-auto">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-title" className="text-sm">Título</label>
+                  <FieldLabel label="Título" help="Título descriptivo del proyecto. Mínimo 3 caracteres" htmlFor="edit-title" className="text-sm" />
                   <Input id="edit-title" {...editRegister('title')} />
                   {editErrors.title && <p className="text-danger text-xs">{editErrors.title.message}</p>}
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-year" className="text-sm">Año</label>
+                  <FieldLabel label="Año" help="Año de realización del proyecto. Ej: 2024" htmlFor="edit-year" className="text-sm" />
                   <NumberField
                     aria-label="Año del proyecto"
                     value={editWatch('year')}
@@ -544,7 +565,7 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-pnf" className="text-sm">PNF</label>
+                  <FieldLabel label="PNF" help="Programa Nacional de Formación del proyecto" htmlFor="edit-pnf" className="text-sm" />
                   <Select
                     aria-label="Seleccionar PNF"
                     selectedKey={editWatch('pnfId') || null}
@@ -570,7 +591,7 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-methodology" className="text-sm">Metodología</label>
+                  <FieldLabel label="Metodología" help="Metodología de desarrollo aplicada" htmlFor="edit-methodology" className="text-sm" />
                   <Select
                     aria-label="Seleccionar metodología"
                     selectedKey={editWatch('methodology') || null}
@@ -605,7 +626,7 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm">Autores (máx. {maxEditAuthors})</label>
+                  <FieldLabel label={`Autores (máx. ${maxEditAuthors})`} help="Estudiantes autores del proyecto. Entre 2 y 5" className="text-sm" />
                   {isAdmin(user?.role) && (
                     <div className="flex items-center gap-2 my-1">
                       <Switch
@@ -667,7 +688,7 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="edit-tutor" className="text-sm">Tutor</label>
+                  <FieldLabel label="Tutor" help="Docente tutor que guía el proyecto" htmlFor="edit-tutor" className="text-sm" />
                   <ComboBox
                     selectedKey={editWatch('tutorId') || null}
                     onSelectionChange={(key) => editSetValue('tutorId', key as string, { shouldValidate: true })}
@@ -698,7 +719,7 @@ export default function ProjectDetailPage() {
                 </div>
 
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={editModal.close} autoFocus>
                   Cancelar
                 </Button>
@@ -720,8 +741,8 @@ export default function ProjectDetailPage() {
     <Modal.Root state={ctEditModalState}>
       <Modal.Backdrop>
         <Modal.Container size="sm">
-          <Modal.Dialog className="sm:max-w-[480px] max-h-[85vh] overflow-hidden">
-            <Modal.Header>
+          <Modal.Dialog className="sm:max-w-[560px] max-h-[85vh] flex flex-col overflow-hidden">
+            <Modal.Header className="shrink-0">
               <Modal.Icon className="bg-secondary/10 text-secondary">
                 <Building className="size-5" />
               </Modal.Icon>
@@ -731,18 +752,18 @@ export default function ProjectDetailPage() {
               <Modal.CloseTrigger />
             </Modal.Header>
             <form onSubmit={ctHandleSubmit(onCtEdit)} className="flex flex-col min-h-0 flex-1 overflow-hidden">
-              <Modal.Body className="space-y-4 p-3">
+              <Modal.Body className="space-y-4 p-5 flex-1 overflow-y-auto">
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-edit-name" className="text-sm">Nombre completo</label>
+                  <FieldLabel label="Nombre completo" help="Nombre y apellido del tutor de la comunidad" htmlFor="ct-edit-name" className="text-sm" />
                   <Input id="ct-edit-name" {...ctRegister('fullName')} />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label htmlFor="ct-edit-dni" className="text-sm">Cédula de identidad</label>
+                    <FieldLabel label="Cédula de identidad" help="Cédula del tutor. Ej: 12.345.678" htmlFor="ct-edit-dni" className="text-sm" />
                     <Input id="ct-edit-dni" {...ctRegister('dni')} />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label htmlFor="ct-edit-phone" className="text-sm">Teléfono</label>
+                    <FieldLabel label="Teléfono" help="Teléfono de contacto. Ej: 0412-1234567" htmlFor="ct-edit-phone" className="text-sm" />
                     <PhoneInputField
                       value={ctWatch('phone')}
                       onChange={(val) => ctSetValue('phone', val ?? '')}
@@ -750,25 +771,25 @@ export default function ProjectDetailPage() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-edit-email" className="text-sm">Correo electrónico</label>
+                  <FieldLabel label="Correo electrónico" help="Correo electrónico del tutor comunitario" htmlFor="ct-edit-email" className="text-sm" />
                   <Input id="ct-edit-email" {...ctRegister('email')} />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label htmlFor="ct-edit-org" className="text-sm">Organización</label>
+                    <FieldLabel label="Organización" help="Consejo comunal u organización que representa" htmlFor="ct-edit-org" className="text-sm" />
                     <Input id="ct-edit-org" {...ctRegister('organization')} />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label htmlFor="ct-edit-position" className="text-sm">Cargo</label>
+                    <FieldLabel label="Cargo" help="Rol dentro de la comunidad. Ej: Vocero" htmlFor="ct-edit-position" className="text-sm" />
                     <Input id="ct-edit-position" {...ctRegister('position')} />
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="ct-edit-notes" className="text-sm">Notas</label>
+                  <FieldLabel label="Notas" help="Información adicional" htmlFor="ct-edit-notes" className="text-sm" />
                   <Input id="ct-edit-notes" {...ctRegister('notes')} />
                 </div>
               </Modal.Body>
-              <Modal.Footer>
+              <Modal.Footer className="shrink-0">
                 <Button className="w-full" variant="secondary" onPress={ctEditModalState.close} autoFocus>
                   Cancelar
                 </Button>
@@ -790,20 +811,20 @@ export default function ProjectDetailPage() {
     <Modal.Root state={deleteModal}>
       <Modal.Backdrop>
         <Modal.Container size="sm">
-          <Modal.Dialog className="sm:max-w-[360px] max-h-[85vh] overflow-hidden">
-            <Modal.Header>
+          <Modal.Dialog className="sm:max-w-[420px] max-h-[85vh] flex flex-col overflow-hidden">
+            <Modal.Header className="shrink-0">
               <Modal.Icon className="bg-danger/10 text-danger">
                 <Trash2 className="size-5" />
               </Modal.Icon>
               <Modal.Heading>Eliminar Proyecto</Modal.Heading>
               <Modal.CloseTrigger />
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className="p-5 flex-1 overflow-y-auto">
               <p className="text-sm text-muted">
                 ¿Está seguro de eliminar <strong>{project?.title}</strong>? Esta acción no se puede deshacer.
               </p>
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className="shrink-0">
               <Button className="w-full" variant="secondary" onPress={deleteModal.close} autoFocus>Cancelar</Button>
               <Button className="w-full" variant="danger" isDisabled={deleteMutation.isPending} onPress={() => deleteMutation.mutate()}>
                 {deleteMutation.isPending ? <Spinner size="sm" /> : 'Eliminar'}

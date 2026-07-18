@@ -101,22 +101,29 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto mt-8">
       <Card.Root variant="secondary" className="border border-border">
-        <div className="h-32 bg-gradient-to-br from-primary/35 via-accent/25 to-primary/5 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,oklch(62.04%_0.195_253.83/0.08)_0%,transparent_60%)]" />
+        <div className="h-32 relative overflow-hidden rounded-t-xl" style={{ backgroundImage: 'var(--gradient-brand)' }}>
+          <div
+            className="absolute inset-0 opacity-[0.14]"
+            style={{
+              backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+              backgroundSize: '24px 24px',
+            }}
+          />
+          <div className="absolute -top-16 -right-10 w-52 h-52 rounded-full bg-white/10 blur-2xl animate-float-1" />
         </div>
 
         <Card.Content className="px-6 pb-6">
-          <div className="-mt-14 mb-4 flex items-end justify-between">
+          <div className="relative z-10 -mt-14 mb-4 flex items-end justify-between">
             <Avatar size="lg" color="accent" className="ring-4 ring-background shadow-lg">
               <Avatar.Fallback className="text-lg">{initials}</Avatar.Fallback>
             </Avatar>
             <div className="flex items-center gap-2">
               {user.isActive ? (
-                <Chip color="success" variant="soft" size="sm">Activo</Chip>
+                <Chip color="success" variant="solid" size="sm">Activo</Chip>
               ) : (
-                <Chip color="danger" variant="soft" size="sm">Inactivo</Chip>
+                <Chip color="danger" variant="solid" size="sm">Inactivo</Chip>
               )}
-              <Chip color={role.color} variant="soft" size="sm">
+              <Chip color={role.color} variant="solid" size="sm">
                 {role.label}
               </Chip>
             </div>
@@ -187,13 +194,17 @@ export default function ProfilePage() {
             <>
               <div className="relative">
                 <div className="absolute -left-4 top-0 bottom-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/40" />
-                <h1 className="text-2xl font-bold text-foreground pl-3">
+                <h1 className="font-display text-2xl font-bold tracking-tight text-foreground pl-3">
                   {user.firstName} {user.lastName}
                 </h1>
+                <p className="pl-3 mt-0.5 text-sm text-muted flex items-center gap-1.5">
+                  <Mail size={13} className="shrink-0" />
+                  {user.email}
+                </p>
               </div>
 
               <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border transition-all hover:border-primary/30 hover:shadow-1">
                   <div className="p-2 rounded-lg bg-primary/10 text-primary"><Mail size={16} /></div>
                   <div className="min-w-0">
                     <p className="text-xs text-muted uppercase tracking-wider">Email</p>
@@ -201,7 +212,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border transition-all hover:border-primary/30 hover:shadow-1">
                   <div className="p-2 rounded-lg bg-accent/10 text-accent"><Shield size={16} /></div>
                   <div>
                     <p className="text-xs text-muted uppercase tracking-wider">Rol</p>
@@ -209,7 +220,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border transition-all hover:border-primary/30 hover:shadow-1">
                   <div className="p-2 rounded-lg bg-warning/10 text-warning"><IdCard size={16} /></div>
                   <div>
                     <p className="text-xs text-muted uppercase tracking-wider">DNI</p>
@@ -217,7 +228,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border transition-all hover:border-primary/30 hover:shadow-1">
                   <div className="p-2 rounded-lg bg-success/10 text-success"><CheckCircle2 size={16} /></div>
                   <div>
                     <p className="text-xs text-muted uppercase tracking-wider">Estado</p>
@@ -225,7 +236,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border transition-all hover:border-primary/30 hover:shadow-1">
                   <div className="p-2 rounded-lg bg-accent/10 text-accent"><Phone size={16} /></div>
                   <div className="min-w-0">
                     <p className="text-xs text-muted uppercase tracking-wider">Teléfono</p>
@@ -233,7 +244,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border transition-all hover:border-primary/30 hover:shadow-1">
                   <div className="p-2 rounded-lg bg-secondary/10 text-secondary"><GraduationCap size={16} /></div>
                   <div className="min-w-0">
                     <p className="text-xs text-muted uppercase tracking-wider">PNF</p>
@@ -241,7 +252,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border transition-all hover:border-primary/30 hover:shadow-1">
                   <div className="p-2 rounded-lg bg-accent/10 text-accent"><Building size={16} /></div>
                   <div className="min-w-0">
                     <p className="text-xs text-muted uppercase tracking-wider">Institución</p>

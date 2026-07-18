@@ -67,6 +67,9 @@ export class ProjectModel extends Model<
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   declare cdSubmitted: boolean;
 
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
+
   @HasMany(() => ProjectFileModel)
   declare files?: ProjectFileModel[];
 

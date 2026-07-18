@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsEmail,
   IsArray,
   MinLength,
   ValidateNested,
@@ -12,10 +11,10 @@ import { ApiProperty } from '@nestjs/swagger';
 export class ForgotPasswordInitDto {
   @ApiProperty({
     example: 'usuario@sgp.com',
-    description: 'Email del usuario',
+    description: 'Email o DNI del usuario',
   })
-  @IsEmail()
-  email!: string;
+  @IsString()
+  identifier!: string;
 }
 
 export class ForgotPasswordAnswerDto {
@@ -35,10 +34,11 @@ export class ForgotPasswordAnswerDto {
 
 export class ForgotPasswordVerifyDto {
   @ApiProperty({
-    description: 'Token obtenido del paso init',
+    example: 'usuario@sgp.com',
+    description: 'Email o DNI del usuario',
   })
   @IsString()
-  resetToken!: string;
+  identifier!: string;
 
   @ApiProperty({
     type: [ForgotPasswordAnswerDto],
@@ -52,10 +52,11 @@ export class ForgotPasswordVerifyDto {
 
 export class ForgotPasswordResetDto {
   @ApiProperty({
-    description: 'Token obtenido del paso verify',
+    description:
+      'Token de restablecimiento (PASSWORD_RESET) obtenido en verify',
   })
   @IsString()
-  verificationToken!: string;
+  resetToken!: string;
 
   @ApiProperty({
     example: 'newSecurePass456',

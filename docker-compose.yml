@@ -54,9 +54,12 @@ services:
         volumes:
             - ./backend:/app
             - ./docs/dbml:/app/docs-dbml:ro # DBML del root para validación (loop-check.sh / P3)
+            - ./LOOP.md:/app/loop-root/LOOP.md:ro # Memoria durable del loop (LoopService)
+            - ./.loop_state.json:/app/loop-root/.loop_state.json:ro # Estado durable del loop (LoopService)
             - /app/node_modules # Protege la instalación limpia de la imagen
         environment:
             - NODE_ENV=development
+            - LOOP_ROOT=/app/loop-root
             - DB_HOST=sgp_mysql
             - DB_PORT=3306
             - DB_USER=root
@@ -110,7 +113,7 @@ services:
             timeout: 5s
             retries: 5
         # El script init.sql inicializa limpiamente ambas bases de datos al vuelo sin romper el ciclo de vida de MySQL
-        command: --init-file="/tmp/init.sql"
+        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --skip-character-set-client-handshake --init-file="/tmp/init.sql"
         entrypoint:
             - /bin/bash
             - -c
