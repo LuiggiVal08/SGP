@@ -21,7 +21,7 @@ import { extname, join } from 'path';
 import { randomUUID } from 'crypto';
 import { existsSync, mkdirSync } from 'fs';
 import { Request } from 'express';
-import { JwtAuthGuard } from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
+import { JwtAuthGuard, RequestWithUser } from '@modules/auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '@modules/auth/infrastructure/http/guards/roles.decorator';
 import { CreateProjectUseCase } from '../../../application/use-cases/create-project.use-case';
@@ -98,7 +98,7 @@ export class ProjectController {
 
   @Get()
   async findAll(
-    @Req() req: Request,
+    @Req() req: RequestWithUser,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
@@ -125,7 +125,7 @@ export class ProjectController {
   }
 
   @Get(':id')
-  async findOne(@Req() req: Request, @Param('id') id: string) {
+  async findOne(@Req() req: RequestWithUser, @Param('id') id: string) {
     const user = req.user as { sub: string; role: string };
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const project = await this.getProjectByIdUseCase.execute(id);
