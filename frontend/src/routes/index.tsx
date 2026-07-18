@@ -30,6 +30,8 @@ const RegisterProfessorPage = lazy(() => import('@/features/admin/views/Register
 const HelpPage = lazy(() => import('@/features/help/views/HelpPage'));
 const ActivityLogPage = lazy(() => import('@/features/activity-log/views/ActivityLogPage'));
 const LoopDashboardPage = lazy(() => import('@/features/loop-dashboard/views/LoopDashboardPage'));
+const NotificationsPage = lazy(() => import('@/features/notifications/views/NotificationsPage'));
+const CertificatesPage = lazy(() => import('@/features/certificates/views/CertificatesPage'));
 
 export const router = createBrowserRouter([
   {
@@ -166,6 +168,15 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP']}>
             {suspense(<LoopDashboardPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      { path: 'notificaciones', element: suspense(<NotificationsPage />) },
+      {
+        path: 'certificados',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'IRCOP', 'DOCENTE']}>
+            {suspense(<CertificatesPage />)}
           </ProtectedRoute>
         ),
       },
