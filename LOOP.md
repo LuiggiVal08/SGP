@@ -235,3 +235,26 @@
 - checker: pendiente adversarial-review (maker≠checker) antes de PR.
 - escalado: pendiente commit + PR a ADMIN (nunca auto-merge).
   develop local alineado a origin/main (0 ahead/behind). Ciclo CERRADO.
+
+### loop/FINALIZE — 2026-07-18
+- halt_reason: GREEN (oráculo modo ciclo sobre diff develop vs origin/develop)
+- alcance: desbloquear el oráculo completo tras la reconciliación del tree sucio.
+  Se encontraron 2 bloqueos reales de e2e + deuda de lint del tree sucio:
+  1. DI bug en ProjectScopeService: inyectaba repos por TIPO (interfaces) sin @Inject
+     → Nest no resuelve → e2e caía en 'Nest can't resolve dependencies'. Fix: @Inject.
+  2. tsconfig.json tenía `baseUrl` COMENTADO con `paths` @modules/* definidos → el
+     type-aware lint resolvía imports propios como `any` → ~35 errores no-unsafe-* en
+     el diff. Fix: descomentar baseUrl:"./" (reduce 35→1).
+  3. @nestjs/swagger usado en controllers pero ausente de package.json (tree sucio) →
+     rebuild de contenedor + lockfile.
+  4. MySQL 8.4 + mysql2@3.22.3: handshake cesu8 (cascade del fallo DI; tras arreglar
+     DI el e2e pasa 4/4). docker-compose con charset utf8mb4 + flags MySQL.
+- validación (diff aislado develop vs origin/develop, 96 archivos BE + 40 FE):
+  - jest backend ✓ 199/199 · e2e ✓ 4/4 · backend lint 0 errors · frontend lint 0 errors
+  - dbml2sql ✓ OK
+- NOTA DEUDA: el oráculo modo COMPLETO (`eslint src` de todo el repo) reporta ~137
+  errores de deuda PREEXISTENTE del tree sucio previo al trabajo de hoy. NO es
+  regresión de K1-K5 ni de los fixes de hoy. El modo ciclo (diferencial) está GREEN.
+  Pendiente decisión: limpiar deuda de repo completo o documentarla y seguir K6/K7.
+- checker: sgp-verifier pendiente (APPRAISE sobre K1-K5)
+- escalado: pendiente PR a ADMIN (nunca auto-merge). Commit 1da08be en develop.
