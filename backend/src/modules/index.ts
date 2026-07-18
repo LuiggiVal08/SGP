@@ -1,5 +1,6 @@
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
 import { InstitutionsModule } from './institutions/institutions.module';
 import { PnfModule } from './pnf/pnf.module';
 import { ProjectsModule } from './projects/projects.module';
@@ -28,6 +29,7 @@ import { ProjectAcademicTutorsModule } from './project-academic-tutors/project-a
 const modules = [
   UsersModule,
   RolesModule,
+  PermissionsModule,
   InstitutionsModule,
   PnfModule,
   PeriodsModule,

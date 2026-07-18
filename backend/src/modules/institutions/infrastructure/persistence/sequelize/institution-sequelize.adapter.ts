@@ -27,6 +27,13 @@ export class InstitutionSequelizeAdapter implements IInstitutionRepository {
     return this.toDomain(inst);
   }
 
+  async findByCoordinatorId(professorId: string): Promise<Institution | null> {
+    const inst = await this.institutionModel.findOne({
+      where: { coordinatorId: professorId },
+    });
+    return this.toDomain(inst);
+  }
+
   async findAll(): Promise<Institution[]> {
     const insts = await this.institutionModel.findAll();
     return insts.map(

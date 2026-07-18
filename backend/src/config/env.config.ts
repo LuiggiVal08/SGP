@@ -13,6 +13,7 @@ export const envValidationSchema = z.object({
   REDIS_PORT: z.coerce.number().default(6379),
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('1h'),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 });
 
 export type EnvVars = z.infer<typeof envValidationSchema>;
