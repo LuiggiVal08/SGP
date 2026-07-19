@@ -11,6 +11,6 @@ export class GetUserNotificationsUseCase {
 
   execute(userId: string, dto: PaginationDto) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return
-    return this.notificationRepository.findByUser(userId, dto);
+    return this.notificationRepository.findByUserId(userId, dto);
   }
 }

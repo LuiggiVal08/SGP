@@ -1,7 +1,5 @@
 export type JudgeType =
-  | 'SUBJECT_PROFESSOR'
-  | 'ACADEMIC_TUTOR'
-  | 'COMMUNITY_TUTOR';
+  'SUBJECT_PROFESSOR' | 'ACADEMIC_TUTOR' | 'COMMUNITY_TUTOR';
 
 export class DefenseJudge {
   constructor(

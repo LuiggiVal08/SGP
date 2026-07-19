@@ -56,7 +56,6 @@ services:
             - ./docs/dbml:/app/docs-dbml:ro # DBML del root para validación (loop-check.sh / P3)
             - ./LOOP.md:/app/loop-root/LOOP.md:ro # Memoria durable del loop (LoopService)
             - ./.loop_state.json:/app/loop-root/.loop_state.json:ro # Estado durable del loop (LoopService)
-            - /app/node_modules # Protege la instalación limpia de la imagen
         environment:
             - NODE_ENV=development
             - LOOP_ROOT=/app/loop-root
@@ -90,10 +89,10 @@ services:
             sgp_minio:
                 condition: service_started
         healthcheck:
-            test: ['CMD', 'curl', '-f', 'http://localhost:3000/']
+            test: ['CMD', 'node', '-e', "require('http').get('http://localhost:3000/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"]
             interval: 10s
             timeout: 5s
-            retries: 3
+            retries: 5
         networks:
             - sgp_network
 

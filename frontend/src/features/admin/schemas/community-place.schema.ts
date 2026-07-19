@@ -13,3 +13,4 @@ export const communityPlaceSchema = z.object({
 });
 
 export type CommunityPlaceFormData = z.infer<typeof communityPlaceSchema>;
+export type CommunityPlaceFormInput = z.input<typeof communityPlaceSchema>;

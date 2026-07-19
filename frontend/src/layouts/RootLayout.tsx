@@ -171,7 +171,7 @@ export function RootLayout() {
       <PageLoader />
 
       <Drawer state={overlayState}>
-        <Drawer.Trigger className="sr-only" aria-hidden tabIndex={-1} />
+        <Drawer.Trigger className="sr-only" aria-hidden />
         <Drawer.Backdrop
           variant="blur"
           style={{ background: 'none', backdropFilter: 'blur(3px)' }}

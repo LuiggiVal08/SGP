@@ -14,10 +14,7 @@ import { ProjectRevisionModel } from './project-revision.model';
 
 export type MilestoneType = 'ENTREGA_TOMO' | 'REVISION' | 'OTRA';
 export type MilestoneStatus =
-  | 'PENDIENTE'
-  | 'EN_REVISION'
-  | 'APROBADO'
-  | 'RECHAZADO';
+  'PENDIENTE' | 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
 
 interface ProjectMilestoneAttributes {
   id: string;

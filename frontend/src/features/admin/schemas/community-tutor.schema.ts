@@ -10,3 +10,4 @@ export const communityTutorSchema = z.object({
 });
 
 export type CommunityTutorFormData = z.infer<typeof communityTutorSchema>;
+export type CommunityTutorFormInput = z.input<typeof communityTutorSchema>;

@@ -11,7 +11,8 @@ process.env.DB_NAME = process.env.DB_NAME ?? 'sgp_test';
 process.env.DB_SYNCHRONIZE = process.env.DB_SYNCHRONIZE ?? 'false';
 process.env.REDIS_HOST = process.env.REDIS_HOST ?? 'localhost';
 process.env.REDIS_PORT = process.env.REDIS_PORT ?? '6379';
-process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'test-secret-test-secret-test-secret-1234567890';
+process.env.JWT_SECRET =
+  process.env.JWT_SECRET ?? 'test-secret-test-secret-test-secret-1234567890';
 process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? '1h';
 process.env.JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN ?? '7d';
 process.env.PORT = process.env.PORT ?? '3000';
