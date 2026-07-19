@@ -12,7 +12,7 @@ import { sileo } from 'sileo';
 import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { trajectorySchema, type TrajectoryFormData } from '../schemas/trajectory.schema';
+import { trajectorySchema, type TrajectoryFormData, type TrajectoryFormInput } from '../schemas/trajectory.schema';
 import type { Trajectory, Pnf } from '@/shared/types/catalog.types';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { usePnf } from '@/features/catalogs/hooks/usePnf';
@@ -28,13 +28,13 @@ export default function AdminTrajectoriesPage() {
   const [editing, setEditing] = useState<Trajectory | null>(null);
   const [deleting, setDeleting] = useState<Trajectory | null>(null);
 
-  const createForm = useForm<TrajectoryFormData>({
+  const createForm = useForm<TrajectoryFormInput, unknown, TrajectoryFormData>({
     resolver: zodResolver(trajectorySchema),
     mode: 'onChange',
     defaultValues: { pnfId: '', name: '', orderNumber: 1 },
   });
 
-  const editForm = useForm<TrajectoryFormData>({
+  const editForm = useForm<TrajectoryFormInput, unknown, TrajectoryFormData>({
     resolver: zodResolver(trajectorySchema),
     mode: 'onChange',
   });

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { catalogService } from '@/features/catalogs/services/catalog.service';
 import { usePnf } from '@/features/catalogs/hooks/usePnf';
 import { useInstitutions } from '@/features/catalogs/hooks/useInstitutions';
-import { registerStudentSchema, type RegisterStudentFormData } from '@/features/admin/schemas/register-student.schema';
+import { registerStudentSchema, type RegisterStudentFormData, type RegisterStudentFormInput } from '@/features/admin/schemas/register-student.schema';
 import { ArrowLeft } from 'lucide-react';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { formatDni, stripFormatting } from '@/shared/utils/formatters';
@@ -26,7 +26,7 @@ export default function RegisterStudentPage() {
     setValue,
     watch,
     formState: { errors, isValid },
-  } = useForm<RegisterStudentFormData>({
+  } = useForm<RegisterStudentFormInput, unknown, RegisterStudentFormData>({
     resolver: zodResolver(registerStudentSchema),
     mode: 'onChange',
     defaultValues: {

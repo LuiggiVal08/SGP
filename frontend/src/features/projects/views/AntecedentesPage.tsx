@@ -159,7 +159,7 @@ export default function AntecedentesPage() {
                 key={project.id}
                 variant="secondary"
                 className="border border-border/70 hover:border-primary/30 transition-colors cursor-pointer"
-                onPress={() => navigate(`/projects/${project.id}`)}
+                onClick={() => navigate(`/projects/${project.id}`)}
               >
                 <Card.Content className="p-4">
                   <div className="flex items-start justify-between gap-4">

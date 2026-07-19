@@ -12,7 +12,7 @@ import { sileo } from 'sileo';
 import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { institutionSchema, type InstitutionFormData } from '../schemas/institution.schema';
+import { institutionSchema, type InstitutionFormData, type InstitutionFormInput } from '../schemas/institution.schema';
 import type { Institution } from '@/shared/types/catalog.types';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 
@@ -27,13 +27,13 @@ export default function AdminInstitutionsPage() {
   const [editing, setEditing] = useState<Institution | null>(null);
   const [deleting, setDeleting] = useState<Institution | null>(null);
 
-  const createForm = useForm<InstitutionFormData>({
+  const createForm = useForm<InstitutionFormInput, unknown, InstitutionFormData>({
     resolver: zodResolver(institutionSchema),
     mode: 'onChange',
     defaultValues: { name: '', acronym: '', email: '', contactInfo: '' },
   });
 
-  const editForm = useForm<InstitutionFormData>({
+  const editForm = useForm<InstitutionFormInput, unknown, InstitutionFormData>({
     resolver: zodResolver(institutionSchema),
     mode: 'onChange',
   });

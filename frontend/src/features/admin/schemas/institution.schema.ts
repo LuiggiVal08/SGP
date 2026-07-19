@@ -8,3 +8,4 @@ export const institutionSchema = z.object({
 });
 
 export type InstitutionFormData = z.infer<typeof institutionSchema>;
+export type InstitutionFormInput = z.input<typeof institutionSchema>;

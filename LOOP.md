@@ -75,19 +75,26 @@
 - **P2** (D3): validación backend regla profesor-imparte ≠ tutor — incluida en DoD.
 - **P3**: validar DBML con `dbml2sql` en contenedor (oráculo loop-check.sh).
 - **P4** (§14 SRS): RESUELTO — Opción A (admin da de alta) + C (importación CSV de alumnos).
-- **P5** (deuda tree sucio, fuera de K1-K7): build de frontend (`tsc -b`) falla con
-  15 errores TS en 8 archivos: `AdminCommunityPlacesPage`, `AdminCommunityTutorsPage`,
-  `AdminInstitutionsPage`, `AdminTrajectoriesPage`, `RegisterStudentPage`,
-  `profile/ProfilePage`, `projects/AntecedentesPage`, `layouts/RootLayout`.
-  Patrón común: mismatch React Hook Form + Zod (`useForm` espera campos requeridos
-  `string` pero el `z.infer` los infiere opcionales `string | undefined`). No afecta
-  jest/vitest (pasados). Pendiente: alinear tipos de formularios o marcar campos
-  opcionales consistentes. Prioridad baja (no bloquea runtime ni API).
-- **P6** (runtime, RESUELTO 2026-07-18): backend daba 502 en `/api/*` porque el
-  contenedor crashaba — (a) volumen anónimo `/app/node_modules` ocultaba node_modules
-  del host sin ts-node, (b) `ProjectScopeService` inyectaba repos por tipo sin `@Inject`.
-  Fix: healthcheck node en docker-compose + eliminar volumen anónimo + `@Inject` en
-  project-scope.service. Backend healthy, login responde 400 (válido).
+ - **P5** (deuda tree sucio, RESUELTO 2026-07-19): build de frontend (`tsc -b`) fallaba con
+   15 errores TS en 8 archivos por mismatch React Hook Form + Zod v4/resolvers v5
+   (`z.input` opcional vs `z.infer` requerido; `z.coerce` infiere `unknown`).
+   Fix: exportar `z.input` type en cada schema y tipar `useForm<Input, unknown, Output>`;
+   `Chip variant="solid"`→`"soft"` (HeroUI v3); `Card.Root onPress`→`onClick`;
+   `Drawer.Trigger tabIndex` eliminado. Frontend `tsc -b` en 0 errores.
+ - **P6** (runtime, RESUELTO 2026-07-18): backend daba 502 en `/api/*` porque el
+   contenedor crashaba — (a) volumen anónimo `/app/node_modules` ocultaba node_modules
+   del host sin ts-node, (b) `ProjectScopeService` inyectaba repos por tipo sin `@Inject`.
+   Fix: healthcheck node en docker-compose + eliminar volumen anónimo + `@Inject` en
+   project-scope.service. Backend healthy, login responde 400 (válido).
+ - **P7** (runtime, RESUELTO 2026-07-19): `GET /api/notifications/users/me/notifications`
+   daba 404. Causa raíz: controller duplicado — `infrastructure/http/notification.controller.ts`
+   (SINGULAR, rutas viejas `/notifications`, importado por `notifications.module.ts`) vs
+   `infrastructure/http/controllers/notification.controller.ts` (PLURAL, rutas nuevas
+   `users/me/notifications`). El módulo importaba el singular obsoleto. Además faltaban
+   los 5 use-cases como providers y `GetUserNotificationsUseCase` llamaba `findByUser`
+   (la interfaz define `findByUserId`). Fix: borrar el singular, apuntar el módulo al de
+   `controllers/`, registrar los 5 use-cases en providers, renombrar a `findByUserId`.
+   Endpoint ahora responde 401 (guard JWT) en vez de 404.
 
 ## Recibos de ciclos
 

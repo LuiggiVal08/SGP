@@ -15,3 +15,4 @@ export const registerStudentSchema = z.object({
 });
 
 export type RegisterStudentFormData = z.infer<typeof registerStudentSchema>;
+export type RegisterStudentFormInput = z.input<typeof registerStudentSchema>;

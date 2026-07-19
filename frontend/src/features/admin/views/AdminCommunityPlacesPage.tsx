@@ -12,7 +12,7 @@ import { sileo } from 'sileo';
 import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { communityPlaceSchema, type CommunityPlaceFormData } from '../schemas/community-place.schema';
+import { communityPlaceSchema, type CommunityPlaceFormData, type CommunityPlaceFormInput } from '../schemas/community-place.schema';
 import type { CommunityPlace, Institution } from '@/shared/types/catalog.types';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { useInstitutions } from '@/features/catalogs/hooks/useInstitutions';
@@ -29,13 +29,13 @@ export default function AdminCommunityPlacesPage() {
   const [editing, setEditing] = useState<CommunityPlace | null>(null);
   const [deleting, setDeleting] = useState<CommunityPlace | null>(null);
 
-  const createForm = useForm<CommunityPlaceFormData>({
+  const createForm = useForm<CommunityPlaceFormInput, unknown, CommunityPlaceFormData>({
     resolver: zodResolver(communityPlaceSchema),
     mode: 'onChange',
     defaultValues: { institutionId: '', name: '', type: 'COMMUNITY', description: '', address: '', contactPhone: '', contactEmail: '' },
   });
 
-  const editForm = useForm<CommunityPlaceFormData>({
+  const editForm = useForm<CommunityPlaceFormInput, unknown, CommunityPlaceFormData>({
     resolver: zodResolver(communityPlaceSchema),
     mode: 'onChange',
   });

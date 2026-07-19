@@ -12,7 +12,7 @@ import { sileo } from 'sileo';
 import { extractApiError } from '@/shared/utils/extractApiError';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { communityTutorSchema, type CommunityTutorFormData } from '../schemas/community-tutor.schema';
+import { communityTutorSchema, type CommunityTutorFormData, type CommunityTutorFormInput } from '../schemas/community-tutor.schema';
 import type { CommunityTutor, CommunityPlace } from '@/shared/types/catalog.types';
 import { usePageTitle } from '@/shared/hooks/usePageTitle';
 import { useCommunityPlaces } from '@/features/catalogs/hooks/useCommunityPlaces';
@@ -28,13 +28,13 @@ export default function AdminCommunityTutorsPage() {
   const [editing, setEditing] = useState<CommunityTutor | null>(null);
   const [deleting, setDeleting] = useState<CommunityTutor | null>(null);
 
-  const createForm = useForm<CommunityTutorFormData>({
+  const createForm = useForm<CommunityTutorFormInput, unknown, CommunityTutorFormData>({
     resolver: zodResolver(communityTutorSchema),
     mode: 'onChange',
     defaultValues: { locationId: '', fullName: '', dni: '', phone: '', email: '', position: '' },
   });
 
-  const editForm = useForm<CommunityTutorFormData>({
+  const editForm = useForm<CommunityTutorFormInput, unknown, CommunityTutorFormData>({
     resolver: zodResolver(communityTutorSchema),
     mode: 'onChange',
   });

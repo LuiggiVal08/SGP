@@ -119,11 +119,11 @@ export default function ProfilePage() {
             </Avatar>
             <div className="flex items-center gap-2">
               {user.isActive ? (
-                <Chip color="success" variant="solid" size="sm">Activo</Chip>
+                <Chip color="success" variant="soft" size="sm">Activo</Chip>
               ) : (
-                <Chip color="danger" variant="solid" size="sm">Inactivo</Chip>
+                <Chip color="danger" variant="soft" size="sm">Inactivo</Chip>
               )}
-              <Chip color={role.color} variant="solid" size="sm">
+              <Chip color={role.color} variant="soft" size="sm">
                 {role.label}
               </Chip>
             </div>
