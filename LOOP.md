@@ -117,6 +117,7 @@
       Frontend lint solo tenía 16 warnings (`react-hooks/incompatible-library` de React
       Compiler), 0 errores. Oráculo ahora GREEN: BE jest 214/214 · BE e2e 4/4 · BE lint 0
       errors · FE lint 0 errors · FE vitest 14 files · dbml2sql ✓.
+    - **Escalado**: PR #5 `develop → main` MERGEADO por ADMIN. Commit `b090fbf`. Ciclo K9 cerrado.
 
 
 ## Recibos de ciclos
