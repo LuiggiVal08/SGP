@@ -86,15 +86,38 @@
    del host sin ts-node, (b) `ProjectScopeService` inyectaba repos por tipo sin `@Inject`.
    Fix: healthcheck node en docker-compose + eliminar volumen anónimo + `@Inject` en
    project-scope.service. Backend healthy, login responde 400 (válido).
- - **P7** (runtime, RESUELTO 2026-07-19): `GET /api/notifications/users/me/notifications`
-   daba 404. Causa raíz: controller duplicado — `infrastructure/http/notification.controller.ts`
-   (SINGULAR, rutas viejas `/notifications`, importado por `notifications.module.ts`) vs
-   `infrastructure/http/controllers/notification.controller.ts` (PLURAL, rutas nuevas
-   `users/me/notifications`). El módulo importaba el singular obsoleto. Además faltaban
-   los 5 use-cases como providers y `GetUserNotificationsUseCase` llamaba `findByUser`
-   (la interfaz define `findByUserId`). Fix: borrar el singular, apuntar el módulo al de
-   `controllers/`, registrar los 5 use-cases en providers, renombrar a `findByUserId`.
-   Endpoint ahora responde 401 (guard JWT) en vez de 404.
+  - **P7** (runtime, RESUELTO 2026-07-19): `GET /api/notifications/users/me/notifications`
+    daba 404. Causa raíz: controller duplicado — `infrastructure/http/notification.controller.ts`
+    (SINGULAR, rutas viejas `/notifications`, importado por `notifications.module.ts`) vs
+    `infrastructure/http/controllers/notification.controller.ts` (PLURAL, rutas nuevas
+    `users/me/notifications`). El módulo importaba el singular obsoleto. Además faltaban
+    los 5 use-cases como providers y `GetUserNotificationsUseCase` llamaba `findByUser`
+    (la interfaz define `findByUserId`). Fix: borrar el singular, apuntar el módulo al de
+    `controllers/`, registrar los 5 use-cases en providers, renombrar a `findByUserId`.
+    Endpoint ahora responde 401 (guard JWT) en vez de 404.
+  - **P8** (oráculo completo, RESUELTO 2026-07-19): el oráculo `loop-check.sh` (modo
+    completo) fallaba en Rojo por 3 causas independientes, TODAS preexistentes:
+    1. **e2e colgado / `Unable to connect`**: falso síntoma. Causa real = BD `sgp_dev`
+       corrupta — `synchronize:true` repetido acumuló 64 índices UNIQUE en `roles.name`
+       (límite MySQL), y el `sync` siguiente tiraba `ER_TOO_MANY_KEYS`, matando
+       `app.init()`. Fix: `DROP+CREATE DATABASE sgp_dev` (dev) para recrear tablas limpias.
+    2. **Ciclo de modelos bajo jest**: `sequelize-typescript` evalúa las associations por
+       valor en `addModels`; ts-jest transpilea los módulos en orden que deja un modelo
+       `undefined` y `app.init()` se cuelga. El runtime (ts-node) sí resuelve el ciclo.
+       Fix: `backend/test/tsnode-transformer.js` (transformer jest que usa
+       `ts.transpileModule` preservando el orden CommonJS de ts-node) + `jest-e2e.json`
+       apunta a él. `import type` en modelos NO sirve (sequelize-typescript necesita el
+       valor en runtime para las associations → `ReferenceError`).
+    3. **Specs e2e con import incorrecto**: `import * as request from 'supertest'` no es
+       callable (supertest es default export). Fix: `import request from 'supertest'` en
+       `auth.e2e-spec.ts` y `app.e2e-spec.ts`. También `test:e2e` ahora lleva `--forceExit`
+       (sequelize deja el pool abierto y jest no salía → oráculo colgado).
+    - **Deuda lint backend**: `eslint src` reportaba errores `prettier/prettier` de type
+      unions en múltiples archivos (preexistentes). Fix: `prettier --write` sobre `src`.
+      Frontend lint solo tenía 16 warnings (`react-hooks/incompatible-library` de React
+      Compiler), 0 errores. Oráculo ahora GREEN: BE jest 214/214 · BE e2e 4/4 · BE lint 0
+      errors · FE lint 0 errors · FE vitest 14 files · dbml2sql ✓.
+
 
 ## Recibos de ciclos
 
@@ -272,10 +295,10 @@
 - validación (diff aislado develop vs origin/develop, 96 archivos BE + 40 FE):
   - jest backend ✓ 199/199 · e2e ✓ 4/4 · backend lint 0 errors · frontend lint 0 errors
   - dbml2sql ✓ OK
-- NOTA DEUDA: el oráculo modo COMPLETO (`eslint src` de todo el repo) reporta ~137
-  errores de deuda PREEXISTENTE del tree sucio previo al trabajo de hoy. NO es
-  regresión de K1-K5 ni de los fixes de hoy. El modo ciclo (diferencial) está GREEN.
-  Pendiente decisión: limpiar deuda de repo completo o documentarla y seguir K6/K7.
+- NOTA DEUDA (RESUELTA 2026-07-19, ver P8): los ~137 errores de `eslint src` del repo
+   completo eran errores `prettier/prettier` de type unions preexistentes. Tras
+   `prettier --write src` en backend, el oráculo modo COMPLETO ahora está GREEN
+   (BE lint 0 errors · FE lint 0 errors). No queda deuda de lint pendiente.
 - checker: sgp-verifier pendiente (APPRAISE sobre K1-K5)
 - escalado: pendiente PR a ADMIN (nunca auto-merge). Commit 1da08be en develop.
 

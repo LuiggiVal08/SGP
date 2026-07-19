@@ -1,8 +1,5 @@
 export type DefenseStatus =
-  | 'PROGRAMADA'
-  | 'REALIZADA'
-  | 'APLAZADA'
-  | 'CANCELADA';
+  'PROGRAMADA' | 'REALIZADA' | 'APLAZADA' | 'CANCELADA';
 
 export class Defense {
   constructor(

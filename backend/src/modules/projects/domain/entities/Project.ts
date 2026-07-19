@@ -1,16 +1,9 @@
 export type ProjectStatus =
-  | 'BORRADOR'
-  | 'EN_PROCESO'
-  | 'ENTREGADO'
-  | 'APROBADO'
-  | 'RECHAZADO';
+  'BORRADOR' | 'EN_PROCESO' | 'ENTREGADO' | 'APROBADO' | 'RECHAZADO';
 
 export type MilestoneType = 'ENTREGA_TOMO' | 'REVISION' | 'OTRA';
 export type MilestoneStatus =
-  | 'PENDIENTE'
-  | 'EN_REVISION'
-  | 'APROBADO'
-  | 'RECHAZADO';
+  'PENDIENTE' | 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
 
 export class Project {
   constructor(

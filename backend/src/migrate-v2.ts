@@ -158,8 +158,7 @@ class UserModel extends Model<UserAttributes, UserCreationAttributes> {
   @Column({ type: DataType.BOOLEAN, defaultValue: true })
   declare isActive: boolean;
   @Column({ type: DataType.STRING(20), allowNull: true }) declare phone:
-    | string
-    | undefined;
+    string | undefined;
   @ForeignKey(() => PnfModel)
   @Column({ type: DataType.UUID, allowNull: false })
   declare pnfId: string;
@@ -204,13 +203,11 @@ class ProjectMilestoneModel extends Model<
   @Column({ type: DataType.STRING(20), allowNull: false })
   declare type: MilestoneType;
   @Column({ type: DataType.INTEGER, allowNull: true }) declare trimestre:
-    | number
-    | null;
+    number | null;
   @Column({ type: DataType.STRING(20), defaultValue: 'PENDING' })
   declare status: MilestoneStatus;
   @Column({ type: DataType.UUID, allowNull: true }) declare approvedBy:
-    | string
-    | null;
+    string | null;
   @Column({ type: DataType.DATE, allowNull: true })
   declare approvedAt: Date | null;
 }
